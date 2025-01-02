@@ -19,7 +19,7 @@ public class UserRepositoryTest {
 
     @Test
     public void saveAndFindTest() {
-        User user = new User(null, "John Snow");
+        User user = new User("John Snow");
         User savedUser = repository.save(user);
         assertNotNull(savedUser.getId());
 

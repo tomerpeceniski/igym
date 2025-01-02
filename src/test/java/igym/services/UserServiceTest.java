@@ -23,8 +23,8 @@ public class UserServiceTest {
 
     @Test
     public void findAllTest() {
-        User u1 = new User(null, "John Snow");
-        User u2 = new User(null, "Maria Carl");
+        User u1 = new User("John Snow");
+        User u2 = new User("Maria Carl");
 
         List<User> listUsers = repository.saveAll(Arrays.asList(u1, u2));
 
