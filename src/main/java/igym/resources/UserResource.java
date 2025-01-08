@@ -2,7 +2,7 @@ package igym.resources;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import igym.entities.User;
+import igym.entities.UserEntity;
 import igym.services.UserService;
 
 import java.util.List;
@@ -22,10 +22,9 @@ public class UserResource {
     private UserService service;
 
     @GetMapping
-    public ResponseEntity<List<User>> findAll() {
-        List<User> list = service.findAll();
+    public ResponseEntity<List<UserEntity>> findAll() {
+        List<UserEntity> list = service.findAll();
         return ResponseEntity.ok().body(list);
-
     }
     
 }

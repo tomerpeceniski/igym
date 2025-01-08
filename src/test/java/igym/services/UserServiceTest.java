@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import igym.entities.User;
+import igym.entities.UserEntity;
 import igym.repositories.UserRepository;
 
 @SpringBootTest
@@ -23,10 +23,10 @@ public class UserServiceTest {
 
     @Test
     public void findAllTest() {
-        User u1 = new User("John Snow");
-        User u2 = new User("Maria Carl");
+        UserEntity u1 = new UserEntity("John Snow");
+        UserEntity u2 = new UserEntity("Maria Carl");
 
-        List<User> listUsers = repository.saveAll(Arrays.asList(u1, u2));
+        List<UserEntity> listUsers = repository.saveAll(Arrays.asList(u1, u2));
 
         assertTrue(service.findAll().containsAll(listUsers));
     }

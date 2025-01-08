@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import igym.entities.User;
+import igym.entities.UserEntity;
 
 @SpringBootTest
 public class UserRepositoryTest {
@@ -19,12 +19,12 @@ public class UserRepositoryTest {
 
     @Test
     public void saveAndFindTest() {
-        User user = new User("John Snow");
-        User savedUser = repository.save(user);
+        UserEntity user = new UserEntity("John Snow");
+        UserEntity savedUser = repository.save(user);
         assertNotNull(savedUser.getId());
 
-        Optional<User> optional = repository.findById(savedUser.getId());
-        User findedUser = optional.get();
+        Optional<UserEntity> optional = repository.findById(savedUser.getId());
+        UserEntity findedUser = optional.get();
         assertEquals(findedUser, savedUser);
     }
 }

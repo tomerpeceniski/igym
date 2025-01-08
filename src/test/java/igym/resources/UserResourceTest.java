@@ -10,7 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import igym.entities.User;
+import igym.entities.UserEntity;
 import igym.services.UserService;
 
 @SpringBootTest
@@ -24,9 +24,9 @@ public class UserResourceTest {
 
     @Test
     public void findAllTest() {
-        List<User> listUsers = service.findAll();
+        List<UserEntity> listUsers = service.findAll();
 
-        ResponseEntity<List<User>> response = resource.findAll();
+        ResponseEntity<List<UserEntity>> response = resource.findAll();
         assertEquals(listUsers, response.getBody());
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }

@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 
-import igym.entities.User;
+import igym.entities.UserEntity;
 import igym.repositories.UserRepository;
 
 @Configuration
@@ -17,8 +17,8 @@ public class TestConfiguration implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        User user1 = new User("Maria Brown");
-        User user2 = new User("John Snow");
+        UserEntity user1 = new UserEntity("Maria Brown");
+        UserEntity user2 = new UserEntity("John Snow");
 
         userRepository.saveAll(Arrays.asList(user1, user2));
     }
