@@ -17,11 +17,12 @@ import java.util.List;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@WebMvcTest(FindAll.class)  
+@WebMvcTest(GymController.class)  
 @ExtendWith(MockitoExtension.class)
-public class FindAllTest {
+public class GymControllerTest {
 
     @Autowired
     private MockMvc mockMvc;  
@@ -31,7 +32,7 @@ public class FindAllTest {
     private GymService gymService;  
 
     @InjectMocks
-    private FindAll findAllController;  
+    private GymController gymController;  
 
     @Test
     void testFindAllGymsSuccess() throws Exception {
@@ -45,7 +46,7 @@ public class FindAllTest {
         mockMvc.perform(get("/api/gyms"))
                 .andExpect(status().isOk()) 
                 .andExpect(jsonPath("$[0].name").value("Location 1"))  
-                .andExpect(jsonPath("$[1].name").value("Location 2"));
+                .andExpect(jsonPath("$[1].name").value("Location 2")).andDo(MockMvcResultHandlers.print());
     }
 
     @Test
@@ -56,7 +57,7 @@ public class FindAllTest {
         when(gymService.findAllGyms()).thenReturn(gyms); 
 
         mockMvc.perform(get("/api/gyms"))
-                .andExpect(status().isNoContent()); 
+                .andExpect(status().isNoContent()).andDo(MockMvcResultHandlers.print()); 
     }
 
     @Test
@@ -65,6 +66,6 @@ public class FindAllTest {
         when(gymService.findAllGyms()).thenThrow(new RuntimeException("Database error"));
 
         mockMvc.perform(get("/api/gyms"))
-                .andExpect(status().isInternalServerError()); 
+                .andExpect(status().isInternalServerError()).andDo(MockMvcResultHandlers.print()); 
     }
 }

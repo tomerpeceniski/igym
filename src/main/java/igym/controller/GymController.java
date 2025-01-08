@@ -11,24 +11,22 @@ import org.springframework.web.bind.annotation.RestController;
 import igym.entities.*;
 import igym.services.GymService;
 
-@RequestMapping(value = "api/gyms")
+@RequestMapping(value = "/api")
 @RestController
-public class FindAll {
+public class GymController {
 
     @Autowired
     private GymService service;
 
-    @GetMapping(produces = "application/json")
+    @GetMapping(value = "/gyms", produces = "application/json")
     public ResponseEntity<List<Gym>> findAllGyms() {
-        try {
-            List<Gym> gyms = service.findAllGyms();
-            if (gyms.isEmpty()) {
-                return ResponseEntity.noContent().build();
-            }
-            return ResponseEntity.ok(gyms);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+        List<Gym> gyms = service.findAllGyms();
+
+        if (gyms.isEmpty()) {
+            throw new ResourceNotFoundException("No gyms found");
         }
+
+        return ResponseEntity.ok(gyms);
     }
 
 }
