@@ -13,9 +13,7 @@ public class User {
     private UUID id;
     private String name;
 
-    public User() {
-
-    }
+    public User() {}
 
     public User(String name) {
         this.name = name;
