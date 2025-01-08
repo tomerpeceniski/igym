@@ -1,4 +1,4 @@
-package igym.resources;
+package igym.controllers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -14,10 +14,10 @@ import igym.entities.UserEntity;
 import igym.services.UserService;
 
 @SpringBootTest
-public class UserResourceTest {
+public class UserControllerTest {
 
     @Autowired
-    UserResource resource;
+    UserController resource;
 
     @Autowired
     UserService service;
