@@ -8,11 +8,13 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import igym.entities.UserEntity;
 import igym.repositories.UserRepository;
 
 @SpringBootTest
+@ActiveProfiles("test")
 public class UserServiceTest {
 
     @Autowired

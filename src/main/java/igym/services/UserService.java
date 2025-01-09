@@ -12,10 +12,10 @@ import igym.repositories.UserRepository;
 public class UserService {
 
     @Autowired
-    private UserRepository rep;
+    private UserRepository repository;
 
     public List<UserEntity> findAll() {
-        return rep.findAll();
+        return repository.findAll();
     }
 
 }
