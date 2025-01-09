@@ -12,7 +12,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-public class FindAllTest {
+public class GymRepositoryTest {
 
     @Autowired
     private GymRepository repository;
@@ -40,4 +40,3 @@ public class FindAllTest {
         assertThat(gyms).isEmpty();
     }
 }
-
