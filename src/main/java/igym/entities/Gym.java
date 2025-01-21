@@ -3,7 +3,7 @@ package igym.entities;
 import java.util.UUID;
 import jakarta.persistence.*;
 
-@Table(name = "gym")
+@Table(name = "gyms")
 @Entity
 public class Gym {
 
