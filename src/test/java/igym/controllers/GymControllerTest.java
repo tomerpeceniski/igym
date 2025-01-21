@@ -1,4 +1,4 @@
-package igym.controller;
+package igym.controllers;
 
 import igym.controllers.GymController;
 import igym.entities.Gym;
