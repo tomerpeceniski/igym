@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import igym.entities.*;
-import igym.exceptions.ResourceNotFoundException;
 import igym.services.GymService;
 
 @RequestMapping(value = "/api")
@@ -22,10 +21,6 @@ public class GymController {
     @GetMapping(value = "/gyms", produces = "application/json")
     public ResponseEntity<List<Gym>> findAllGyms() {
         List<Gym> gyms = service.findAllGyms();
-
-        if (gyms.isEmpty()) {
-            throw new ResourceNotFoundException("No gyms found");
-        }
 
         return ResponseEntity.ok(gyms);
     }
