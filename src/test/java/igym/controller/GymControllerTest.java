@@ -1,5 +1,6 @@
 package igym.controller;
 
+import igym.controllers.GymController;
 import igym.entities.Gym;
 import igym.services.GymService;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package igym.controller;
+package igym.controllers;
 
 import java.util.List;
 
@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import igym.entities.*;
+import igym.exceptions.ResourceNotFoundException;
 import igym.services.GymService;
 
 @RequestMapping(value = "/api")

@@ -1,4 +1,4 @@
-package igym.controller;
+package igym.exceptions;
 
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String message) {
