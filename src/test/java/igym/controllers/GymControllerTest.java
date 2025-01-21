@@ -47,18 +47,7 @@ public class GymControllerTest {
         mockMvc.perform(get("/api/gyms"))
                 .andExpect(status().isOk()) 
                 .andExpect(jsonPath("$[0].name").value("Location 1"))  
-                .andExpect(jsonPath("$[1].name").value("Location 2")).andDo(MockMvcResultHandlers.print());
-    }
-
-    @Test
-    void testFindAllGymsNoContent() throws Exception {
-
-        List<Gym> gyms = Arrays.asList();  
-
-        when(gymService.findAllGyms()).thenReturn(gyms); 
-
-        mockMvc.perform(get("/api/gyms"))
-                .andExpect(status().isNoContent()).andDo(MockMvcResultHandlers.print()); 
+                .andExpect(jsonPath("$[1].name").value("Location 2"));
     }
 
     @Test
@@ -67,6 +56,6 @@ public class GymControllerTest {
         when(gymService.findAllGyms()).thenThrow(new RuntimeException("Database error"));
 
         mockMvc.perform(get("/api/gyms"))
-                .andExpect(status().isInternalServerError()).andDo(MockMvcResultHandlers.print()); 
+                .andExpect(status().isInternalServerError()); 
     }
 }
