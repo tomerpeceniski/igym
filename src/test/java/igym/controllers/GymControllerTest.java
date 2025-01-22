@@ -3,6 +3,8 @@ package igym.controllers;
 import igym.controllers.GymController;
 import igym.entities.Gym;
 import igym.services.GymService;
+
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,6 +38,7 @@ public class GymControllerTest {
     private GymController gymController;  
 
     @Test
+    @DisplayName("should return all the gyms from the service and status 200")
     void testFindAllGymsSuccess() throws Exception {
 
         Gym gym1 = new Gym( "Location 1");
@@ -51,6 +54,7 @@ public class GymControllerTest {
     }
 
     @Test
+    @DisplayName("should return an exception and status 500")
     void testFindAllGymsError() throws Exception {
 
         when(gymService.findAllGyms()).thenThrow(new RuntimeException("Database error"));
