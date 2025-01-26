@@ -13,17 +13,15 @@ public class User {
     private UUID id;
     private String name;
 
-    public User(UUID id, String name) {
-        this.id = id;
+    public User() {
+    }
+
+    public User(String name) {
         this.name = name;
     }
 
     public UUID getId() {
         return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -32,5 +30,15 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        User other = (User) obj;
+        return id != null && id.equals(other.id);
     }
 }
