@@ -42,6 +42,11 @@ To start the application, use the following command:
 mvn spring-boot:run
 ```
 
+To test the application, use the following command:
+```bash
+mvn test
+```
+
 ## Contributing
 We welcome contributions to iGym!
 
