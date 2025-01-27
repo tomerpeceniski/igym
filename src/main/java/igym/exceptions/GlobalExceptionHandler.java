@@ -21,12 +21,6 @@ public class GlobalExceptionHandler {
         return body;
     }
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex) {
-        Map<String, Object> body = buildResponseBody(HttpStatus.NO_CONTENT, ex.getMessage());
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(body);
-    }
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGlobalException(Exception ex) {
         Map<String, Object> body = buildResponseBody(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
