@@ -1,66 +1,65 @@
 package igym.controllers;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import igym.entities.User;
-import igym.repositories.UserRepository;
+import igym.services.UserService;
 
 @SpringBootTest
+@AutoConfigureMockMvc
 @ActiveProfiles("test")
 public class UserControllerTest {
 
     @Autowired
-    UserController resource;
+    private MockMvc mockMvc;
 
-    @Autowired
-    UserRepository repository;
+    @SuppressWarnings("removal")
+    @MockBean
+    private UserService userService;
+    List<User> users = new ArrayList<>();
 
-    @Test
-    @DisplayName("Test finding all Users")
-    public void findAllTest() {
-        repository.deleteAll();        
-        User user1 = new User("Maria Clown");
-        User user2 = new User("Johan Marry");
-        List<User> savedList = repository.saveAll(Arrays.asList(user1, user2));
-
-        ResponseEntity<List<User>> response = resource.findAll();
-        assertEquals(savedList, response.getBody());
+    @BeforeEach
+    public void configurations() {
+        users.add(new User("Maria Clown"));
+        users.add(new User("John Textor"));
     }
 
     @Test
-    @DisplayName("Test finding empty list of Users")
-    public void findEmptyTest() {
-        repository.deleteAll();        
-        ResponseEntity<List<User>> response = resource.findAll();
-        List<User> list = response.getBody();
-        assertTrue(list.isEmpty());
+    @DisplayName("Finding all Users")
+    public void findAllTest() throws Exception {
+        when(userService.findAll()).thenReturn(users);
+
+        mockMvc.perform(get("/users"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value(users.get(0).getName()))
+                .andExpect(jsonPath("$[1].name").value(users.get(1).getName()));
     }
 
     @Test
-    @DisplayName("Testing status of response")
-    public void statusTest() {
-        repository.deleteAll();        
-        User user1 = new User("Maria Clown");
-        User user2 = new User("Johan Marry");
-        repository.saveAll(Arrays.asList(user1, user2));
+    @DisplayName("Finding empty list of Users")
+    public void findEmptyTest() throws Exception {
+        when(userService.findAll()).thenReturn(new ArrayList<User>());
 
-        ResponseEntity<List<User>> response1 = resource.findAll();
-        assertEquals(HttpStatus.OK, response1.getStatusCode());
-
-        repository.deleteAll();
-        ResponseEntity<List<User>> response2 = resource.findAll();
-        assertEquals(HttpStatus.OK, response2.getStatusCode());
+        mockMvc.perform(get("/users"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
     }
 }
