@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import igym.entities.UserEntity;
+import igym.entities.User;
 import igym.repositories.UserRepository;
 
 @SpringBootTest
@@ -27,11 +27,11 @@ public class UserServiceTest {
     @Test
     @DisplayName("Test getting users")
     public void findAllTest() {
-        UserEntity u1 = new UserEntity("John Snow");
-        UserEntity u2 = new UserEntity("Maria Carl");
+        User u1 = new User("John Snow");
+        User u2 = new User("Maria Carl");
 
         repository.deleteAll();
-        List<UserEntity> listUsers = repository.saveAll(Arrays.asList(u1, u2));
+        List<User> listUsers = repository.saveAll(Arrays.asList(u1, u2));
 
         assertEquals(listUsers, service.findAll());
     }
@@ -40,7 +40,7 @@ public class UserServiceTest {
     @DisplayName("Test getting empty list of users")
     public void emptyListTest() {
         repository.deleteAll();
-        List<UserEntity> list = service.findAll();
+        List<User> list = service.findAll();
         assertTrue(list.isEmpty());
     }
 

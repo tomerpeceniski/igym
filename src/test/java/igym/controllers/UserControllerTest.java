@@ -14,7 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
-import igym.entities.UserEntity;
+import igym.entities.User;
 import igym.repositories.UserRepository;
 
 @SpringBootTest
@@ -31,11 +31,11 @@ public class UserControllerTest {
     @DisplayName("Test finding all Users")
     public void findAllTest() {
         repository.deleteAll();        
-        UserEntity user1 = new UserEntity("Maria Clown");
-        UserEntity user2 = new UserEntity("Johan Marry");
-        List<UserEntity> savedList = repository.saveAll(Arrays.asList(user1, user2));
+        User user1 = new User("Maria Clown");
+        User user2 = new User("Johan Marry");
+        List<User> savedList = repository.saveAll(Arrays.asList(user1, user2));
 
-        ResponseEntity<List<UserEntity>> response = resource.findAll();
+        ResponseEntity<List<User>> response = resource.findAll();
         assertEquals(savedList, response.getBody());
     }
 
@@ -43,8 +43,8 @@ public class UserControllerTest {
     @DisplayName("Test finding empty list of Users")
     public void findEmptyTest() {
         repository.deleteAll();        
-        ResponseEntity<List<UserEntity>> response = resource.findAll();
-        List<UserEntity> list = response.getBody();
+        ResponseEntity<List<User>> response = resource.findAll();
+        List<User> list = response.getBody();
         assertTrue(list.isEmpty());
     }
 
@@ -52,15 +52,15 @@ public class UserControllerTest {
     @DisplayName("Testing status of response")
     public void statusTest() {
         repository.deleteAll();        
-        UserEntity user1 = new UserEntity("Maria Clown");
-        UserEntity user2 = new UserEntity("Johan Marry");
+        User user1 = new User("Maria Clown");
+        User user2 = new User("Johan Marry");
         repository.saveAll(Arrays.asList(user1, user2));
 
-        ResponseEntity<List<UserEntity>> response1 = resource.findAll();
+        ResponseEntity<List<User>> response1 = resource.findAll();
         assertEquals(HttpStatus.OK, response1.getStatusCode());
 
         repository.deleteAll();
-        ResponseEntity<List<UserEntity>> response2 = resource.findAll();
+        ResponseEntity<List<User>> response2 = resource.findAll();
         assertEquals(HttpStatus.OK, response2.getStatusCode());
     }
 }

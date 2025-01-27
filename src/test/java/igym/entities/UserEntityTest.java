@@ -11,15 +11,15 @@ public class UserEntityTest {
     @DisplayName("Testing getting user name")
     public void userNameTest() {
         String name1 = "Maria Clown";
-        UserEntity user1 = new UserEntity();
+        User user1 = new User();
         user1.setName(name1);
         assertEquals(user1.getName(), name1);
 
         String name2 = "John Textor";
-        UserEntity user2 = new UserEntity(name2);
+        User user2 = new User(name2);
         assertEquals(user2.getName(), name2);
 
-        UserEntity user3 = new UserEntity();
+        User user3 = new User();
         assertNull(user3.getName());
     }
 
@@ -27,7 +27,7 @@ public class UserEntityTest {
     @DisplayName("Testing ID from UserEntity")
     public void userIdTest() {
         String name1 = "Maria Clown";
-        UserEntity user1 = new UserEntity(name1);
+        User user1 = new User(name1);
         assertNull(user1.getId(), "When a UserEntity is created, the ID should be null");
     }
 
@@ -35,8 +35,8 @@ public class UserEntityTest {
     @DisplayName("Testing comparing objects UserEntity")
     public void userComparationTest() {
         String name1 = "Maria Clown";
-        UserEntity user1 = new UserEntity(name1);
-        UserEntity user2 = new UserEntity(name1);
+        User user1 = new User(name1);
+        User user2 = new User(name1);
         assertFalse(user1.equals(user2));
 
         user2 = user1;

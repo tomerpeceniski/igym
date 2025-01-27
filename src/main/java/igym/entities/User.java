@@ -6,17 +6,17 @@ import jakarta.persistence.*;
 
 @Table(name = "users")
 @Entity
-public class UserEntity {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String name;
 
-    public UserEntity() {
+    public User() {
     }
 
-    public UserEntity(String name) {
+    public User(String name) {
         this.name = name;
     }
 
@@ -38,7 +38,7 @@ public class UserEntity {
             return true;
         if (obj == null || getClass() != obj.getClass())
             return false;
-        UserEntity other = (UserEntity) obj;
+        User other = (User) obj;
         return id != null && id.equals(other.id);
     }
 }

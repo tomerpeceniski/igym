@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import igym.entities.UserEntity;
+import igym.entities.User;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -25,12 +25,12 @@ public class UserRepositoryTest {
     @DisplayName("Testing persisting User in the DB and getting it again by ID")
     public void saveUserTest() {
         String name1 = "John Snow";
-        UserEntity user1 = new UserEntity(name1);
-        UserEntity savedUser = repository.save(user1);
+        User user1 = new User(name1);
+        User savedUser = repository.save(user1);
         assertEquals(user1.getName(), savedUser.getName());
 
-        Optional<UserEntity> optional = repository.findById(savedUser.getId());
-        UserEntity findedUser = optional.get();
+        Optional<User> optional = repository.findById(savedUser.getId());
+        User findedUser = optional.get();
         assertEquals(findedUser, savedUser);
     }
 
@@ -38,14 +38,14 @@ public class UserRepositoryTest {
     @DisplayName("Testing getting empty list of users")
     public void emptyUsersTest() {
         repository.deleteAll();
-        List<UserEntity> list = repository.findAll();
+        List<User> list = repository.findAll();
         assertTrue(list.isEmpty());
     }
 
     @Test
     @DisplayName("Ensuring that persisting creates ID")
     public void idCreationTest() {
-        UserEntity user1 = new UserEntity("Maria clown");
+        User user1 = new User("Maria clown");
         assertNull(user1.getId());
 
         repository.save(user1);
@@ -55,14 +55,14 @@ public class UserRepositoryTest {
     @Test
     @DisplayName("Testing findAll method")
     public void findAllTest() {
-        UserEntity user1 = new UserEntity("Maria Clown");
-        UserEntity user2 = new UserEntity("Jhonny Brave");
+        User user1 = new User("Maria Clown");
+        User user2 = new User("Jhonny Brave");
         
-        List<UserEntity> addList = Arrays.asList(user1, user2);
+        List<User> addList = Arrays.asList(user1, user2);
         repository.deleteAll();
         repository.saveAll(addList);
 
-        List<UserEntity> findList = repository.findAll();
+        List<User> findList = repository.findAll();
         assertTrue(addList.equals(findList));
     }
 }
