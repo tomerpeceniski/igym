@@ -6,7 +6,6 @@ import igym.services.GymService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -30,10 +29,7 @@ public class GymControllerTest {
 
     @SuppressWarnings("removal")
     @MockBean
-    private GymService gymService;  
-
-    @InjectMocks
-    private GymController gymController;  
+    private GymService gymService;    
 
     @Test
     @DisplayName("should return all the gyms from the service and status 200")
