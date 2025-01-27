@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-public class UserEntityTest {
+public class UserTest {
 
     @Test
-    @DisplayName("Testing getting user name")
+    @DisplayName("Getting user name")
     public void userNameTest() {
         String name1 = "Maria Clown";
         User user1 = new User();
@@ -24,15 +24,15 @@ public class UserEntityTest {
     }
 
     @Test
-    @DisplayName("Testing ID from UserEntity")
+    @DisplayName("Testing ID from User")
     public void userIdTest() {
         String name1 = "Maria Clown";
         User user1 = new User(name1);
-        assertNull(user1.getId(), "When a UserEntity is created, the ID should be null");
+        assertNull(user1.getId(), "When a User is created, the ID should be null");
     }
 
     @Test
-    @DisplayName("Testing comparing objects UserEntity")
+    @DisplayName("Comparing objects User")
     public void userComparationTest() {
         String name1 = "Maria Clown";
         User user1 = new User(name1);

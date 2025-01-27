@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,26 +18,30 @@ import igym.entities.User;
 @ActiveProfiles("test")
 public class UserRepositoryTest {
 
-    @Autowired 
+    @Autowired
     UserRepository repository;
+    User[] users;
+
+    @BeforeEach
+    public void configurations() {
+        repository.deleteAll();
+        users = new User [] { new User("Maria Clown"), new User("John Textor") };
+    }
 
     @Test
-    @DisplayName("Testing persisting User in the DB and getting it again by ID")
+    @DisplayName("Persising user and returning it")
     public void saveUserTest() {
-        String name1 = "John Snow";
-        User user1 = new User(name1);
-        User savedUser = repository.save(user1);
-        assertEquals(user1.getName(), savedUser.getName());
+        User savedUser = repository.save(users[0]);
+        assertEquals(users[0].getName(), savedUser.getName());
 
-        Optional<User> optional = repository.findById(savedUser.getId());
-        User findedUser = optional.get();
+        List<User> listUsers = repository.findAll();
+        User findedUser = listUsers.get(0);
         assertEquals(findedUser, savedUser);
     }
 
     @Test
-    @DisplayName("Testing getting empty list of users")
+    @DisplayName("Getting empty list of users")
     public void emptyUsersTest() {
-        repository.deleteAll();
         List<User> list = repository.findAll();
         assertTrue(list.isEmpty());
     }
@@ -45,21 +49,16 @@ public class UserRepositoryTest {
     @Test
     @DisplayName("Ensuring that persisting creates ID")
     public void idCreationTest() {
-        User user1 = new User("Maria clown");
-        assertNull(user1.getId());
+        assertNull(users[0].getId());
 
-        repository.save(user1);
-        assertNotNull(user1.getId());
+        repository.save(users[0]);
+        assertNotNull(users[0].getId());
     }
 
     @Test
-    @DisplayName("Testing findAll method")
+    @DisplayName("findAll method")
     public void findAllTest() {
-        User user1 = new User("Maria Clown");
-        User user2 = new User("Jhonny Brave");
-        
-        List<User> addList = Arrays.asList(user1, user2);
-        repository.deleteAll();
+        List<User> addList = Arrays.asList(users);
         repository.saveAll(addList);
 
         List<User> findList = repository.findAll();
