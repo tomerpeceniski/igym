@@ -55,7 +55,7 @@ public class GymControllerTest {
     @DisplayName("should return an exception and status 500")
     void testFindAllGymsError() throws Exception {
 
-        when(gymService.findAllGyms()).thenThrow(new RuntimeException("Database error"));
+        when(gymService.findAllGyms()).thenThrow(new RuntimeException("Internal server error"));
 
         mockMvc.perform(get("/api/gyms"))
                 .andExpect(status().isInternalServerError()); 
