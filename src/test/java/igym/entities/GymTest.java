@@ -15,18 +15,17 @@ public class GymTest {
     Gym gym = new Gym();
 
     @Test
-    @DisplayName("should return a empty gym with no name and no identifier") 
-    public void testEmptyGym(){
+    @DisplayName("should return an empty gym with no name and no identifier")
+    public void testEmptyGym() {
         assertNull(gym.getName(), "Gym name should be null by default");
         assertNull(gym.getId(), "Gym id should be null before persistence");
     }
 
-   @Test
-   @DisplayName("should set the name when a valid name is provided")
+    @Test
+    @DisplayName("should set the name when a valid name is provided")
     public void testSetValidName() {
-         gym.setName(name);
-         assertEquals(name, gym.getName());
-         assertNull(gym.getId(), "Gym id should be null before persistence");
+        gym.setName(name);
+        assertEquals(name, gym.getName());
     }
 
     @Test
@@ -41,6 +40,27 @@ public class GymTest {
     public void testSetEmptyString(){
         name = "";
         assertThrows(IllegalArgumentException.class, () -> gym.setName(name));
+    }
+
+    @Test
+    @DisplayName("should throw IllegalArgumentException when the name is shorter than 3 characters")
+    public void testShortName() {
+        assertThrows(IllegalArgumentException.class, () -> gym.setName("ab"));
+    }
+
+    @Test
+    @DisplayName("should throw IllegalArgumentException when the name is longer than 50 characters")
+    public void testLongName() {
+        String longName = "a".repeat(51);
+        assertThrows(IllegalArgumentException.class, () -> gym.setName(longName));
+    }
+
+    @Test
+    @DisplayName("should create gym with a valid name")
+    public void testGymConstructor() {
+        name = "My Fitness Gym";
+        Gym gym = new Gym(name);
+        assertEquals(name, gym.getName());
     }
 
 }
