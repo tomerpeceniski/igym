@@ -5,7 +5,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +34,11 @@ public class UserControllerTest {
     @SuppressWarnings("removal")
     @MockBean
     private UserService userService;
-    List<User> users = new ArrayList<>();
+    public static List<User> users;
 
-    @BeforeEach
-    public void configurations() {
+    @BeforeAll
+    public static void configurations() {
+        users = new ArrayList<>();
         users.add(new User("Maria Clown"));
         users.add(new User("John Textor"));
     }
@@ -61,5 +62,15 @@ public class UserControllerTest {
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
                 .andExpect(content().json("[]"));
+    }
+
+    @Test
+    @DisplayName("Test for error in getting Users")
+    public void errorGettingUsersTest() throws Exception {
+        when(userService.findAll()).thenThrow(new RuntimeException("Internal server error"));
+
+        mockMvc.perform(get("/users"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.message").value("Internal server error"));
     }
 }
