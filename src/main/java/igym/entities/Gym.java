@@ -18,7 +18,7 @@ public class Gym {
     private String name;
 
     public Gym(String name) {
-        setName(name);
+        this.name = name;
     }
 
     public Gym() {
@@ -33,12 +33,6 @@ public class Gym {
     }
 
     public void setName(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be empty");
-        }
-        if (name.length() < 3 || name.length() > 50) {
-            throw new IllegalArgumentException("Name must be between 3 and 50 characters");
-        }
         this.name = name;
     }
 }
