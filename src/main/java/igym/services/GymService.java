@@ -19,13 +19,6 @@ public class GymService {
 
     @Transactional
     public Gym createGym(Gym gym) {
-        if (gym.getName() == null)
-            throw new IllegalArgumentException("Name cannot be null");
-        if (gym.getName().trim().isEmpty())
-            throw new IllegalArgumentException("Name cannot be an empty string");
-        if (gym.getName().length() < 3 || gym.getName().length() > 50) {
-            throw new IllegalArgumentException("Name must be between 3 and 50 characters");
-        }
         return gymRepository.save(gym);
     }
 
