@@ -1,6 +1,7 @@
 package igym.controllers;
 
 import igym.entities.Gym;
+import igym.exceptions.DuplicateGymException;
 import igym.services.GymService;
 
 import org.junit.jupiter.api.DisplayName;
@@ -55,6 +56,26 @@ public class GymControllerTest {
     }
 
     @Test
+    @DisplayName("should return 409 Conflict when gym name already exists")
+    void testCreateGymWithDuplicateName() throws Exception {
+
+        Gym gym = new Gym("Gold Gym");
+
+        when(gymService.createGym(any(Gym.class)))
+                .thenThrow(new DuplicateGymException("A gym with the name 'Gold Gym' already exists."));
+
+        mockMvc.perform(post("/api/gyms")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(gym)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("A gym with the name 'Gold Gym' already exists."))
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.error").value("Conflict"));
+
+        verify(gymService, times(1)).createGym(any(Gym.class));
+    }
+
+    @Test
     @DisplayName("should return 400 Bad Request when name is null")
     void testCreateGymWithNullName() throws Exception {
 
@@ -63,8 +84,10 @@ public class GymControllerTest {
         mockMvc.perform(post("/api/gyms")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(gym)))
-                .andExpect(status().isBadRequest());
-        
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Validation error"))
+                .andExpect(jsonPath("$.errors.name").value("Name cannot be blank"));
+
         verify(gymService, never()).createGym(any(Gym.class));
     }
 
@@ -77,8 +100,10 @@ public class GymControllerTest {
         mockMvc.perform(post("/api/gyms")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(gym)))
-                .andExpect(status().isBadRequest());
-        
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Validation error"))
+                .andExpect(jsonPath("$.errors.name").value("Name must be between 3 and 50 characters"));
+
         verify(gymService, never()).createGym(any(Gym.class));
     }
 
@@ -91,8 +116,10 @@ public class GymControllerTest {
         mockMvc.perform(post("/api/gyms")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(gym)))
-                .andExpect(status().isBadRequest());
-        
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Validation error"))
+                .andExpect(jsonPath("$.errors.name").value("Name must be between 3 and 50 characters"));
+
         verify(gymService, never()).createGym(any(Gym.class));
     }
 
@@ -105,8 +132,10 @@ public class GymControllerTest {
         mockMvc.perform(post("/api/gyms")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(gym)))
-                .andExpect(status().isBadRequest());
-        
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Validation error"))
+                .andExpect(jsonPath("$.errors.name").value("Name must be between 3 and 50 characters"));
+
         verify(gymService, never()).createGym(any(Gym.class));
     }
 
