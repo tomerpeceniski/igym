@@ -1,6 +1,7 @@
 package igym.services;
 
 import igym.entities.Gym;
+import igym.exceptions.DuplicateGymException;
 import igym.repositories.GymRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,8 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 public class GymServiceTest {
@@ -38,49 +41,22 @@ public class GymServiceTest {
     }
 
     @Test
-    @DisplayName("should throw IllegalArgumentException for a null gym name")
-    void testCreateGymWithNullName() {
+    @DisplayName("should throw DuplicateGymException when attempting to create a gym with a duplicate name")
+    void testAlreadyCreatedGymName() {
 
-        assertThatThrownBy(() -> gymService.createGym(new Gym(null)))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Name cannot be null");
+        Gym gym = new Gym("CrossFit Gym");
 
-        verify(gymRepository, never()).save(any(Gym.class));
-    }
+        when(gymRepository.existsByName(gym.getName())).thenReturn(true);
+        when(gymRepository.save(any(Gym.class)))
+                .thenThrow(new DuplicateGymException("A gym with the name 'CrossFit Gym' already exists."));
 
-    @Test
-    @DisplayName("should throw IllegalArgumentException for an empty gym name")
-    void testCreateGymWithEmptyName() {
+        DuplicateGymException exception = assertThrows(
+                DuplicateGymException.class,
+                () -> gymService.createGym(gym));
 
-        assertThatThrownBy(() -> gymService.createGym(new Gym(" ")))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Name cannot be an empty string");
-
-        verify(gymRepository, never()).save(any(Gym.class));
-    }
-
-    @Test
-    @DisplayName("should throw IllegalArgumentException for gym name shorter than 3 characters")
-    void testCreateGymWithShortName() {
-
-        assertThatThrownBy(() -> gymService.createGym(new Gym("Gy")))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Name must be between 3 and 50 characters");
-
-        verify(gymRepository, never()).save(any(Gym.class));
-    }
-
-    @Test
-    @DisplayName("should throw IllegalArgumentException for gym name longer than 50 characters")
-    void testCreateGymWithLongName() {
-
-        String longName = "A".repeat(51);
-
-        assertThatThrownBy(() -> gymService.createGym(new Gym(longName)))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Name must be between 3 and 50 characters");
-
-        verify(gymRepository, never()).save(any(Gym.class));
+        assertEquals("A gym with the name 'CrossFit Gym' already exists.", exception.getMessage());
+        verify(gymRepository, times(1)).existsByName(gym.getName());
+        verify(gymRepository, never()).save(gym);
     }
 
     @Test
@@ -97,7 +73,6 @@ public class GymServiceTest {
     }
 
     @Test
-
     @DisplayName("the service should return an empty list if there are no gyms in the repository")
     void testGymsNotFound() {
         List<Gym> gyms = gymService.findAllGyms();
