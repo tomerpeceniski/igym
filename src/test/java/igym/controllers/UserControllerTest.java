@@ -65,7 +65,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @DisplayName("Test for error in getting Users")
+    @DisplayName("Test for error while getting Users")
     public void errorGettingUsersTest() throws Exception {
         when(userService.findAll()).thenThrow(new RuntimeException("Internal server error"));
 

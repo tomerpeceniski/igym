@@ -1,45 +1,45 @@
 package igym.services;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
 import igym.entities.User;
 import igym.repositories.UserRepository;
 
-@SpringBootTest
-@ActiveProfiles("test")
 public class UserServiceTest {
 
-    @Autowired
-    UserRepository repository;
+    private UserRepository repository = mock(UserRepository.class);
+    private UserService service = new UserService(repository);
+    static List<User> users;
 
-    @Autowired
-    UserService service;
+    @BeforeAll
+    public static void configurations() {
+        users = new ArrayList<>();
+        users.add(new User("Maria Clown"));
+        users.add(new User("John Textor"));
+    }
 
     @Test
     @DisplayName("Test getting users")
     public void findAllTest() {
-        User u1 = new User("John Snow");
-        User u2 = new User("Maria Carl");
+        when(repository.findAll()).thenReturn(users);
 
-        repository.deleteAll();
-        List<User> listUsers = repository.saveAll(Arrays.asList(u1, u2));
+        List<User> listUsers = service.findAll();
 
-        assertEquals(listUsers, service.findAll());
+        assertEquals(listUsers, users);
     }
 
     @Test
     @DisplayName("Test getting empty list of users")
     public void emptyListTest() {
-        repository.deleteAll();
+        when(repository.findAll()).thenReturn(List.of());
         List<User> list = service.findAll();
         assertTrue(list.isEmpty());
     }
