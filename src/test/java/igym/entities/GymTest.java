@@ -1,66 +1,65 @@
 package igym.entities;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import jakarta.transaction.Transactional;
+import jakarta.validation.*;
+import org.junit.jupiter.api.*;
+import org.springframework.test.annotation.Rollback;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import java.util.List;
+import java.util.Set;
 
-@SpringBootTest
-public class GymTest {
+import static org.junit.jupiter.api.Assertions.*;
 
-    String name = "Gym Name";
-    Gym gym = new Gym();
+@Transactional
+@Rollback
+class GymTest {
 
-    @Test
-    @DisplayName("should return an empty gym with no name and no identifier")
-    public void testEmptyGym() {
-        assertNull(gym.getName(), "Gym name should be null by default");
-        assertNull(gym.getId(), "Gym id should be null before persistence");
+    private static Validator validator;
+
+    @BeforeAll
+    static void setUp() {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
+
     }
 
     @Test
-    @DisplayName("should set the name when a valid name is provided")
-    public void testSetValidName() {
-        gym.setName(name);
-        assertEquals(name, gym.getName());
+    @DisplayName("should create a gym successfully when name is valid")
+    void testValidGym() {
+        Gym gym = new Gym("Valid Name");
+        Set<ConstraintViolation<Gym>> violations = validator.validate(gym);
+        assertTrue(violations.isEmpty());
     }
 
     @Test
-    @DisplayName("should throw IllegalArgumentException when a null name is provided")
-    public void testSetNullName(){
-        name = null;
-        assertThrows(IllegalArgumentException.class, () -> gym.setName(name));
+    @DisplayName("should return a validation error when the name is blank or null")
+    void testBlankOrNullName() {
+        Gym gym = new Gym("");
+        Set<ConstraintViolation<Gym>> violations = validator.validate(gym);
+        assertFalse(violations.isEmpty());
+
+        List<String> messages = violations.stream()
+        .map(ConstraintViolation::getMessage)
+        .toList();
+    
+    assertTrue(messages.contains("Name cannot be blank") || messages.contains("Name must be between 3 and 50 characters"));
     }
 
     @Test
-    @DisplayName("should throw IllegalArgumentException when a blank string is provided")
-    public void testSetEmptyString(){
-        name = "";
-        assertThrows(IllegalArgumentException.class, () -> gym.setName(name));
+    @DisplayName("should return a validation error when the name is too short (less than 3 characters)")
+    void testNameTooShort() {
+        Gym gym = new Gym("AB");
+        Set<ConstraintViolation<Gym>> violations = validator.validate(gym);
+        assertFalse(violations.isEmpty());
+        assertEquals("Name must be between 3 and 50 characters", violations.iterator().next().getMessage());
     }
 
     @Test
-    @DisplayName("should throw IllegalArgumentException when the name is shorter than 3 characters")
-    public void testShortName() {
-        assertThrows(IllegalArgumentException.class, () -> gym.setName("ab"));
+    @DisplayName("should return a validation error when the name is too long (more than 50 characters)")
+    void testNameTooLong() {
+        Gym gym = new Gym("A".repeat(51));
+        Set<ConstraintViolation<Gym>> violations = validator.validate(gym);
+        assertFalse(violations.isEmpty());
+        assertEquals("Name must be between 3 and 50 characters", violations.iterator().next().getMessage());
     }
-
-    @Test
-    @DisplayName("should throw IllegalArgumentException when the name is longer than 50 characters")
-    public void testLongName() {
-        String longName = "a".repeat(51);
-        assertThrows(IllegalArgumentException.class, () -> gym.setName(longName));
-    }
-
-    @Test
-    @DisplayName("should create gym with a valid name")
-    public void testGymConstructor() {
-        name = "My Fitness Gym";
-        Gym gym = new Gym(name);
-        assertEquals(name, gym.getName());
-    }
-
 }

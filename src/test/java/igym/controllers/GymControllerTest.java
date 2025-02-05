@@ -102,7 +102,7 @@ public class GymControllerTest {
                 .content(objectMapper.writeValueAsString(gym)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Validation error"))
-                .andExpect(jsonPath("$.errors.name").value("Name must be between 3 and 50 characters"));
+                .andExpect(jsonPath("$.errors.name").value("Name cannot be blank"));
 
         verify(gymService, never()).createGym(any(Gym.class));
     }
