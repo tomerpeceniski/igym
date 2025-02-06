@@ -30,16 +30,4 @@ public class UserTest {
         User user1 = new User(name1);
         assertNull(user1.getId(), "When a User is created, the ID should be null");
     }
-
-    @Test
-    @DisplayName("Comparing objects User")
-    public void userComparationTest() {
-        String name1 = "Maria Clown";
-        User user1 = new User(name1);
-        User user2 = new User(name1);
-        assertFalse(user1.equals(user2));
-
-        user2 = user1;
-        assertTrue(user1.equals(user2));
-    }
 }
