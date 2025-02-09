@@ -31,7 +31,6 @@
 		<java.version>21</java.version>
 		<sonar.projectKey>my-spring-boot-app</sonar.projectKey>
 		<sonar.host.url>http://localhost:9000</sonar.host.url>
-		<sonar.token>sqa_f1e567a57ac0a506194393fd709d0d8958252037</sonar.token>
 	</properties>
 	<dependencies>
 		<dependency>
