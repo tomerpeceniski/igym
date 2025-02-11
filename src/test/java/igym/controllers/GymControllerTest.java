@@ -3,7 +3,9 @@ package igym.controllers;
 import igym.entities.Gym;
 import igym.exceptions.DuplicateGymException;
 import igym.services.GymService;
+import jakarta.validation.Validator;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +39,15 @@ public class GymControllerTest {
     @MockBean
     private GymService gymService;
 
+    @Autowired
+    private Validator validator;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @BeforeEach
+    void setUp() {
+        assert validator != null;
+    }
 
     @Test
     @DisplayName("should return a gym and status 201")
@@ -102,7 +112,7 @@ public class GymControllerTest {
                 .content(objectMapper.writeValueAsString(gym)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Validation error"))
-                .andExpect(jsonPath("$.errors.name").value("Name cannot be blank"));
+                .andExpect(jsonPath("$.errors.name").value("Name must be between 3 and 50 characters"));
 
         verify(gymService, never()).createGym(any(Gym.class));
     }
