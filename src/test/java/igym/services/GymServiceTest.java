@@ -47,8 +47,6 @@ public class GymServiceTest {
         Gym gym = new Gym("CrossFit Gym");
 
         when(gymRepository.existsByName(gym.getName())).thenReturn(true);
-        when(gymRepository.save(any(Gym.class)))
-                .thenThrow(new DuplicateGymException("A gym with the name 'CrossFit Gym' already exists."));
 
         DuplicateGymException exception = assertThrows(
                 DuplicateGymException.class,
