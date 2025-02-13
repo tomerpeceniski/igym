@@ -8,4 +8,5 @@ import igym.entities.User;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
 
+    public boolean existsByName(String name);
 }
