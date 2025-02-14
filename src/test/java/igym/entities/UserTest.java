@@ -70,12 +70,18 @@ public class UserTest {
     }
 
     @Test
-    @DisplayName("Testing maximum characters constraint")
+    @DisplayName("Testing maximum and minimum characters constraint")
     public void maximumCharacterConstraintTest() {
         User bigCharacterUser = new User("a".repeat(51));
-        Set<ConstraintViolation<User>> violations = validator.validate(bigCharacterUser);
-        assertTrue(violations.size() == 1);
-        ConstraintViolation<User> violation = violations.iterator().next();
-        assertEquals(Size.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
+        Set<ConstraintViolation<User>> violationsBigCharacter = validator.validate(bigCharacterUser);
+        assertTrue(violationsBigCharacter.size() == 1);
+        ConstraintViolation<User> violationBig = violationsBigCharacter.iterator().next();
+        assertEquals(Size.class, violationBig.getConstraintDescriptor().getAnnotation().annotationType());
+
+        User smallCharacterUser = new User("a");
+        Set<ConstraintViolation<User>> violationsSmallCharacter = validator.validate(smallCharacterUser);
+        assertTrue(violationsSmallCharacter.size() == 1);
+        ConstraintViolation<User> violationSmall = violationsSmallCharacter.iterator().next();
+        assertEquals(Size.class, violationSmall.getConstraintDescriptor().getAnnotation().annotationType());
     }
 }

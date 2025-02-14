@@ -15,7 +15,7 @@ public class User {
 
     @Column(nullable = false, length = 50)
     @NotBlank(message = "Name cannot be blank")
-    @Size(max = 50, message = "Name cannot have more than 50 characters")
+    @Size(min = 3, max = 50, message = "Name must be between 3 and 50 characters")
     private String name;
 
     public User() {
