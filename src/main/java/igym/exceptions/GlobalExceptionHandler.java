@@ -1,4 +1,4 @@
-package igym.controllers.exceptions;
+package igym.exceptions;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
