@@ -24,12 +24,16 @@ public class GymService {
         if (gymRepository.existsByName(gym.getName())) {
             throw new DuplicateGymException("A gym with the name '" + gym.getName() + "' already exists.");
         }
-        
+
         return gymRepository.save(gym);
     }
 
     public List<Gym> findAllGyms() {
         return gymRepository.findAll();
+    }
+
+    public void deleteGym(Gym gym) {
+        gymRepository.deleteById(gym.getId());
     }
 
 }
