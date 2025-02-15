@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.1</version>
+		<version>3.4.2</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>igym.application</groupId>
@@ -29,6 +29,8 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<sonar.projectKey>my-spring-boot-app</sonar.projectKey>
+		<sonar.host.url>http://localhost:9000</sonar.host.url>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -96,6 +98,11 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.sonarsource.scanner.maven</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>3.9.1.2184</version>
 			</plugin>
 		</plugins>
 	</build>
