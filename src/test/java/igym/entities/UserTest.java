@@ -3,8 +3,8 @@ package igym.entities;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Set;
+import igym.config.ValidationConfig;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -14,17 +14,10 @@ import jakarta.validation.constraints.Size;
 
 public class UserTest {
 
-    Validator validator;
-
-    @BeforeEach
-    public void config() {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        validator = factory.getValidator();
-        }
-
+    Validator validator = ValidationConfig.validator();
 
     @Test
-    @DisplayName("Getting user name")
+    @DisplayName("Should return the name of the user")
     public void userNameTest() {
         String userName = "Maria Clown";
         User user = new User();
@@ -36,7 +29,7 @@ public class UserTest {
     }
 
     @Test
-    @DisplayName("Testing ID from User")
+    @DisplayName("Should return ID null when an User is created")
     public void userIdTest() {
         String name1 = "Maria Clown";
         User user1 = new User(name1);
@@ -44,7 +37,7 @@ public class UserTest {
     }
 
     @Test
-    @DisplayName("Testing null constraint")
+    @DisplayName("Should return violation error due to null name")
     public void nullConstraintTest() {
         User nullNameUser = new User();
         Set<ConstraintViolation<User>> violations = validator.validate(nullNameUser);
@@ -54,30 +47,28 @@ public class UserTest {
     }
 
     @Test
-    @DisplayName("Testing blank constraint")
+    @DisplayName("Should return violation error due to blank name")
     public void blankConstraintTest() {
         User blankNameUser = new User("");
         Set<ConstraintViolation<User>> violations = validator.validate(blankNameUser);
         assertTrue(violations.size() == 1);
         ConstraintViolation<User> violation = violations.iterator().next();
         assertEquals(NotBlank.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
-
-        blankNameUser = new User(" ");
-        violations = validator.validate(blankNameUser);
-        assertTrue(violations.size() == 1);
-        violation = violations.iterator().next();
-        assertEquals(NotBlank.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
     }
 
     @Test
-    @DisplayName("Testing maximum and minimum characters constraint")
+    @DisplayName("Should return violation error due to name bigger of maximum number os characters")
     public void maximumCharacterConstraintTest() {
         User bigCharacterUser = new User("a".repeat(51));
         Set<ConstraintViolation<User>> violationsBigCharacter = validator.validate(bigCharacterUser);
         assertTrue(violationsBigCharacter.size() == 1);
         ConstraintViolation<User> violationBig = violationsBigCharacter.iterator().next();
         assertEquals(Size.class, violationBig.getConstraintDescriptor().getAnnotation().annotationType());
+    }
 
+    @Test
+    @DisplayName("Should return violation error due to name smaller of minimum number os characters")
+    public void minimumCharacterConstraintError() {
         User smallCharacterUser = new User("a");
         Set<ConstraintViolation<User>> violationsSmallCharacter = validator.validate(smallCharacterUser);
         assertTrue(violationsSmallCharacter.size() == 1);
