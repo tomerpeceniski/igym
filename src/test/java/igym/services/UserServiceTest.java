@@ -28,7 +28,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Test getting users")
+    @DisplayName("Should return the list of saved users")
     public void findAllTest() {
         when(repository.findAll()).thenReturn(users);
         List<User> listUsers = service.findAll();
@@ -36,7 +36,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Test getting empty list of users")
+    @DisplayName("Should return an empty list if no user was saved")
     public void emptyListTest() {
         when(repository.findAll()).thenReturn(List.of());
         List<User> list = service.findAll();
@@ -44,7 +44,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Test create user")
+    @DisplayName("Should return a list that contains the saved user")
     public void createUserTest() {
         when(repository.save(users.get(0))).thenReturn(users.get(0));
         User savedUser = service.createUser(users.get(0));
@@ -53,7 +53,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Test create duplicate user")
+    @DisplayName("Should return an error when trying to create a duplicate user")
     public void createDuplicateUserTest() {
         when(repository.existsByName(users.get(0).getName())).thenReturn(true);
         assertThrows(DuplicateUserException.class, () -> service.createUser(users.get(0)));
