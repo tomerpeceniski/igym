@@ -2,6 +2,7 @@ package igym.entities;
 
 import java.util.UUID;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 @Table(name = "gyms")
 @Entity
@@ -11,7 +12,9 @@ public class Gym {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
+    @NotBlank(message = "Name cannot be blank")
+    @Size(min = 3, max = 50, message = "Name must be between 3 and 50 characters")
     private String name;
 
     public Gym(String name) {
@@ -30,9 +33,6 @@ public class Gym {
     }
 
     public void setName(String name) {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be empty");
-        }
         this.name = name;
     }
 }
