@@ -11,8 +11,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import igym.entities.User;
+import igym.exceptions.DuplicateUserException;
 import igym.repositories.UserRepository;
-import igym.services.exceptions.DuplicateUserException;
 
 public class UserServiceTest {
 

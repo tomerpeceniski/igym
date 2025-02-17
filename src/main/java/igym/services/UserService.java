@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import igym.entities.User;
+import igym.exceptions.DuplicateUserException;
 import igym.repositories.UserRepository;
-import igym.services.exceptions.DuplicateUserException;
 import jakarta.transaction.Transactional;
 
 @Service

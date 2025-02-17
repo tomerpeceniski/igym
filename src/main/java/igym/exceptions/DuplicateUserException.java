@@ -1,4 +1,4 @@
-package igym.services.exceptions;
+package igym.exceptions;
 
 public class DuplicateUserException extends RuntimeException {
     public DuplicateUserException(String message) {

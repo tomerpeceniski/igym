@@ -29,8 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import igym.entities.User;
+import igym.exceptions.DuplicateUserException;
 import igym.services.UserService;
-import igym.services.exceptions.DuplicateUserException;
 
 @SpringBootTest
 @AutoConfigureMockMvc
