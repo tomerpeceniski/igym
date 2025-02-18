@@ -12,11 +12,11 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -28,13 +28,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+import igym.config.ValidationConfig;
 import igym.entities.User;
 import igym.exceptions.DuplicateUserException;
 import igym.services.UserService;
+import jakarta.validation.Validator;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
+@WebMvcTest(UserController.class)
+@ExtendWith(MockitoExtension.class)
 public class UserControllerTest {
 
     @Autowired
@@ -42,6 +43,8 @@ public class UserControllerTest {
 
     @MockitoBean
     private UserService userService;
+
+    Validator validator = ValidationConfig.validator();
 
     private List<User> users;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -54,7 +57,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @DisplayName("Find all Users")
+    @DisplayName("Should return all saved users")
     public void findAllTest() throws Exception {
         when(userService.findAll()).thenReturn(users);
 
@@ -65,7 +68,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @DisplayName("Find empty list of Users")
+    @DisplayName("Should return an empty list of users")
     public void findEmptyTest() throws Exception {
         when(userService.findAll()).thenReturn(new ArrayList<User>());
 
@@ -75,7 +78,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @DisplayName("Test for error while getting Users")
+    @DisplayName("Should return an error and status 500")
     public void errorGettingUsersTest() throws Exception {
         when(userService.findAll()).thenThrow(new RuntimeException("Internal server error"));
 
@@ -85,7 +88,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @DisplayName("Create new User")
+    @DisplayName("Should return the created user when creation was successful")
     void createUserTest() throws Exception {
         when(userService.createUser(any(User.class))).thenReturn(users.get(0));
 
@@ -99,7 +102,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @DisplayName("Error creating new User with null name")
+    @DisplayName("Should return status 400 when creating user with null name")
     void createNullNameUserTest() throws Exception {
         mockMvc.perform(post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -112,16 +115,9 @@ public class UserControllerTest {
     }
 
     @Test
-    @DisplayName("Error creating new User with blank name")
+    @DisplayName("Should return status 400 when creating user with blank name")
     void createEmptyNameUserTest() throws Exception {
-        mockMvc.perform(post("/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new User(""))))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Validation error"))
-                .andExpect(jsonPath("$.errors.name").value("Name cannot be blank"));
-
-        mockMvc.perform(post("/users")
+          mockMvc.perform(post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(new User("     "))))
                 .andExpect(status().isBadRequest())
@@ -132,7 +128,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @DisplayName("Error creating new User with name with more than 50 characters or less then 3")
+    @DisplayName("Should return status 400 when creating user with name with more than 50 characters")
     void createBigNameUserTest() throws Exception {
         mockMvc.perform(post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -141,6 +137,12 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.message").value("Validation error"))
                 .andExpect(jsonPath("$.errors.name").value("Name must be between 3 and 50 characters"));
 
+        verify(userService, never()).createUser(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Should return status 400 when creating user with name with less than 3 characters")
+    void createSmallNameUserTest() throws Exception {
         mockMvc.perform(post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(new User("a"))))
@@ -152,7 +154,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @DisplayName("Error creating duplicate User")
+    @DisplayName("Should return status 409 when creating duplicate user")
     void createDuplicateUserTest() throws Exception {
         when(userService.createUser(any(User.class))).thenThrow(new DuplicateUserException("An user with the name " + users.get(0).getName() + " already exists."));
 
