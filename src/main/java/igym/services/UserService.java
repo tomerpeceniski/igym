@@ -24,7 +24,7 @@ public class UserService {
 
     public void deleteUser(UUID id) {
         if(!repository.existsById(id)) {
-            throw new ObjectNotFoundException("The inserted ID was not found");
+            throw new ObjectNotFoundException("There is no User with ID: " + id);
         }
         repository.deleteById(id);
     }
