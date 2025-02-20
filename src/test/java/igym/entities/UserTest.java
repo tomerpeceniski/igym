@@ -1,17 +1,22 @@
 package igym.entities;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import igym.config.ValidationConfig;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import jakarta.validation.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+@SpringBootTest
 public class UserTest {
 
     Validator validator = ValidationConfig.validator();
@@ -47,20 +52,25 @@ public class UserTest {
     }
 
     @Test
-    @DisplayName("Should return violation error due to blank name")
-    public void blankConstraintTest() {
-        User blankNameUser = new User("");
-        Set<ConstraintViolation<User>> violations = validator.validate(blankNameUser);
-        assertTrue(violations.size() == 1);
-        ConstraintViolation<User> violation = violations.iterator().next();
-        assertEquals(NotBlank.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
+    @DisplayName("Should return violation error due to empty name")
+    public void emptyConstraintTest() {
+        User emptyNameUser = new User("");
+        Set<ConstraintViolation<User>> violations = validator.validate(emptyNameUser);
+        assertThat(violations).hasSize(2);
+
+        Set<Class<?>> expectedViolations = Set.of(NotBlank.class, Size.class);
+        Set<Class<?>> actualViolations = violations.stream()
+                .map(v -> v.getConstraintDescriptor().getAnnotation().annotationType())
+                .collect(Collectors.toSet());
+
+        assertThat(actualViolations).containsExactlyInAnyOrderElementsOf(expectedViolations);
     }
 
     @Test
-    @DisplayName("Should return violation error due to empty name")
-    public void emptyConstraintTest() {
-        User emptyNameUser = new User("      ");
-        Set<ConstraintViolation<User>> violations = validator.validate(emptyNameUser);
+    @DisplayName("Should return violation error due to blank name")
+    public void blankConstraintTest() {
+        User blankNameUser = new User("      ");
+        Set<ConstraintViolation<User>> violations = validator.validate(blankNameUser);
         assertTrue(violations.size() == 1);
         ConstraintViolation<User> violation = violations.iterator().next();
         assertEquals(NotBlank.class, violation.getConstraintDescriptor().getAnnotation().annotationType());

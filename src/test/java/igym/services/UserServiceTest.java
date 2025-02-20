@@ -11,6 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import igym.entities.User;
+import igym.exceptions.ObjectNotFoundException;
 import igym.exceptions.DuplicateUserException;
 import igym.repositories.UserRepository;
 
@@ -44,6 +45,21 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Should delete user from repository")
+    public void deleteUserTest() {
+        when(repository.existsById(users.get(0).getId())).thenReturn(true);
+        service.deleteUser(users.get(0).getId());
+        verify(repository, times(1)).deleteById(users.get(0).getId());
+    }
+
+    @Test
+    @DisplayName("Should delete user from repository")
+    public void deleteNonExistentUserTest() {
+        when(repository.existsById(users.get(0).getId())).thenReturn(false);
+        assertThrowsExactly(ObjectNotFoundException.class, () -> service.deleteUser(users.get(0).getId()));
+        verify(repository, never()).deleteById(users.get(0).getId());
+    }
+
     @DisplayName("Should return a list that contains the saved user")
     public void createUserTest() {
         when(repository.save(users.get(0))).thenReturn(users.get(0));
