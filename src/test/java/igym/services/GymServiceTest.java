@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -75,6 +76,21 @@ public class GymServiceTest {
     void testGymsNotFound() {
         List<Gym> gyms = gymService.findAllGyms();
         assertThat(gyms).isEmpty();
+    }
+
+    @Test
+    @DisplayName("should delete a gym from the repository")
+    void testDeleteGym() {
+        Gym gym = new Gym("CrossFit Gym");
+
+        when(gymRepository.save(any(Gym.class))).thenReturn(gym);
+
+        gymService.createGym(gym);
+
+        gymService.deleteGym(gym);
+
+        verify(gymRepository, times(1)).save(any(Gym.class));
+        verify(gymRepository, times(1)).deleteById(gym.getId());
     }
 
 }

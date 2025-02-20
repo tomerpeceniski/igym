@@ -23,6 +23,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -173,5 +174,20 @@ public class GymControllerTest {
 
         mockMvc.perform(get("/api/gyms"))
                 .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    @DisplayName("should delete a gym from the repository")
+    void testDeleteGymSuccess() throws Exception {
+
+        Gym gym = new Gym("Location 1");
+        doNothing().when(gymService).deleteGym(any(Gym.class));
+        mockMvc.perform(delete("/api/gyms")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(gym)))
+                .andExpect(status().isNoContent());
+                
+        verify(gymService, times(1)).deleteGym(any(Gym.class));
+        verifyNoMoreInteractions(gymService);
     }
 }
