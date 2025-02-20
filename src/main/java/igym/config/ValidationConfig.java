@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 public class ValidationConfig {
 
     @Bean
-    public Validator validator() {
+    static public Validator validator() {
         ValidatorFactory factory = Validation.byDefaultProvider()
                 .configure()
                 .addProperty("hibernate.validator.fail_fast", "true")  
