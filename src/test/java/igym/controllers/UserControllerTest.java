@@ -116,13 +116,26 @@ public class UserControllerTest {
 
     @Test
     @DisplayName("Should return status 400 when creating user with blank name")
-    void createEmptyNameUserTest() throws Exception {
+    void createBlankNameUserTest() throws Exception {
           mockMvc.perform(post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(new User("     "))))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Validation error"))
                 .andExpect(jsonPath("$.errors.name").value("Name cannot be blank"));
+
+        verify(userService, never()).createUser(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Should return status 400 when creating user with empty name")
+    void createEmptyNameUserTest() throws Exception {
+          mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new User(""))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Validation error"))
+                .andExpect(jsonPath("$.errors.name").value("Name must be between 3 and 50 characters"));
 
         verify(userService, never()).createUser(any(User.class));
     }

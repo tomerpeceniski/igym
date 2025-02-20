@@ -57,6 +57,16 @@ public class UserTest {
     }
 
     @Test
+    @DisplayName("Should return violation error due to empty name")
+    public void emptyConstraintTest() {
+        User emptyNameUser = new User("      ");
+        Set<ConstraintViolation<User>> violations = validator.validate(emptyNameUser);
+        assertTrue(violations.size() == 1);
+        ConstraintViolation<User> violation = violations.iterator().next();
+        assertEquals(NotBlank.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
+    }
+
+    @Test
     @DisplayName("Should return violation error due to name bigger of maximum number os characters")
     public void maximumCharacterConstraintTest() {
         User bigCharacterUser = new User("a".repeat(51));
