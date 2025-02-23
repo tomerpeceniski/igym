@@ -35,4 +35,8 @@ public class Gym {
     public void setName(String name) {
         this.name = name;
     }
+
+    public void setId(UUID gymId) {
+        this.id = gymId;
+    }
 }

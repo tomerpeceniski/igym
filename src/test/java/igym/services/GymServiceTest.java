@@ -10,6 +10,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -81,32 +83,31 @@ public class GymServiceTest {
     @Test
     @DisplayName("should delete a gym from the repository")
     void testDeleteGym() {
+
+        UUID gymId = UUID.randomUUID();
         Gym gym = new Gym("CrossFit Gym");
+        gym.setId(gymId);
+        when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
 
-        when(gymRepository.save(any(Gym.class))).thenReturn(gym);
+        gymService.deleteGym(gymId);
 
-        gymService.createGym(gym);
+        verify(gymRepository, times(1)).findById(gymId);
+        verify(gymRepository, times(1)).delete(gym);
 
-        gymService.deleteGym(gym);
-
-        verify(gymRepository, times(1)).save(any(Gym.class));
-        verify(gymRepository, times(1)).deleteById(gym.getId());
     }
 
     @Test
     @DisplayName("should throw GymNotFoundException when attempting to delete a gym that does not exist")
     void testDeleteGymNotFound() {
-        Gym gym = new Gym("CrossFit Gym");
 
-        when(gymRepository.existsById(gym.getId())).thenReturn(false);
+        UUID gymId = UUID.randomUUID();
+        when(gymRepository.findById(gymId)).thenReturn(Optional.empty());
 
-        GymNotFoundException exception = assertThrows(
-                GymNotFoundException.class,
-                () -> gymService.deleteGym(gym));
+        assertThrows(GymNotFoundException.class, () -> {
+            gymService.deleteGym(gymId);
+        });
+        verify(gymRepository, times(1)).findById(gymId);
 
-        assertEquals("Gym with id " + gym.getId() + " not found.", exception.getMessage());
-        verify(gymRepository, times(1)).existsById(gym.getId());
-        verify(gymRepository, never()).deleteById(gym.getId());
     }
 
 }

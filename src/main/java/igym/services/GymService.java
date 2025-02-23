@@ -6,6 +6,8 @@ import igym.repositories.GymRepository;
 import jakarta.transaction.Transactional;
 
 import java.util.List;
+import java.util.UUID;
+
 import igym.entities.*;
 import igym.exceptions.*;
 
@@ -32,11 +34,15 @@ public class GymService {
         return gymRepository.findAll();
     }
 
-    public void deleteGym(Gym gym) {
-        if (!gymRepository.existsById(gym.getId())) {
-            throw new GymNotFoundException("Gym with id " + gym.getId() + " not found.");
+    public void deleteGym(UUID  id) {
+
+        Gym gym = gymRepository.findById(id).orElse(null);
+        if (gym == null) {
+            throw new GymNotFoundException("Gym with id " + id + " not found.");
         }
-        gymRepository.deleteById(gym.getId());
+
+        gymRepository.delete(gym);
+        
     }
 
 }
