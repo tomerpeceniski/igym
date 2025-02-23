@@ -2,6 +2,7 @@ package igym.controllers;
 
 import igym.entities.Gym;
 import igym.exceptions.DuplicateGymException;
+import igym.exceptions.GymNotFoundException;
 import igym.services.GymService;
 import jakarta.validation.Validator;
 
@@ -20,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -180,14 +182,34 @@ public class GymControllerTest {
     @DisplayName("should delete a gym from the repository")
     void testDeleteGymSuccess() throws Exception {
 
+        UUID gymId = UUID.randomUUID();
         Gym gym = new Gym("Location 1");
-        doNothing().when(gymService).deleteGym(any(Gym.class));
-        mockMvc.perform(delete("/api/gyms")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(gym)))
+        gym.setId(gymId);
+
+        doNothing().when(gymService).deleteGym(gymId);
+
+        mockMvc.perform(delete("/api/gyms/{id}", gymId)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
-                
-        verify(gymService, times(1)).deleteGym(any(Gym.class));
+
+        verify(gymService, times(1)).deleteGym(gymId);
         verifyNoMoreInteractions(gymService);
     }
+
+    @Test
+    @DisplayName("should return 404 when gym is not found")
+    void testDeleteGymNotFound() throws Exception {
+        UUID gymId = UUID.randomUUID();
+
+        doThrow(new GymNotFoundException("Gym with id " + gymId + " not found."))
+                .when(gymService).deleteGym(gymId);
+
+        mockMvc.perform(delete("/api/gyms/{id}", gymId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+
+        verify(gymService, times(1)).deleteGym(gymId);
+        verifyNoMoreInteractions(gymService);
+    }
+
 }

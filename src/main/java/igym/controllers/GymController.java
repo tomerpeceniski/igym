@@ -1,12 +1,14 @@
 package igym.controllers;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,9 +44,9 @@ public class GymController {
         return ResponseEntity.ok(gyms);
     }
 
-    @DeleteMapping(value = "/gyms", produces = "application/json")
-    public ResponseEntity<Void> deleteGym(@RequestBody Gym gym) {
-        service.deleteGym(gym);
+    @DeleteMapping(value = "/gyms/{id}", produces = "application/json")
+    public ResponseEntity<Void> deleteGym(@PathVariable("id") UUID id) {
+        service.deleteGym(id);
         return ResponseEntity.noContent().build();
     }
 
