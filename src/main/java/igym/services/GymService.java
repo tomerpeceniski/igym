@@ -7,7 +7,7 @@ import jakarta.transaction.Transactional;
 
 import java.util.List;
 import igym.entities.*;
-import igym.exceptions.DuplicateGymException;
+import igym.exceptions.*;
 
 @Service
 public class GymService {
@@ -33,6 +33,9 @@ public class GymService {
     }
 
     public void deleteGym(Gym gym) {
+        if (!gymRepository.existsById(gym.getId())) {
+            throw new GymNotFoundException("Gym with id " + gym.getId() + " not found.");
+        }
         gymRepository.deleteById(gym.getId());
     }
 

@@ -2,6 +2,7 @@ package igym.services;
 
 import igym.entities.Gym;
 import igym.exceptions.DuplicateGymException;
+import igym.exceptions.GymNotFoundException;
 import igym.repositories.GymRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,7 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -91,6 +91,22 @@ public class GymServiceTest {
 
         verify(gymRepository, times(1)).save(any(Gym.class));
         verify(gymRepository, times(1)).deleteById(gym.getId());
+    }
+
+    @Test
+    @DisplayName("should throw GymNotFoundException when attempting to delete a gym that does not exist")
+    void testDeleteGymNotFound() {
+        Gym gym = new Gym("CrossFit Gym");
+
+        when(gymRepository.existsById(gym.getId())).thenReturn(false);
+
+        GymNotFoundException exception = assertThrows(
+                GymNotFoundException.class,
+                () -> gymService.deleteGym(gym));
+
+        assertEquals("Gym with id " + gym.getId() + " not found.", exception.getMessage());
+        verify(gymRepository, times(1)).existsById(gym.getId());
+        verify(gymRepository, never()).deleteById(gym.getId());
     }
 
 }
