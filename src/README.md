@@ -5,6 +5,7 @@ iGym is a mobile-first website designed to help users track and manage their gym
 - Organize and track your daily workouts.
 - Record weights, repetitions, and other workout details.
 - Seamlessly access your workout data from anywhere.
+- **Customize workouts for each gym:** Users can register different workout routines for each gym they attend, allowing for adaptations based on the specific equipment available.
 
 ---
 
@@ -15,6 +16,8 @@ The iGym project is built using:
 - **Spring Boot**: 3.4.1
 - **JPA (Jakarta Persistence API)**
 - **Maven**: 3.9.9
+- **Mockito**
+- **SonarQube**
 
 > Note: Spring Boot and JPA are managed automatically by Maven; no separate installation is required.
 
