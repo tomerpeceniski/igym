@@ -5,7 +5,7 @@ iGym is a mobile-first website designed to help users track and manage their gym
 - Organize and track your daily workouts.
 - Record weights, repetitions, and other workout details.
 - Seamlessly access your workout data from anywhere.
-- **Customize workouts for each gym:** Users can register different workout routines for each gym they attend, allowing for adaptations based on the specific equipment available.
+- Customize workouts for each gym: Users can register different workout routines for each gym they attend, allowing for adaptations based on the specific equipment available.
 
 ---
 
