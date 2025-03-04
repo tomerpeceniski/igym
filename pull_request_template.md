@@ -1,4 +1,5 @@
-# Pull Request
+<!--Mention below the name of your Pull Request-->
+# Pull Request Name
 
 ## Description
 <!-- 
@@ -7,6 +8,7 @@
 -->
 
 ## Checklist
+- [ ] All acceptance criteria have been met
 - [ ] My code follows the project's coding style.
 - [ ] I have documented my code
 - [ ] I wrote unit tests for the changes that I made
