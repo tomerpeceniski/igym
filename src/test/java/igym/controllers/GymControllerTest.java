@@ -2,6 +2,7 @@ package igym.controllers;
 
 import igym.entities.Gym;
 import igym.exceptions.DuplicateGymException;
+import igym.exceptions.GymAlreadyDeletedException;
 import igym.exceptions.GymNotFoundException;
 import igym.services.GymService;
 import jakarta.validation.Validator;
@@ -208,6 +209,19 @@ public class GymControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
+        verify(gymService, times(1)).deleteGym(gymId);
+        verifyNoMoreInteractions(gymService);
+    }
+
+    @Test
+    @DisplayName("should return status 409 when deleting a inactive gym")
+    void testDeleteGymAlreadyDeleted() throws Exception {
+        UUID gymId = UUID.randomUUID();
+        doThrow(new GymAlreadyDeletedException("Gym with id " + gymId + "is inactive"))
+                .when(gymService).deleteGym(gymId);
+        mockMvc.perform(delete("/api/gyms/{id}", gymId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
         verify(gymService, times(1)).deleteGym(gymId);
         verifyNoMoreInteractions(gymService);
     }

@@ -1,7 +1,9 @@
 package igym.services;
 
 import igym.entities.Gym;
+import igym.entities.GymStatus;
 import igym.exceptions.DuplicateGymException;
+import igym.exceptions.GymAlreadyDeletedException;
 import igym.exceptions.GymNotFoundException;
 import igym.repositories.GymRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -18,6 +20,7 @@ import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 public class GymServiceTest {
@@ -83,31 +86,38 @@ public class GymServiceTest {
     @Test
     @DisplayName("should delete a gym from the repository")
     void testDeleteGym() {
-
         UUID gymId = UUID.randomUUID();
         Gym gym = new Gym("CrossFit Gym");
         gym.setId(gymId);
         when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
-
         gymService.deleteGym(gymId);
-
         verify(gymRepository, times(1)).findById(gymId);
-        verify(gymRepository, times(1)).delete(gym);
-
+        assertTrue(gym.getStatus() == GymStatus.inactive);
     }
 
     @Test
     @DisplayName("should throw GymNotFoundException when attempting to delete a gym that does not exist")
     void testDeleteGymNotFound() {
-
         UUID gymId = UUID.randomUUID();
         when(gymRepository.findById(gymId)).thenReturn(Optional.empty());
-
         assertThrows(GymNotFoundException.class, () -> {
             gymService.deleteGym(gymId);
         });
         verify(gymRepository, times(1)).findById(gymId);
+    }
 
+    @Test
+    @DisplayName("should throw GymAlreadyDeletedException when attempting to delete a inactive gym")
+    void testDeleteInactiveGym(){
+        UUID gymId = UUID.randomUUID();
+        Gym gym = new Gym("CrossFit Gym");
+        gym.setId(gymId);
+        gym.setStatus(GymStatus.inactive);
+        when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
+        assertThrows(GymAlreadyDeletedException.class, () -> {
+            gymService.deleteGym(gymId);
+        });
+        verify(gymRepository, times(1)).findById(gymId);
     }
 
 }

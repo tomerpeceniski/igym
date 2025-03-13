@@ -34,15 +34,15 @@ public class GymService {
         return gymRepository.findAll();
     }
 
-    public void deleteGym(UUID  id) {
+    public void deleteGym(UUID id) {
+        Gym gym = gymRepository.findById(id)
+                .orElseThrow(() -> new GymNotFoundException("Gym with id " + id + " not found."));
 
-        Gym gym = gymRepository.findById(id).orElse(null);
-        if (gym == null) {
-            throw new GymNotFoundException("Gym with id " + id + " not found.");
-        }
+        if (gym.getStatus() == GymStatus.inactive)
+            throw new GymAlreadyDeletedException("Gym with id " + id + " is inactive");
 
-        gymRepository.delete(gym);
-        
+        gym.setStatus(GymStatus.inactive);
+        gymRepository.save(gym);
     }
 
 }
