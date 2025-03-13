@@ -17,6 +17,10 @@ public class Gym {
     @Size(min = 3, max = 50, message = "Name must be between 3 and 50 characters")
     private String name;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private GymStatus status = GymStatus.active;
+
     public Gym(String name) {
         this.name = name;
     }
@@ -34,5 +38,17 @@ public class Gym {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setId(UUID gymId) {
+        this.id = gymId;
+    }
+
+    public GymStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(GymStatus status) {
+        this.status = status;
     }
 }

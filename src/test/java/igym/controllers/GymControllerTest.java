@@ -2,6 +2,8 @@ package igym.controllers;
 
 import igym.entities.Gym;
 import igym.exceptions.DuplicateGymException;
+import igym.exceptions.GymAlreadyDeletedException;
+import igym.exceptions.GymNotFoundException;
 import igym.services.GymService;
 import jakarta.validation.Validator;
 
@@ -20,9 +22,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -174,4 +178,52 @@ public class GymControllerTest {
         mockMvc.perform(get("/api/gyms"))
                 .andExpect(status().isInternalServerError());
     }
+
+    @Test
+    @DisplayName("should delete a gym from the repository")
+    void testDeleteGymSuccess() throws Exception {
+
+        UUID gymId = UUID.randomUUID();
+        Gym gym = new Gym("Location 1");
+        gym.setId(gymId);
+
+        doNothing().when(gymService).deleteGym(gymId);
+
+        mockMvc.perform(delete("/api/gyms/{id}", gymId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        verify(gymService, times(1)).deleteGym(gymId);
+        verifyNoMoreInteractions(gymService);
+    }
+
+    @Test
+    @DisplayName("should return 404 when gym is not found")
+    void testDeleteGymNotFound() throws Exception {
+        UUID gymId = UUID.randomUUID();
+
+        doThrow(new GymNotFoundException("Gym with id " + gymId + " not found."))
+                .when(gymService).deleteGym(gymId);
+
+        mockMvc.perform(delete("/api/gyms/{id}", gymId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+
+        verify(gymService, times(1)).deleteGym(gymId);
+        verifyNoMoreInteractions(gymService);
+    }
+
+    @Test
+    @DisplayName("should return status 409 when deleting a inactive gym")
+    void testDeleteGymAlreadyDeleted() throws Exception {
+        UUID gymId = UUID.randomUUID();
+        doThrow(new GymAlreadyDeletedException("Gym with id " + gymId + "is inactive"))
+                .when(gymService).deleteGym(gymId);
+        mockMvc.perform(delete("/api/gyms/{id}", gymId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
+        verify(gymService, times(1)).deleteGym(gymId);
+        verifyNoMoreInteractions(gymService);
+    }
+
 }
