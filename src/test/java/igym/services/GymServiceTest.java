@@ -2,6 +2,7 @@ package igym.services;
 
 import igym.entities.Gym;
 import igym.exceptions.DuplicateGymException;
+import igym.exceptions.GymNotFoundException;
 import igym.repositories.GymRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -54,6 +57,52 @@ public class GymServiceTest {
 
         assertEquals("A gym with the name 'CrossFit Gym' already exists.", exception.getMessage());
         verify(gymRepository, times(1)).existsByName(gym.getName());
+        verify(gymRepository, never()).save(gym);
+    }
+
+    @Test
+    @DisplayName("should successfully update a gym when provided with a valid new name")
+    void testUpdateGym() {
+        UUID gymId = UUID.randomUUID();
+        Gym gym = new Gym("CrossFit Gym");
+        String name = "Updated Gym";
+        when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
+        when(gymRepository.existsByName(name)).thenReturn(false);
+        when(gymRepository.save(any(Gym.class))).thenReturn(gym);
+        Gym result = gymService.updateGym(gymId, name);
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo(name);
+        verify(gymRepository, times(1)).save(any(Gym.class));
+    }
+
+    @Test
+    @DisplayName("Should throw GymNotFoundException when attempting to update a gym that does not exist")
+    void testUpdateGymNotFound() {
+        UUID gymId = UUID.randomUUID();
+        Gym gym = new Gym("CrossFit Gym");
+        String name = "Updated Gym";
+        when(gymRepository.findById(gymId)).thenReturn(Optional.empty());
+        GymNotFoundException exception = assertThrows(
+                GymNotFoundException.class,
+                () -> gymService.updateGym(gymId, name));
+        assertEquals("Gym with id " + gymId + " not found.", exception.getMessage());
+        verify(gymRepository, never()).save(gym);
+    }
+
+    @Test
+    @DisplayName("Should throw DuplicateGymException when attempting to update a gym to a name that is already in use")
+    void testUpdateGymExistingName() {
+        UUID gymId = UUID.randomUUID();
+        Gym gym = new Gym("CrossFit Gym");
+        String name = "CrossFit Gym";
+        when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
+        when(gymRepository.existsByName(name)).thenReturn(true);
+        DuplicateGymException exception = assertThrows(
+                DuplicateGymException.class,
+                () -> gymService.updateGym(gymId, name));
+        assertEquals("A gym with the name '" + gym.getName() + "' already exists.",
+                exception.getMessage());
+        verify(gymRepository, times(1)).existsByName(name);
         verify(gymRepository, never()).save(gym);
     }
 

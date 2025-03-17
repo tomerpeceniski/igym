@@ -6,8 +6,11 @@ import igym.repositories.GymRepository;
 import jakarta.transaction.Transactional;
 
 import java.util.List;
+import java.util.UUID;
+
 import igym.entities.*;
 import igym.exceptions.DuplicateGymException;
+import igym.exceptions.GymNotFoundException;
 
 @Service
 public class GymService {
@@ -24,7 +27,17 @@ public class GymService {
         if (gymRepository.existsByName(gym.getName())) {
             throw new DuplicateGymException("A gym with the name '" + gym.getName() + "' already exists.");
         }
-        
+
+        return gymRepository.save(gym);
+    }
+
+    public Gym updateGym(UUID id, String name) {
+        Gym gym = gymRepository.findById(id)
+                .orElseThrow(() -> new GymNotFoundException("Gym with id " + id + " not found."));
+        if (gymRepository.existsByName(name)) {
+            throw new DuplicateGymException("A gym with the name '" + name + "' already exists.");
+        }
+        gym.setName(name);
         return gymRepository.save(gym);
     }
 
