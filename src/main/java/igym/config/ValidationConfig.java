@@ -13,7 +13,7 @@ public class ValidationConfig {
     public Validator validator() {
         ValidatorFactory factory = Validation.byDefaultProvider()
                 .configure()
-                .addProperty("hibernate.validator.fail_fast", "true")  
+                .addProperty("hibernate.validator.fail_fast", "false")  
                 .buildValidatorFactory();
         return factory.getValidator();
     }
