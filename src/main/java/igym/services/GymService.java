@@ -30,6 +30,16 @@ public class GymService {
         return gymRepository.save(gym);
     }
 
+    public Gym updateGym(UUID id, String name) {
+        Gym gym = gymRepository.findById(id)
+                .orElseThrow(() -> new GymNotFoundException("Gym with id " + id + " not found."));
+        if (gymRepository.existsByName(name)) {
+            throw new DuplicateGymException("A gym with the name '" + name + "' already exists.");
+        }
+        gym.setName(name);
+        return gymRepository.save(gym);
+    }
+
     public List<Gym> findAllGyms() {
         return gymRepository.findAll();
     }

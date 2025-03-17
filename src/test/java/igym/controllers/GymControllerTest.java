@@ -17,7 +17,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Arrays;
@@ -28,6 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -64,6 +66,7 @@ public class GymControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(gym)))
                 .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(gym.getId()))
                 .andExpect(jsonPath("$.name").value("CrossFit Gym"));
 
         verify(gymService, times(1)).createGym(any(Gym.class));
@@ -108,15 +111,14 @@ public class GymControllerTest {
     @Test
     @DisplayName("should return 400 Bad Request when name an empty string")
     void testCreateGymWithEmptyStringName() throws Exception {
-
-        Gym gym = new Gym("");
-
         mockMvc.perform(post("/api/gyms")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(gym)))
+                .content(objectMapper.writeValueAsString(new Gym(""))))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Validation error"))
-                .andExpect(jsonPath("$.errors.name").value("Name must be between 3 and 50 characters"));
+                .andExpect(jsonPath("$.errors", hasSize(2))) // Ensure two errors exist
+                .andExpect(jsonPath("$.errors", containsInAnyOrder(
+                        "Name cannot be blank",
+                        "Name must be between 3 and 50 characters")));
 
         verify(gymService, never()).createGym(any(Gym.class));
     }
@@ -151,6 +153,56 @@ public class GymControllerTest {
                 .andExpect(jsonPath("$.errors.name").value("Name must be between 3 and 50 characters"));
 
         verify(gymService, never()).createGym(any(Gym.class));
+    }
+
+    @Test
+    @DisplayName("should update a existing gym and return status 200")
+    void testUpdateGymSuccess() throws Exception {
+        Gym gym = new Gym("Updated Gym Name");
+        UUID gymId = UUID.randomUUID();
+        gym.setId(gymId);
+        when(gymService.updateGym(gymId, gym.getName())).thenReturn(gym);
+        mockMvc.perform(patch("/api/gyms/{gymId}", gymId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(gym)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(gym.getId().toString()))
+                .andExpect(jsonPath("$.name").value(gym.getName()));
+        verify(gymService, times(1)).updateGym(gymId, gym.getName());
+    }
+
+    @Test
+    @DisplayName("should return 404 when trying to update a non existing gym")
+    void testUpdateGymNotFound() throws Exception {
+        Gym gym = new Gym("Updated Gym Name");
+        UUID gymId = UUID.randomUUID();
+        gym.setId(gymId);
+                doThrow(new GymNotFoundException("Gym with id " + gymId + " not found."))
+                .when(gymService).updateGym(gymId, gym.getName());
+        mockMvc.perform(patch("/api/gyms/{gymId}", gymId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(gym)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Gym with id " + gymId + " not found."))
+                .andExpect(jsonPath("$.error").value("Not Found"));
+        verify(gymService, times(1)).updateGym(gymId, gym.getName());
+    }
+
+    @Test
+    @DisplayName("should return 409 when trying to update a gym with already name in use")
+    void testUpdateGymAlreadyNameInUse() throws Exception {
+        Gym gym = new Gym("Updated Gym Name");
+        UUID gymId = UUID.randomUUID();
+        gym.setId(gymId);
+                doThrow(new DuplicateGymException("A gym with the name '" + gym.getName() + "' already exists."))
+                .when(gymService).updateGym(gymId, gym.getName());
+        mockMvc.perform(patch("/api/gyms/{gymId}", gymId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(gym)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("A gym with the name '" + gym.getName() + "' already exists."))
+                .andExpect(jsonPath("$.error").value("Conflict"));
+        verify(gymService, times(1)).updateGym(gymId, gym.getName());
     }
 
     @Test
