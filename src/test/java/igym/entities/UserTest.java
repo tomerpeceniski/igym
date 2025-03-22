@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import igym.config.ValidationConfig;
+import igym.entities.enums.Status;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,22 @@ public class UserTest {
         String name1 = "Maria Clown";
         User user1 = new User(name1);
         assertNull(user1.getId(), "When a User is created, the ID should be null");
+    }
+
+    @Test
+    @DisplayName("Should return status active when an User is created")
+    public void userStatusTest() {
+        User user = new User("Maria Clown");
+        assertEquals(user.getStatus(), Status.active);
+    }
+
+    @Test
+    @DisplayName("Should return status inactive after changing status to inactive")
+    public void changeStatusTest() {
+        User user = new User("Maria Clown");
+        assertEquals(user.getStatus(), Status.active);
+        user.setStatus(Status.inactive);
+        assertEquals(user.getStatus(), Status.inactive);
     }
 
     @Test

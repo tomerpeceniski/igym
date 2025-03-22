@@ -6,8 +6,10 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import igym.entities.User;
-import igym.exceptions.ObjectNotFoundException;
+import igym.entities.enums.Status;
+import igym.exceptions.UserNotFoundException;
 import igym.exceptions.DuplicateUserException;
+import igym.exceptions.UserAlreadyDeletedException;
 import igym.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 
@@ -24,11 +26,14 @@ public class UserService {
         return repository.findAll();
     }
 
+    @Transactional
     public void deleteUser(UUID id) {
-        if(!repository.existsById(id)) {
-            throw new ObjectNotFoundException("There is no User with ID: " + id);
+        User user = repository.findById(id).orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found."));
+        if(user.getStatus() == Status.inactive) {  
+            throw new UserAlreadyDeletedException("Gym with id " + id + " is already inactive");
         }
-        repository.deleteById(id);
+        user.setStatus(Status.inactive);
+        repository.save(user);
     }
 
     @Transactional

@@ -37,8 +37,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import igym.config.ValidationConfig;
 import igym.entities.User;
-import igym.exceptions.ObjectNotFoundException;
+import igym.exceptions.UserNotFoundException;
 import igym.exceptions.DuplicateUserException;
+import igym.exceptions.UserAlreadyDeletedException;
 import igym.services.UserService;
 import jakarta.validation.Validator;
 
@@ -111,11 +112,24 @@ public class UserControllerTest {
         @DisplayName("Should return status 404 when deleting user that does not exist")
         void deleteNonExistentUserTest() throws Exception {
                 UUID randomUuid = UUID.randomUUID();
-                doThrow(new ObjectNotFoundException("There is no User with ID: " + randomUuid))
+                doThrow(new UserNotFoundException("User with id " + randomUuid + " not found."))
                                 .when(userService).deleteUser(randomUuid);
 
                 mockMvc.perform(delete("/users/" + randomUuid))
                                 .andExpect(status().isNotFound());
+
+                verify(userService, times(1)).deleteUser(randomUuid);
+        }
+
+        @Test
+        @DisplayName("Should return status 409 when deleting user that is already deleted")
+        void deleteDeletedUserTest() throws Exception {
+                UUID randomUuid = UUID.randomUUID();
+                doThrow(new UserAlreadyDeletedException("Gym with id " + randomUuid + " is already inactive"))
+                                .when(userService).deleteUser(randomUuid);
+
+                mockMvc.perform(delete("/users/" + randomUuid))
+                                .andExpect(status().isConflict());
 
                 verify(userService, times(1)).deleteUser(randomUuid);
         }

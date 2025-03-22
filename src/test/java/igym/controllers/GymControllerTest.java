@@ -1,7 +1,6 @@
 package igym.controllers;
 
 import igym.entities.Gym;
-import igym.entities.User;
 import igym.exceptions.DuplicateGymException;
 import igym.services.GymService;
 import jakarta.validation.Validator;
