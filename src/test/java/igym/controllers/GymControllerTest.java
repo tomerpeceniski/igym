@@ -1,6 +1,7 @@
 package igym.controllers;
 
 import igym.entities.Gym;
+import igym.entities.enums.Status;
 import igym.exceptions.DuplicateGymException;
 import igym.exceptions.GymNotFoundException;
 import igym.services.GymService;
@@ -24,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -36,192 +38,193 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @ExtendWith(MockitoExtension.class)
 public class GymControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @SuppressWarnings("removal")
-    @MockBean
-    private GymService gymService;
+        @SuppressWarnings("removal")
+        @MockBean
+        private GymService gymService;
 
-    @Autowired
-    private Validator validator;
+        @Autowired
+        private Validator validator;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+        private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @BeforeEach
-    void setUp() {
-        assert validator != null;
-    }
+        @BeforeEach
+        void setUp() {
+                assert validator != null;
+        }
 
-    @Test
-    @DisplayName("should return a gym and status 201")
-    void testCreateGymSuccess() throws Exception {
+        @Test
+        @DisplayName("should return a gym and status 201")
+        void testCreateGymSuccess() throws Exception {
 
-        Gym gym = new Gym("CrossFit Gym");
-        when(gymService.createGym(any(Gym.class))).thenReturn(gym);
+                Gym gym = new Gym("CrossFit Gym");
+                when(gymService.createGym(any(Gym.class))).thenReturn(gym);
 
-        mockMvc.perform(post("/api/gyms")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(gym)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value("CrossFit Gym"));
+                mockMvc.perform(post("/api/gyms")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(gym)))
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.name").value("CrossFit Gym"));
 
-        verify(gymService, times(1)).createGym(any(Gym.class));
-    }
+                verify(gymService, times(1)).createGym(any(Gym.class));
+        }
 
-    @Test
-    @DisplayName("should return 409 Conflict when gym name already exists")
-    void testCreateGymWithDuplicateName() throws Exception {
+        @Test
+        @DisplayName("should return 409 Conflict when gym name already exists")
+        void testCreateGymWithDuplicateName() throws Exception {
 
-        Gym gym = new Gym("Gold Gym");
+                Gym gym = new Gym("Gold Gym");
 
-        when(gymService.createGym(any(Gym.class)))
-                .thenThrow(new DuplicateGymException("A gym with the name 'Gold Gym' already exists."));
+                when(gymService.createGym(any(Gym.class)))
+                                .thenThrow(new DuplicateGymException("A gym with the name 'Gold Gym' already exists."));
 
-        mockMvc.perform(post("/api/gyms")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(gym)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.message").value("A gym with the name 'Gold Gym' already exists."))
-                .andExpect(jsonPath("$.status").value(409))
-                .andExpect(jsonPath("$.error").value("Conflict"));
+                mockMvc.perform(post("/api/gyms")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(gym)))
+                                .andExpect(status().isConflict())
+                                .andExpect(jsonPath("$.message")
+                                                .value("A gym with the name 'Gold Gym' already exists."))
+                                .andExpect(jsonPath("$.status").value(409))
+                                .andExpect(jsonPath("$.error").value("Conflict"));
 
-        verify(gymService, times(1)).createGym(any(Gym.class));
-    }
+                verify(gymService, times(1)).createGym(any(Gym.class));
+        }
 
-    @Test
-    @DisplayName("should return 400 Bad Request when name is null")
-    void testCreateGymWithNullName() throws Exception {
+        @Test
+        @DisplayName("should return 400 Bad Request when name is null")
+        void testCreateGymWithNullName() throws Exception {
 
-        Gym gym = new Gym(null);
+                Gym gym = new Gym(null);
 
-        mockMvc.perform(post("/api/gyms")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(gym)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Validation error"))
-                .andExpect(jsonPath("$.errors.name").value("Name cannot be blank"));
+                mockMvc.perform(post("/api/gyms")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(gym)))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(jsonPath("$.message").value("Validation error"))
+                                .andExpect(jsonPath("$.errors.name").value("Name cannot be blank"));
 
-        verify(gymService, never()).createGym(any(Gym.class));
-    }
+                verify(gymService, never()).createGym(any(Gym.class));
+        }
 
-    @Test
-    @DisplayName("should return 400 Bad Request when name an empty string")
-    void testCreateGymWithEmptyStringName() throws Exception {
+        @Test
+        @DisplayName("should return 400 Bad Request when name an empty string")
+        void testCreateGymWithEmptyStringName() throws Exception {
 
-        Gym gym = new Gym("");
+                Gym gym = new Gym("");
 
-        mockMvc.perform(post("/api/gyms")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(gym)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Validation error"))
-                .andExpect(jsonPath("$.errors.name").value("Name must be between 3 and 50 characters"));
+                mockMvc.perform(post("/api/gyms")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(gym)))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(jsonPath("$.message").value("Validation error"))
+                                .andExpect(jsonPath("$.errors.name").value("Name must be between 3 and 50 characters"));
 
-        verify(gymService, never()).createGym(any(Gym.class));
-    }
+                verify(gymService, never()).createGym(any(Gym.class));
+        }
 
-    @Test
-    @DisplayName("should return 400 Bad Request when name has more than 50 characters")
-    void testCreateGymWithTooLongName() throws Exception {
+        @Test
+        @DisplayName("should return 400 Bad Request when name has more than 50 characters")
+        void testCreateGymWithTooLongName() throws Exception {
 
-        Gym gym = new Gym("a".repeat(51));
+                Gym gym = new Gym("a".repeat(51));
 
-        mockMvc.perform(post("/api/gyms")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(gym)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Validation error"))
-                .andExpect(jsonPath("$.errors.name").value("Name must be between 3 and 50 characters"));
+                mockMvc.perform(post("/api/gyms")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(gym)))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(jsonPath("$.message").value("Validation error"))
+                                .andExpect(jsonPath("$.errors.name").value("Name must be between 3 and 50 characters"));
 
-        verify(gymService, never()).createGym(any(Gym.class));
-    }
+                verify(gymService, never()).createGym(any(Gym.class));
+        }
 
-    @Test
-    @DisplayName("should return 400 Bad Request when name has less than 3 characters")
-    void testCreateGymWithTooShortName() throws Exception {
+        @Test
+        @DisplayName("should return 400 Bad Request when name has less than 3 characters")
+        void testCreateGymWithTooShortName() throws Exception {
 
-        Gym gym = new Gym("a");
+                Gym gym = new Gym("a");
 
-        mockMvc.perform(post("/api/gyms")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(gym)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Validation error"))
-                .andExpect(jsonPath("$.errors.name").value("Name must be between 3 and 50 characters"));
+                mockMvc.perform(post("/api/gyms")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(gym)))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(jsonPath("$.message").value("Validation error"))
+                                .andExpect(jsonPath("$.errors.name").value("Name must be between 3 and 50 characters"));
 
-        verify(gymService, never()).createGym(any(Gym.class));
-    }
+                verify(gymService, never()).createGym(any(Gym.class));
+        }
 
-    @Test
-    @DisplayName("should return all the gyms from the service and status 200")
-    void testFindAllGymsSuccess() throws Exception {
+        @Test
+        @DisplayName("should return all the gyms from the service and status 200")
+        void testFindAllGymsSuccess() throws Exception {
 
-        Gym gym1 = new Gym("Location 1");
-        Gym gym2 = new Gym("Location 2");
-        List<Gym> gyms = Arrays.asList(gym1, gym2);
+                Gym gym1 = new Gym("Location 1");
+                Gym gym2 = new Gym("Location 2");
+                List<Gym> gyms = Arrays.asList(gym1, gym2);
 
-        when(gymService.findAllGyms()).thenReturn(gyms);
+                when(gymService.findAllGyms()).thenReturn(gyms);
 
-        mockMvc.perform(get("/api/gyms"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Location 1"))
-                .andExpect(jsonPath("$[1].name").value("Location 2"));
-    }
+                mockMvc.perform(get("/api/gyms"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$[0].name").value("Location 1"))
+                                .andExpect(jsonPath("$[1].name").value("Location 2"));
+        }
 
-    @Test
-    @DisplayName("should return an exception and status 500")
-    void testFindAllGymsError() throws Exception {
+        @Test
+        @DisplayName("should return an exception and status 500")
+        void testFindAllGymsError() throws Exception {
 
-        when(gymService.findAllGyms()).thenThrow(new RuntimeException("Internal server error"));
+                when(gymService.findAllGyms()).thenThrow(new RuntimeException("Internal server error"));
 
-        mockMvc.perform(get("/api/gyms"))
-                .andExpect(status().isInternalServerError());
-    }
+                mockMvc.perform(get("/api/gyms"))
+                                .andExpect(status().isInternalServerError());
+        }
 
-    @Test
-    @DisplayName("should delete a gym from the repository")
-    void testDeleteGymSuccess() throws Exception {
+        @Test
+        @DisplayName("should delete a gym from the repository")
+        void testDeleteGymSuccess() throws Exception {
 
-        UUID gymId = UUID.randomUUID();
-        Gym gym = new Gym("Location 1");
-        ReflectionTestUtils.setField(gym, "id", gymId);
+                UUID gymId = UUID.randomUUID();
+                Gym gym = new Gym("Location 1");
+                ReflectionTestUtils.setField(gym, "id", gymId);
+                doNothing().when(gymService).deleteGym(gymId);
+                assertEquals(Status.active, gym.getStatus(), "Gym should initially be active");
 
-        doNothing().when(gymService).deleteGym(gymId);
+                mockMvc.perform(delete("/api/gyms/{id}", gymId)
+                                .contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(status().isNoContent());
 
-        mockMvc.perform(delete("/api/gyms/{id}", gymId)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent());
+                verify(gymService, times(1)).deleteGym(gymId);
+                verifyNoMoreInteractions(gymService);
+        }
 
-        verify(gymService, times(1)).deleteGym(gymId);
-        verifyNoMoreInteractions(gymService);
-    }
+        @Test
+        @DisplayName("should return 404 when gym is not found")
+        void testDeleteGymNotFound() throws Exception {
+                UUID gymId = UUID.randomUUID();
+                doThrow(new GymNotFoundException("Gym with id " + gymId + " not found."))
+                                .when(gymService).deleteGym(gymId);
+                mockMvc.perform(delete("/api/gyms/{id}", gymId)
+                                .contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(status().isNotFound());
 
-    @Test
-    @DisplayName("should return 404 when gym is not found")
-    void testDeleteGymNotFound() throws Exception {
-        UUID gymId = UUID.randomUUID();
-        doThrow(new GymNotFoundException("Gym with id " + gymId + " not found."))
-                .when(gymService).deleteGym(gymId);
-        mockMvc.perform(delete("/api/gyms/{id}", gymId)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+                verify(gymService, times(1)).deleteGym(gymId);
+                verifyNoMoreInteractions(gymService);
+        }
 
-        verify(gymService, times(1)).deleteGym(gymId);
-        verifyNoMoreInteractions(gymService);
-    }
-
-    @Test
-    @DisplayName("should return status 404 when deleting a inactive gym")
-    void testDeleteGymAlreadyDeleted() throws Exception {
-        UUID gymId = UUID.randomUUID();
-        doThrow(new GymNotFoundException("Gym with id " + gymId + " not found."))
-                .when(gymService).deleteGym(gymId);
-        mockMvc.perform(delete("/api/gyms/{id}", gymId)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
-        verify(gymService, times(1)).deleteGym(gymId);
-        verifyNoMoreInteractions(gymService);
-    }
+        @Test
+        @DisplayName("should return status 404 when deleting a inactive gym")
+        void testDeleteGymAlreadyDeleted() throws Exception {
+                UUID gymId = UUID.randomUUID();
+                doThrow(new GymNotFoundException("Gym with id " + gymId + " not found."))
+                                .when(gymService).deleteGym(gymId);
+                mockMvc.perform(delete("/api/gyms/{id}", gymId)
+                                .contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(status().isNotFound());
+                verify(gymService, times(1)).deleteGym(gymId);
+                verifyNoMoreInteractions(gymService);
+        }
 
 }
