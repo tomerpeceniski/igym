@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 import igym.entities.*;
+import igym.entities.enums.Status;
 import igym.exceptions.*;
 
 @Service
@@ -35,13 +36,13 @@ public class GymService {
     }
 
     public void deleteGym(UUID id) {
-        Gym gym = gymRepository.findById(id)
+        Gym gym = (gymRepository.findById(id))
                 .orElseThrow(() -> new GymNotFoundException("Gym with id " + id + " not found."));
 
-        if (gym.getStatus() == GymStatus.inactive)
-            throw new GymAlreadyDeletedException("Gym with id " + id + " is inactive");
+        if (gym.getStatus() == Status.inactive)
+            throw new GymNotFoundException("Gym with id " + id + " not found.");
 
-        gym.setStatus(GymStatus.inactive);
+        gym.setStatus(Status.inactive);
         gymRepository.save(gym);
     }
 
