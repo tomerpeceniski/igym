@@ -1,6 +1,8 @@
 package igym.entities;
 
 import java.util.UUID;
+
+import igym.entities.enums.Status;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
@@ -19,7 +21,7 @@ public class Gym {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private GymStatus status = GymStatus.active;
+    private Status status = Status.active;
 
     public Gym(String name) {
         this.name = name;
@@ -40,15 +42,11 @@ public class Gym {
         this.name = name;
     }
 
-    public void setId(UUID gymId) {
-        this.id = gymId;
-    }
-
-    public GymStatus getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(GymStatus status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 }

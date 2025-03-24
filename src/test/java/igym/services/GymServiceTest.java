@@ -1,9 +1,8 @@
 package igym.services;
 
 import igym.entities.Gym;
-import igym.entities.GymStatus;
+import igym.entities.enums.Status;
 import igym.exceptions.DuplicateGymException;
-import igym.exceptions.GymAlreadyDeletedException;
 import igym.exceptions.GymNotFoundException;
 import igym.repositories.GymRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -11,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.util.ReflectionTestUtils;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -88,11 +89,11 @@ public class GymServiceTest {
     void testDeleteGym() {
         UUID gymId = UUID.randomUUID();
         Gym gym = new Gym("CrossFit Gym");
-        gym.setId(gymId);
+        ReflectionTestUtils.setField(gym, "id", gymId);
         when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
         gymService.deleteGym(gymId);
         verify(gymRepository, times(1)).findById(gymId);
-        assertTrue(gym.getStatus() == GymStatus.inactive);
+        assertTrue(gym.getStatus() == Status.inactive);
     }
 
     @Test
@@ -111,10 +112,10 @@ public class GymServiceTest {
     void testDeleteInactiveGym(){
         UUID gymId = UUID.randomUUID();
         Gym gym = new Gym("CrossFit Gym");
-        gym.setId(gymId);
-        gym.setStatus(GymStatus.inactive);
+        ReflectionTestUtils.setField(gym, "id", gymId);
+        gym.setStatus(Status.inactive);
         when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
-        assertThrows(GymAlreadyDeletedException.class, () -> {
+        assertThrows(GymNotFoundException.class, () -> {
             gymService.deleteGym(gymId);
         });
         verify(gymRepository, times(1)).findById(gymId);
