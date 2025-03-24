@@ -90,6 +90,7 @@ public class GymServiceTest {
         UUID gymId = UUID.randomUUID();
         Gym gym = new Gym("CrossFit Gym");
         ReflectionTestUtils.setField(gym, "id", gymId);
+        gym.setStatus(Status.active);
         when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
         gymService.deleteGym(gymId);
         verify(gymRepository, times(1)).findById(gymId);
