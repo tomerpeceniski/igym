@@ -1,0 +1,46 @@
+name: Java CI with Maven and SonarQube
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Build and test with Maven (with coverage)
+      run: mvn clean verify
+
+    - name: Run SonarQube analysis
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        mvn sonar:sonar \
+          -Dsonar.projectKey=your_project_key \
+          -Dsonar.host.url=http://your-sonarqube-server:9000 \
+          -Dsonar.token=$SONAR_TOKEN \
+          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+
+    - name: Check coverage ≥ 90%
+      run: |
+        COVERAGE=$(grep -oPm1 "(?<=<line-rate>)[^<]+" target/site/jacoco/jacoco.xml)
+        PERCENT=$(awk "BEGIN {print $COVERAGE * 100}")
+        echo "Coverage: $PERCENT%"
+        if (( $(echo "$PERCENT < 90.0" | bc -l) )); then
+          echo "❌ Coverage is below 90%!"
+          exit 1
+        else
+          echo "✅ Coverage is sufficient."
+        fi
