@@ -6,6 +6,8 @@ import igym.exceptions.DuplicateGymException;
 import igym.exceptions.GymNotFoundException;
 import igym.services.GymService;
 import jakarta.validation.Validator;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -95,15 +97,12 @@ public class GymControllerTest {
         @Test
         @DisplayName("should return 400 Bad Request when name is null")
         void testCreateGymWithNullName() throws Exception {
-
-                Gym gym = new Gym(null);
-
                 mockMvc.perform(post("/api/gyms")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(gym)))
+                                .content(objectMapper.writeValueAsString(new Gym(null))))
                                 .andExpect(status().isBadRequest())
                                 .andExpect(jsonPath("$.message").value("Validation error"))
-                                .andExpect(jsonPath("$.errors.name").value("Name cannot be blank"));
+                                .andExpect(jsonPath("$.errors").value("Name cannot be blank"));
 
                 verify(gymService, never()).createGym(any(Gym.class));
         }
@@ -111,15 +110,14 @@ public class GymControllerTest {
         @Test
         @DisplayName("should return 400 Bad Request when name an empty string")
         void testCreateGymWithEmptyStringName() throws Exception {
-
-                Gym gym = new Gym("");
-
                 mockMvc.perform(post("/api/gyms")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(gym)))
+                                .content(objectMapper.writeValueAsString(new Gym(""))))
                                 .andExpect(status().isBadRequest())
-                                .andExpect(jsonPath("$.message").value("Validation error"))
-                                .andExpect(jsonPath("$.errors.name").value("Name must be between 3 and 50 characters"));
+                                .andExpect(jsonPath("$.errors", hasSize(2))) // Ensure two errors exist
+                                .andExpect(jsonPath("$.errors", containsInAnyOrder(
+                                                "Name cannot be blank",
+                                                "Name must be between 3 and 50 characters")));
 
                 verify(gymService, never()).createGym(any(Gym.class));
         }
@@ -127,15 +125,12 @@ public class GymControllerTest {
         @Test
         @DisplayName("should return 400 Bad Request when name has more than 50 characters")
         void testCreateGymWithTooLongName() throws Exception {
-
-                Gym gym = new Gym("a".repeat(51));
-
                 mockMvc.perform(post("/api/gyms")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(gym)))
+                                .content(objectMapper.writeValueAsString(new Gym("a".repeat(51)))))
                                 .andExpect(status().isBadRequest())
                                 .andExpect(jsonPath("$.message").value("Validation error"))
-                                .andExpect(jsonPath("$.errors.name").value("Name must be between 3 and 50 characters"));
+                                .andExpect(jsonPath("$.errors").value("Name must be between 3 and 50 characters"));
 
                 verify(gymService, never()).createGym(any(Gym.class));
         }
@@ -143,15 +138,12 @@ public class GymControllerTest {
         @Test
         @DisplayName("should return 400 Bad Request when name has less than 3 characters")
         void testCreateGymWithTooShortName() throws Exception {
-
-                Gym gym = new Gym("a");
-
                 mockMvc.perform(post("/api/gyms")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(gym)))
+                                .content(objectMapper.writeValueAsString(new Gym("a"))))
                                 .andExpect(status().isBadRequest())
                                 .andExpect(jsonPath("$.message").value("Validation error"))
-                                .andExpect(jsonPath("$.errors.name").value("Name must be between 3 and 50 characters"));
+                                .andExpect(jsonPath("$.errors").value("Name must be between 3 and 50 characters"));
 
                 verify(gymService, never()).createGym(any(Gym.class));
         }
