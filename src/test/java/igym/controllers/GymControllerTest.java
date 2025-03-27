@@ -64,7 +64,6 @@ public class GymControllerTest {
         @Test
         @DisplayName("should return a gym and status 201")
         void testCreateGymSuccess() throws Exception {
-
                 when(gymService.createGym(any(Gym.class))).thenReturn(gym);
 
                 mockMvc.perform(post("/api/gyms")
@@ -79,8 +78,6 @@ public class GymControllerTest {
         @Test
         @DisplayName("should return 409 Conflict when gym name already exists")
         void testCreateGymWithDuplicateName() throws Exception {
-
-
                 when(gymService.createGym(any(Gym.class)))
                                 .thenThrow(new DuplicateGymException("A gym with the name 'Gold Gym' already exists."));
 
@@ -153,25 +150,26 @@ public class GymControllerTest {
         @Test
         @DisplayName("should return all the gyms from the service and status 200")
         void testFindAllGymsSuccess() throws Exception {
-
                 List<Gym> gyms = Arrays.asList(gym, gym1);
-
                 when(gymService.findAllGyms()).thenReturn(gyms);
 
                 mockMvc.perform(get("/api/gyms"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$[0].name").value("Location 1"))
                                 .andExpect(jsonPath("$[1].name").value("Location 2"));
+                
+                verify(gymService, times(1)).findAllGyms();
         }
 
         @Test
         @DisplayName("should return an exception and status 500")
         void testFindAllGymsError() throws Exception {
-
                 when(gymService.findAllGyms()).thenThrow(new RuntimeException("Internal server error"));
 
                 mockMvc.perform(get("/api/gyms"))
                                 .andExpect(status().isInternalServerError());
+
+                verify(gymService, times(1)).findAllGyms();
         }
 
         @Test
@@ -197,6 +195,7 @@ public class GymControllerTest {
         void testDeleteGymNotFound() throws Exception {
                 doThrow(new GymNotFoundException("Gym with id " + gymId + " not found."))
                                 .when(gymService).deleteGym(gymId);
+
                 mockMvc.perform(delete("/api/gyms/{id}", gymId)
                                 .contentType(MediaType.APPLICATION_JSON))
                                 .andExpect(status().isNotFound());
@@ -211,9 +210,11 @@ public class GymControllerTest {
                 gym.setStatus(Status.inactive);
                 doThrow(new GymNotFoundException("Gym with id " + gymId + " not found."))
                                 .when(gymService).deleteGym(gymId);
+
                 mockMvc.perform(delete("/api/gyms/{id}", gymId)
                                 .contentType(MediaType.APPLICATION_JSON))
                                 .andExpect(status().isNotFound());
+
                 assertEquals(Status.inactive, gym.getStatus(), "Gym should finally be inactive");
                 verify(gymService, times(1)).deleteGym(gymId);
                 verifyNoMoreInteractions(gymService);
