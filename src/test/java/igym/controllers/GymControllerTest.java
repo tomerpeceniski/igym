@@ -51,24 +51,27 @@ public class GymControllerTest {
         private Validator validator;
 
         private final ObjectMapper objectMapper = new ObjectMapper();
+        UUID gymId = UUID.randomUUID();
+        Gym gym = new Gym("Location 1");
+        Gym gym1 = new Gym("Location 2");
 
         @BeforeEach
         void setUp() {
                 assert validator != null;
+                ReflectionTestUtils.setField(gym, "id", gymId);
         }
 
         @Test
         @DisplayName("should return a gym and status 201")
         void testCreateGymSuccess() throws Exception {
 
-                Gym gym = new Gym("CrossFit Gym");
                 when(gymService.createGym(any(Gym.class))).thenReturn(gym);
 
                 mockMvc.perform(post("/api/gyms")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(gym)))
                                 .andExpect(status().isCreated())
-                                .andExpect(jsonPath("$.name").value("CrossFit Gym"));
+                                .andExpect(jsonPath("$.name").value(gym.getName()));
 
                 verify(gymService, times(1)).createGym(any(Gym.class));
         }
@@ -77,7 +80,6 @@ public class GymControllerTest {
         @DisplayName("should return 409 Conflict when gym name already exists")
         void testCreateGymWithDuplicateName() throws Exception {
 
-                Gym gym = new Gym("Gold Gym");
 
                 when(gymService.createGym(any(Gym.class)))
                                 .thenThrow(new DuplicateGymException("A gym with the name 'Gold Gym' already exists."));
@@ -152,9 +154,7 @@ public class GymControllerTest {
         @DisplayName("should return all the gyms from the service and status 200")
         void testFindAllGymsSuccess() throws Exception {
 
-                Gym gym1 = new Gym("Location 1");
-                Gym gym2 = new Gym("Location 2");
-                List<Gym> gyms = Arrays.asList(gym1, gym2);
+                List<Gym> gyms = Arrays.asList(gym, gym1);
 
                 when(gymService.findAllGyms()).thenReturn(gyms);
 
@@ -177,14 +177,11 @@ public class GymControllerTest {
         @Test
         @DisplayName("should delete a gym from the repository")
         void testDeleteGymSuccess() throws Exception {
-                UUID gymId = UUID.randomUUID();
-                Gym gym = new Gym("Location 1");
-                ReflectionTestUtils.setField(gym, "id", gymId);
                 assertEquals(Status.active, gym.getStatus(), "Gym should initially be active");
                 doAnswer(invocation -> {
                         gym.setStatus(Status.inactive);
                         return null;
-                    }).when(gymService).deleteGym(gymId);
+                }).when(gymService).deleteGym(gymId);
 
                 mockMvc.perform(delete("/api/gyms/{id}", gymId)
                                 .contentType(MediaType.APPLICATION_JSON))
@@ -196,9 +193,8 @@ public class GymControllerTest {
         }
 
         @Test
-        @DisplayName("should return 404 when gym is not found")
+        @DisplayName("should return 404 when deleting a non existing gym")
         void testDeleteGymNotFound() throws Exception {
-                UUID gymId = UUID.randomUUID();
                 doThrow(new GymNotFoundException("Gym with id " + gymId + " not found."))
                                 .when(gymService).deleteGym(gymId);
                 mockMvc.perform(delete("/api/gyms/{id}", gymId)
@@ -212,12 +208,13 @@ public class GymControllerTest {
         @Test
         @DisplayName("should return status 404 when deleting a inactive gym")
         void testDeleteGymAlreadyDeleted() throws Exception {
-                UUID gymId = UUID.randomUUID();
+                gym.setStatus(Status.inactive);
                 doThrow(new GymNotFoundException("Gym with id " + gymId + " not found."))
                                 .when(gymService).deleteGym(gymId);
                 mockMvc.perform(delete("/api/gyms/{id}", gymId)
                                 .contentType(MediaType.APPLICATION_JSON))
                                 .andExpect(status().isNotFound());
+                assertEquals(Status.inactive, gym.getStatus(), "Gym should finally be inactive");
                 verify(gymService, times(1)).deleteGym(gymId);
                 verifyNoMoreInteractions(gymService);
         }
