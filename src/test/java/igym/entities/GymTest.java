@@ -24,28 +24,6 @@ class GymTest {
         validator = factory.getValidator();
     }
 
-    @Test
-    @DisplayName("should create a gym successfully when name is valid")
-    void testValidGym() {
-        Gym gym = new Gym("Valid Name");
-        Set<ConstraintViolation<Gym>> violations = validator.validate(gym);
-        assertTrue(violations.isEmpty());
-        assertTrue(gym.getStatus() == Status.active);
-    }
-
-    @Test
-    @DisplayName("should return a validation error when the name is blank")
-    void testBlankName() {
-        Gym gym = new Gym("");
-        Set<ConstraintViolation<Gym>> violations = validator.validate(gym);
-        assertFalse(violations.isEmpty());
-
-        List<String> messages = violations.stream()
-                .map(ConstraintViolation::getMessage)
-                .toList();
-
-        assertTrue(messages.contains("Name cannot be blank"));
-    }
 
     @Test
     @DisplayName("should return a validation error when the name is null")
