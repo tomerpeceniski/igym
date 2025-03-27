@@ -1,4 +1,4 @@
-name: Java CI with Maven and SonarQube
+name: Java CI with Maven and SonarCloud
 
 on:
   push:
@@ -11,7 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     - name: Set up JDK 21
       uses: actions/setup-java@v3
@@ -20,24 +23,38 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
-    - name: Build and test with Maven (with coverage)
+    - name: Cache Sonar packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+
+    - name: Cache Maven packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+
+    - name: Run tests and build JaCoCo report
       run: mvn clean verify
 
-    - name: Run SonarQube analysis
+    - name: Run SonarCloud analysis
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: |
-        mvn sonar:sonar \
-          -Dsonar.projectKey=your_project_key \
-          -Dsonar.host.url=http://your-sonarqube-server:9000 \
-          -Dsonar.token=$SONAR_TOKEN \
-          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+      run: mvn sonar:sonar \
+        -Dsonar.projectKey=tomerpeceniski_igym \
+        -Dsonar.organization=tomerpeceniski \
+        -Dsonar.host.url=https://sonarcloud.io \
+        -Dsonar.token=$SONAR_TOKEN \
+        -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
 
-    - name: Check coverage ≥ 90%
+    - name: Check if code coverage is ≥ 90%
       run: |
         COVERAGE=$(grep -oPm1 "(?<=<line-rate>)[^<]+" target/site/jacoco/jacoco.xml)
         PERCENT=$(awk "BEGIN {print $COVERAGE * 100}")
-        echo "Coverage: $PERCENT%"
+        echo "Code coverage: $PERCENT%"
         if (( $(echo "$PERCENT < 90.0" | bc -l) )); then
           echo "❌ Coverage is below 90%!"
           exit 1
