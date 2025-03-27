@@ -177,17 +177,20 @@ public class GymControllerTest {
         @Test
         @DisplayName("should delete a gym from the repository")
         void testDeleteGymSuccess() throws Exception {
-
                 UUID gymId = UUID.randomUUID();
                 Gym gym = new Gym("Location 1");
                 ReflectionTestUtils.setField(gym, "id", gymId);
-                doNothing().when(gymService).deleteGym(gymId);
                 assertEquals(Status.active, gym.getStatus(), "Gym should initially be active");
+                doAnswer(invocation -> {
+                        gym.setStatus(Status.inactive);
+                        return null;
+                    }).when(gymService).deleteGym(gymId);
 
                 mockMvc.perform(delete("/api/gyms/{id}", gymId)
                                 .contentType(MediaType.APPLICATION_JSON))
                                 .andExpect(status().isNoContent());
 
+                assertEquals(Status.inactive, gym.getStatus(), "Gym should finally be inactive");
                 verify(gymService, times(1)).deleteGym(gymId);
                 verifyNoMoreInteractions(gymService);
         }
