@@ -6,11 +6,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import igym.config.ValidationConfig;
 import igym.entities.enums.Status;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
 import org.springframework.boot.test.context.SpringBootTest;
 
 import jakarta.validation.*;
@@ -20,7 +21,13 @@ import jakarta.validation.constraints.Size;
 @SpringBootTest
 public class UserTest {
 
-    Validator validator = ValidationConfig.validator();
+    private static Validator validator;
+
+    @BeforeAll
+    static void setUp() {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
+    }
 
     @Test
     @DisplayName("Should return the name of the user")

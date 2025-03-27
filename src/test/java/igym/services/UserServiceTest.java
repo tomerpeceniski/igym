@@ -6,7 +6,6 @@ import static org.mockito.Mockito.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,7 +15,6 @@ import igym.entities.User;
 import igym.entities.enums.Status;
 import igym.exceptions.UserNotFoundException;
 import igym.exceptions.DuplicateUserException;
-import igym.exceptions.UserAlreadyDeletedException;
 import igym.repositories.UserRepository;
 
 public class UserServiceTest {
@@ -72,7 +70,7 @@ public class UserServiceTest {
         User user = users.get(0);
         user.setStatus(Status.inactive);
         when(repository.findById(user.getId())).thenReturn(Optional.of(user));
-        assertThrowsExactly(UserAlreadyDeletedException.class, () -> service.deleteUser(user.getId()));
+        assertThrowsExactly(UserNotFoundException.class, () -> service.deleteUser(user.getId()));
         verify(repository, never()).save(user);
     }
 
