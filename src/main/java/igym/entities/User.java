@@ -1,6 +1,7 @@
 package igym.entities;
 
 import java.util.UUID;
+import igym.entities.enums.Status;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -17,6 +18,10 @@ public class User {
     @NotBlank(message = "Name cannot be blank")
     @Size(min = 3, max = 50, message = "Name must be between 3 and 50 characters")
     private String name;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.active;
 
     public User() {
     }
@@ -35,5 +40,13 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }
