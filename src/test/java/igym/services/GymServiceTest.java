@@ -1,20 +1,27 @@
 package igym.services;
 
 import igym.entities.Gym;
+import igym.entities.enums.Status;
 import igym.exceptions.DuplicateGymException;
+import igym.exceptions.GymNotFoundException;
 import igym.repositories.GymRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.util.ReflectionTestUtils;
+
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 public class GymServiceTest {
@@ -75,6 +82,44 @@ public class GymServiceTest {
     void testGymsNotFound() {
         List<Gym> gyms = gymService.findAllGyms();
         assertThat(gyms).isEmpty();
+    }
+
+    @Test
+    @DisplayName("should delete a gym from the repository")
+    void testDeleteGym() {
+        UUID gymId = UUID.randomUUID();
+        Gym gym = new Gym("CrossFit Gym");
+        ReflectionTestUtils.setField(gym, "id", gymId);
+        gym.setStatus(Status.active);
+        when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
+        gymService.deleteGym(gymId);
+        verify(gymRepository, times(1)).findById(gymId);
+        assertTrue(gym.getStatus() == Status.inactive);
+    }
+
+    @Test
+    @DisplayName("should throw GymNotFoundException when attempting to delete a gym that does not exist")
+    void testDeleteGymNotFound() {
+        UUID gymId = UUID.randomUUID();
+        when(gymRepository.findById(gymId)).thenReturn(Optional.empty());
+        assertThrows(GymNotFoundException.class, () -> {
+            gymService.deleteGym(gymId);
+        });
+        verify(gymRepository, times(1)).findById(gymId);
+    }
+
+    @Test
+    @DisplayName("should throw GymAlreadyDeletedException when attempting to delete a inactive gym")
+    void testDeleteInactiveGym(){
+        UUID gymId = UUID.randomUUID();
+        Gym gym = new Gym("CrossFit Gym");
+        ReflectionTestUtils.setField(gym, "id", gymId);
+        gym.setStatus(Status.inactive);
+        when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
+        assertThrows(GymNotFoundException.class, () -> {
+            gymService.deleteGym(gymId);
+        });
+        verify(gymRepository, times(1)).findById(gymId);
     }
 
 }
