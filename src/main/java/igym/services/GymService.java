@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.UUID;
 
 import igym.entities.*;
-import igym.exceptions.DuplicateGymException;
-import igym.exceptions.GymNotFoundException;
+import igym.entities.enums.Status;
+import igym.exceptions.*;
 
 @Service
 public class GymService {
@@ -43,6 +43,17 @@ public class GymService {
 
     public List<Gym> findAllGyms() {
         return gymRepository.findAll();
+    }
+
+    public void deleteGym(UUID id) {
+        Gym gym = (gymRepository.findById(id))
+                .orElseThrow(() -> new GymNotFoundException("Gym with id " + id + " not found."));
+
+        if (gym.getStatus() == Status.inactive)
+            throw new GymNotFoundException("Gym with id " + id + " not found.");
+
+        gym.setStatus(Status.inactive);
+        gymRepository.save(gym);
     }
 
 }

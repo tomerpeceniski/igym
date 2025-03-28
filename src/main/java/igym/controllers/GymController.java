@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,6 +51,12 @@ public class GymController {
         List<Gym> gyms = service.findAllGyms();
 
         return ResponseEntity.ok(gyms);
+    }
+
+    @DeleteMapping(value = "/gyms/{id}", produces = "application/json")
+    public ResponseEntity<Void> deleteGym(@PathVariable("id") UUID id) {
+        service.deleteGym(id);
+        return ResponseEntity.noContent().build();
     }
 
 }

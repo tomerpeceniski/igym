@@ -2,6 +2,7 @@ package igym.exceptions;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -23,12 +24,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Object> handleValidationException(MethodArgumentNotValidException ex) {        
+    public ResponseEntity<Object> handleValidationException(MethodArgumentNotValidException ex) {
         Map<String, Object> body = buildResponseBody(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.getReasonPhrase());
 
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors()
-                .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+        List<String> errors = ex.getBindingResult().getFieldErrors().stream().map(e -> e.getDefaultMessage()).toList();
 
         body.put("message", "Validation error");
         body.put("errors", errors);
@@ -44,6 +43,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(GymNotFoundException.class)
     public ResponseEntity<Object> handleGymNotFoundException(GymNotFoundException ex) {
+        Map<String, Object> body = buildResponseBody(HttpStatus.NOT_FOUND, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Object> handleObjectNotFoundException(UserNotFoundException ex) {
         Map<String, Object> body = buildResponseBody(HttpStatus.NOT_FOUND, ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }

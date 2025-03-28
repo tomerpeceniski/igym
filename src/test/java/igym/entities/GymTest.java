@@ -5,6 +5,8 @@ import jakarta.validation.*;
 import org.junit.jupiter.api.*;
 import org.springframework.test.annotation.Rollback;
 
+import igym.entities.enums.Status;
+
 import java.util.List;
 import java.util.Set;
 
@@ -20,7 +22,6 @@ class GymTest {
     static void setUp() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
-
     }
 
     @Test
@@ -29,6 +30,7 @@ class GymTest {
         Gym gym = new Gym("Valid Name");
         Set<ConstraintViolation<Gym>> violations = validator.validate(gym);
         assertTrue(violations.isEmpty());
+        assertTrue(gym.getStatus() == Status.active);
     }
 
     @Test
@@ -75,4 +77,16 @@ class GymTest {
         assertFalse(violations.isEmpty());
         assertEquals("Name must be between 3 and 50 characters", violations.iterator().next().getMessage());
     }
+
+    @Test
+    @DisplayName("should set the gym status")
+    void testSetGymStatus(){
+        Gym gym = new Gym();
+        gym.setStatus(Status.inactive);
+        Set<ConstraintViolation<Gym>> violations = validator.validate(gym);
+        assertFalse(violations.isEmpty());
+        assertTrue(gym.getStatus() == Status.inactive);
+    }
+
+
 }
