@@ -24,26 +24,35 @@ public class UserService {
     }
 
     public List<User> findAll() {
-        return repository.findAll();
+        logger.debug("Fetching all users from the repository");
+        List<User> users = repository.findAll();
+        logger.info("Found {} users", users.size());
+        return users;
     }
 
     @Transactional
     public void deleteUser(UUID id) {
+        logger.info("Attempting to inactivate user with id {}", id);
         User user = repository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found."));
         if (user.getStatus() == Status.inactive) {
+            logger.warn("User with id {} already inactive", id);
             throw new UserNotFoundException("User with id " + id + " not found.");
         }
         user.setStatus(Status.inactive);
         repository.save(user);
+        logger.info("User with id {} inactivated", id);
     }
 
     @Transactional
     public User createUser(User user) {
+        logger.info("Attempting to create new user with username {}", user.getName());
         if (repository.existsByName(user.getName())) {
             throw new DuplicateUserException("An user with the name " + user.getName() + " already exists.");
         }
-        return repository.save(user);
+        User savedUser = repository.save(user);
+        logger.info("New user created with id {}", savedUser.getId());
+        return savedUser;
     }
 
 }
