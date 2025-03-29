@@ -2,7 +2,8 @@ package igym.services;
 
 import java.util.List;
 import java.util.UUID;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import igym.entities.User;
@@ -15,6 +16,7 @@ import jakarta.transaction.Transactional;
 @Service
 public class UserService {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserRepository repository;
 
     public UserService(UserRepository repository) {
