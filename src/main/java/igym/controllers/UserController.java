@@ -4,10 +4,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import igym.entities.User;
 import igym.services.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -28,12 +32,15 @@ public class UserController {
 
     private final UserService service;
 
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+
     public UserController(UserService service) {
         this.service = service;
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<User>> findAll() {
+    public ResponseEntity<List<User>> findAll(HttpServletRequest request) {
+        logger.info("Received {} {}", request.getMethod(), request.getRequestURI());        
         List<User> list = service.findAll();
         return ResponseEntity.ok().body(list);
     }
