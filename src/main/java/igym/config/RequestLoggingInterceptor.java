@@ -1,7 +1,10 @@
 package igym.config;
 
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
@@ -20,7 +23,11 @@ public class RequestLoggingInterceptor implements HandlerInterceptor {
     public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
             @NonNull Object handler) {
         String pattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
-        logger.info("RequestLoggingInterceptor - Received {} {}", request.getMethod(), pattern);
+
+        String requestId = UUID.randomUUID().toString();
+        MDC.put("requestId", requestId);
+
+        logger.info("Received {} {}", request.getMethod(), pattern);
         request.setAttribute("startTime", System.currentTimeMillis());
         return true;
     }
@@ -30,7 +37,8 @@ public class RequestLoggingInterceptor implements HandlerInterceptor {
             @NonNull Object handler, @Nullable Exception ex) {
         String pattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
         long duration = System.currentTimeMillis() - (Long) request.getAttribute("startTime");
-        logger.info("RequestLoggingInterceptor - Responding {} {} - status [{}] - {} ms",
+        logger.info("Responding {} {} - status [{}] - {} ms",
                 request.getMethod(), pattern, response.getStatus(), duration);
+        MDC.clear();
     }
 }
