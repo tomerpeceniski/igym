@@ -25,7 +25,7 @@ public class GymService {
     public Gym createGym(Gym gym) {
 
         if (gymRepository.existsByName(gym.getName())) {
-            throw new DuplicateGymException("A gym with the name '" + gym.getName() + "' already exists.");
+            throw new DuplicateGymException("A gym with the name '" + gym.getName() + "' already exists");
         }
 
         return gymRepository.save(gym);
@@ -37,10 +37,10 @@ public class GymService {
 
     public void deleteGym(UUID id) {
         Gym gym = (gymRepository.findById(id))
-                .orElseThrow(() -> new GymNotFoundException("Gym with id " + id + " not found."));
+                .orElseThrow(() -> new GymNotFoundException("Gym with id " + id + " not found"));
 
         if (gym.getStatus() == Status.inactive)
-            throw new GymNotFoundException("Gym with id " + id + " not found.");
+            throw new GymNotFoundException("Gym with id " + id + " not found");
 
         gym.setStatus(Status.inactive);
         gymRepository.save(gym);
