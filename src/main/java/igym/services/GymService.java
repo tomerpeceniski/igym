@@ -54,5 +54,5 @@ public class GymService {
         gymRepository.save(gym);
         logger.info("Gym with id {} inactivated", id);
     }
-
+    
 }

@@ -48,7 +48,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DuplicateUserException.class)
-    public ResponseEntity<Object> handleDuplicateGymException(DuplicateUserException ex) {
+    public ResponseEntity<Object> handleDuplicateUserException(DuplicateUserException ex) {
         logger.error(ex.getMessage());
         Map<String, Object> body = buildResponseBody(HttpStatus.CONFLICT, ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
@@ -62,12 +62,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<Object> handleObjectNotFoundException(UserNotFoundException ex) {
+    public ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException ex) {
         logger.error(ex.getMessage());
         Map<String, Object> body = buildResponseBody(HttpStatus.NOT_FOUND, ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
-    
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGlobalException(Exception ex) {
         logger.error(ex.getMessage(), ex);
