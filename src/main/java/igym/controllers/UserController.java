@@ -4,7 +4,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import igym.entities.User;
 import igym.services.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -34,7 +33,7 @@ public class UserController {
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<User>> findAll(HttpServletRequest request) {   
+    public ResponseEntity<List<User>> findAll() {   
         List<User> list = service.findAll();
         return ResponseEntity.ok().body(list);
     }
