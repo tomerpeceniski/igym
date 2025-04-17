@@ -52,16 +52,22 @@ jobs:
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
             -Dsonar.newCode.referenceBranch=main
 
-    - name: Check if code coverage is ≥ 90%
+    - name: Check if code coverage is >= 90%
       run: |
-        COVERAGE=$(grep -oPm1 "(?<=<counter type=\"INSTRUCTION\" missed=\")[0-9]+(?=\" covered=\")" target/site/jacoco/jacoco.xml)
-        COVERED=$(grep -oPm1 "(?<=<counter type=\"INSTRUCTION\" missed=\"[0-9]+\" covered=\")[0-9]+" target/site/jacoco/jacoco.xml)
-        TOTAL=$(awk "BEGIN {print $COVERAGE + $COVERED}")
-        PERCENT=$(awk "BEGIN {print ($COVERED / $TOTAL) * 100}")
-        echo "Coverage: $PERCENT%"
-        if (( $(echo "$PERCENT < 90.0" | bc -l) )); then
-          echo "❌ Coverage is below 90%!"
-          exit 1
-        else
-          echo "✅ Coverage is sufficient."
-        fi
+          sudo apt-get update && sudo apt-get install -y libxml2-utils
+      
+          MISSED=$(xmllint --xpath 'string(//counter[@type="INSTRUCTION"]/@missed)' target/site/jacoco/jacoco.xml)
+          COVERED=$(xmllint --xpath 'string(//counter[@type="INSTRUCTION"]/@covered)' target/site/jacoco/jacoco.xml)
+      
+          TOTAL=$(awk "BEGIN {print $MISSED + $COVERED}")
+          PERCENT=$(awk "BEGIN {print ($COVERED / $TOTAL) * 100}")
+      
+          echo "Coverage: $PERCENT%"
+      
+          if (( $(echo "$PERCENT < 90.0" | bc -l) )); then
+            echo "❌ Coverage is below 90%!"
+            exit 1
+          else
+            echo "✅ Coverage is sufficient."
+          fi
+          
