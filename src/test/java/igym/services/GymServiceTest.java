@@ -59,7 +59,7 @@ public class GymServiceTest {
                 DuplicateGymException.class,
                 () -> gymService.createGym(gym));
 
-        assertEquals("A gym with the name 'CrossFit Gym' already exists.", exception.getMessage());
+        assertEquals("A gym with the name 'CrossFit Gym' already exists", exception.getMessage());
         verify(gymRepository, times(1)).existsByName(gym.getName());
         verify(gymRepository, never()).save(gym);
     }
