@@ -1,0 +1,73 @@
+name: Java CI with Maven and SonarCloud
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Cache Sonar packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+
+    - name: Cache Maven packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+
+    - name: Run tests and build JaCoCo report
+      run: mvn clean verify
+
+    - name: Run SonarCloud analysis
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+          mvn sonar:sonar \
+            -Dsonar.projectKey=tomerpeceniski_igym \
+            -Dsonar.organization=igym \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.token=$SONAR_TOKEN \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+            -Dsonar.newCode.referenceBranch=main
+
+    - name: Check if code coverage is >= 90%
+      run: |
+          sudo apt-get update && sudo apt-get install -y libxml2-utils
+      
+          MISSED=$(xmllint --xpath 'string(//counter[@type="INSTRUCTION"]/@missed)' target/site/jacoco/jacoco.xml)
+          COVERED=$(xmllint --xpath 'string(//counter[@type="INSTRUCTION"]/@covered)' target/site/jacoco/jacoco.xml)
+      
+          TOTAL=$(awk "BEGIN {print $MISSED + $COVERED}")
+          PERCENT=$(awk "BEGIN {print ($COVERED / $TOTAL) * 100}")
+      
+          echo "Coverage: $PERCENT%"
+      
+          if (( $(echo "$PERCENT < 90.0" | bc -l) )); then
+            echo "❌ Coverage is below 90%!"
+            exit 1
+          else
+            echo "✅ Coverage is sufficient."
+          fi
+          
