@@ -29,6 +29,7 @@ class WorkoutTest {
     }
 
     @Test
+    @DisplayName("Test valid workout")
     void testValidWorkout() {
         Workout workout = new Workout();
         workout.setWorkoutName("Upper Body");
@@ -41,6 +42,7 @@ class WorkoutTest {
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = { "", "AB", "Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" }) // 51 chars
+    @DisplayName("Test invalid workout names")
     void testInvalidWorkoutNames(String invalidName) {
         Workout workout = new Workout();
         workout.setWorkoutName(invalidName);
@@ -51,6 +53,7 @@ class WorkoutTest {
     }
 
     @Test
+    @DisplayName("Test valid exercise list")
     void testEmptyExerciseList() {
         Workout workout = new Workout();
         workout.setWorkoutName("Leg Day");
@@ -61,6 +64,7 @@ class WorkoutTest {
     }
 
     @Test
+    @DisplayName("Test valid exercise list")
     void testNullExerciseList() {
         Workout workout = new Workout();
         workout.setWorkoutName("Push Day");

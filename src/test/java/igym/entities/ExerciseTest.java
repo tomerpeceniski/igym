@@ -24,6 +24,7 @@ class ExerciseTest {
     }
     
     @Test
+    @DisplayName("Test valid exercise") 
     void testValidExercise() {
         Exercise ex = new Exercise();
         ex.setName("Bench Press");
@@ -39,6 +40,7 @@ class ExerciseTest {
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = { "", "AB", "Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" }) // 51 chars
+    @DisplayName("Test invalid exercise names")
     void testInvalidExerciseNames(String invalidName) {
         Exercise ex = new Exercise();
         ex.setName(invalidName);
@@ -52,6 +54,7 @@ class ExerciseTest {
 
     @ParameterizedTest
     @ValueSource(doubles = { -10, -0.1 })
+    @DisplayName("Test invalid exercise weights")
     void testInvalidWeights(double invalidWeight) {
         Exercise ex = new Exercise();
         ex.setName("Deadlift");
@@ -65,6 +68,7 @@ class ExerciseTest {
 
     @ParameterizedTest
     @ValueSource(ints = { 0, -1 })
+    @DisplayName("Test invalid number of repetitions")
     void testInvalidNumReps(int invalidReps) {
         Exercise ex = new Exercise();
         ex.setName("Push-up");
@@ -78,6 +82,7 @@ class ExerciseTest {
 
     @ParameterizedTest
     @ValueSource(ints = { 0, -2 })
+    @DisplayName("Test invalid number of sets")
     void testInvalidNumSets(int invalidSets) {
         Exercise ex = new Exercise();
         ex.setName("Pull-up");

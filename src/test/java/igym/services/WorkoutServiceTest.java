@@ -3,6 +3,8 @@ package igym.services;
 import igym.entities.Exercise;
 import igym.entities.Workout;
 import igym.repositories.WorkoutRepository;
+
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -23,6 +25,7 @@ class WorkoutServiceTest {
     private WorkoutService workoutService;
 
     @Test
+    @DisplayName("Test valid workout creation")
     void testCreateWorkout() {
         Exercise ex = new Exercise();
         ex.setName("Squat");
