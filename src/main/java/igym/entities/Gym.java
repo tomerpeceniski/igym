@@ -1,6 +1,9 @@
 package igym.entities;
 
+import java.time.Instant;
 import java.util.UUID;
+
+import org.hibernate.annotations.UpdateTimestamp;
 
 import igym.entities.enums.Status;
 import jakarta.persistence.*;
@@ -22,6 +25,9 @@ public class Gym {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status = Status.active;
+
+     @UpdateTimestamp
+    private Instant updated_at;
 
     public Gym(String name) {
         this.name = name;

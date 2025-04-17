@@ -37,6 +37,16 @@ public class GymService {
         return savedGym;
     }
 
+    public Gym updateGym(UUID id, String name) {
+        Gym gym = gymRepository.findById(id)
+                .orElseThrow(() -> new GymNotFoundException("Gym with id " + id + " not found."));
+        if (gymRepository.existsByName(name)) {
+            throw new DuplicateGymException("A gym with the name '" + name + "' already exists.");
+        }
+        gym.setName(name);
+        return gymRepository.save(gym);
+    }
+
     public List<Gym> findAllGyms() {
         logger.info("Fetching all gyms from the repository");
         List<Gym> gyms = gymRepository.findAll();

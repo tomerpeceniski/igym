@@ -65,6 +65,52 @@ public class GymServiceTest {
     }
 
     @Test
+    @DisplayName("should successfully update a gym when provided with a valid new name")
+    void testUpdateGym() {
+        UUID gymId = UUID.randomUUID();
+        Gym gym = new Gym("CrossFit Gym");
+        String name = "Updated Gym";
+        when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
+        when(gymRepository.existsByName(name)).thenReturn(false);
+        when(gymRepository.save(any(Gym.class))).thenReturn(gym);
+        Gym result = gymService.updateGym(gymId, name);
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo(name);
+        verify(gymRepository, times(1)).save(any(Gym.class));
+    }
+
+    @Test
+    @DisplayName("Should throw GymNotFoundException when attempting to update a gym that does not exist")
+    void testUpdateGymNotFound() {
+        UUID gymId = UUID.randomUUID();
+        Gym gym = new Gym("CrossFit Gym");
+        String name = "Updated Gym";
+        when(gymRepository.findById(gymId)).thenReturn(Optional.empty());
+        GymNotFoundException exception = assertThrows(
+                GymNotFoundException.class,
+                () -> gymService.updateGym(gymId, name));
+        assertEquals("Gym with id " + gymId + " not found.", exception.getMessage());
+        verify(gymRepository, never()).save(gym);
+    }
+
+    @Test
+    @DisplayName("Should throw DuplicateGymException when attempting to update a gym to a name that is already in use")
+    void testUpdateGymExistingName() {
+        UUID gymId = UUID.randomUUID();
+        Gym gym = new Gym("CrossFit Gym");
+        String name = "CrossFit Gym";
+        when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
+        when(gymRepository.existsByName(name)).thenReturn(true);
+        DuplicateGymException exception = assertThrows(
+                DuplicateGymException.class,
+                () -> gymService.updateGym(gymId, name));
+        assertEquals("A gym with the name '" + gym.getName() + "' already exists.",
+                exception.getMessage());
+        verify(gymRepository, times(1)).existsByName(name);
+        verify(gymRepository, never()).save(gym);
+    }
+
+    @Test
     @DisplayName("should return all gyms from the repository")
     void testFindAllGyms() {
         List<Gym> gyms = List.of(new Gym("Gym A"), new Gym("Gym B"), new Gym("Gym C"));
