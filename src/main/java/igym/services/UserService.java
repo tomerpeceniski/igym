@@ -27,6 +27,7 @@ public class UserService {
         logger.info("Fetching all users from the repository");
         List<User> users = repository.findAll();
         logger.info("Found {} users", users.size());
+        logger.debug("Fetched users: {}", users);
         return users;
     }
 
@@ -46,11 +47,13 @@ public class UserService {
     @Transactional
     public User createUser(User user) {
         logger.info("Attempting to create new user with username {}", user.getName());
+        logger.debug("User creation request with values: {}", user);
         if (repository.existsByName(user.getName())) {
             throw new DuplicateUserException("An user with the name " + user.getName() + " already exists");
         }
         User savedUser = repository.save(user);
         logger.info("New user created with id {}", savedUser.getId());
+        logger.debug("New user persisted: {}", savedUser);
         return savedUser;
     }
 

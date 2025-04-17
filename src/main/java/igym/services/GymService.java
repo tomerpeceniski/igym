@@ -27,11 +27,13 @@ public class GymService {
     @Transactional
     public Gym createGym(Gym gym) {
         logger.info("Attempting to create new gym with name {}", gym.getName());
+        logger.debug("Gym creation request with values: {}", gym);
         if (gymRepository.existsByName(gym.getName())) {
             throw new DuplicateGymException("A gym with the name '" + gym.getName() + "' already exists");
         }
         Gym savedGym = gymRepository.save(gym);
         logger.info("New gym created with id {}", savedGym.getId());
+        logger.debug("New gym persisted: {}", savedGym);
         return savedGym;
     }
 
@@ -39,6 +41,7 @@ public class GymService {
         logger.info("Fetching all gyms from the repository");
         List<Gym> gyms = gymRepository.findAll();
         logger.info("Found {} gyms", gyms.size());
+        logger.debug("Fetched gyms: {}", gyms);
         return gyms;
     }
 

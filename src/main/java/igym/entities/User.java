@@ -49,4 +49,13 @@ public class User {
     public void setStatus(Status status) {
         this.status = status;
     }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "id=" + (id != null ? id : "null") +
+                ", name='" + name + '\'' +
+                ", status=" + status +
+                '}';
+    }
 }

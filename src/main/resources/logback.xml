@@ -1,7 +1,8 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+
     <property name="CONSOLE_LOG_PATTERN"
-        value="%d{HH:mm:ss.SSS} %-5level [%X{requestId:-SYSTEM}] %class{0} - %msg%n" />
+              value="%d{HH:mm:ss.SSS} %-5level [%X{requestId:-SYSTEM}] %class{0} - %msg%n" />
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -12,4 +13,11 @@
     <root level="INFO">
         <appender-ref ref="CONSOLE" />
     </root>
+
+    <logger name="igym" level="DEBUG" />
+    <logger name="org.springframework" level="INFO" />
+    <logger name="org.hibernate" level="INFO" />
+    <logger name="org.hibernate.SQL" level="WARN" />
+    <logger name="org.hibernate.type.descriptor.sql" level="WARN" />
+    <logger name="org.apache" level="INFO" />
 </configuration>
