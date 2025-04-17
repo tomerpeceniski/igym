@@ -20,7 +20,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Arrays;
@@ -32,6 +31,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -157,7 +157,7 @@ public class GymControllerTest {
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$[0].name").value("Location 1"))
                                 .andExpect(jsonPath("$[1].name").value("Location 2"));
-                
+
                 verify(gymService, times(1)).findAllGyms();
         }
 
@@ -202,6 +202,48 @@ public class GymControllerTest {
 
                 verify(gymService, times(1)).deleteGym(gymId);
                 verifyNoMoreInteractions(gymService);
+        }
+
+        @Test
+        @DisplayName("should update a existing gym and return status 200")
+        void testUpdateGymSuccess() throws Exception {
+                when(gymService.updateGym(gymId, gym.getName())).thenReturn(gym);
+                mockMvc.perform(patch("/api/gyms/{gymId}", gymId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(gym)))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.id").value(gym.getId().toString()))
+                                .andExpect(jsonPath("$.name").value(gym.getName()));
+                verify(gymService, times(1)).updateGym(gymId, gym.getName());
+        }
+
+        @Test
+        @DisplayName("should return 404 when trying to update a non existing gym")
+        void testUpdateGymNotFound() throws Exception {
+                doThrow(new GymNotFoundException("Gym with id " + gymId + " not found."))
+                                .when(gymService).updateGym(gymId, gym.getName());
+                mockMvc.perform(patch("/api/gyms/{gymId}", gymId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(gym)))
+                                .andExpect(status().isNotFound())
+                                .andExpect(jsonPath("$.message").value("Gym with id " + gymId + " not found."))
+                                .andExpect(jsonPath("$.error").value("Not Found"));
+                verify(gymService, times(1)).updateGym(gymId, gym.getName());
+        }
+
+        @Test
+        @DisplayName("should return 409 when trying to update a gym with already name in use")
+        void testUpdateGymAlreadyNameInUse() throws Exception {
+                doThrow(new DuplicateGymException("A gym with the name '" + gym.getName() + "' already exists."))
+                                .when(gymService).updateGym(gymId, gym.getName());
+                mockMvc.perform(patch("/api/gyms/{gymId}", gymId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(gym)))
+                                .andExpect(status().isConflict())
+                                .andExpect(jsonPath("$.message")
+                                                .value("A gym with the name '" + gym.getName() + "' already exists."))
+                                .andExpect(jsonPath("$.error").value("Conflict"));
+                verify(gymService, times(1)).updateGym(gymId, gym.getName());
         }
 
         @Test

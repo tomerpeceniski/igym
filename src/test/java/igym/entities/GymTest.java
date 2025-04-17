@@ -39,7 +39,6 @@ class GymTest {
         Gym gym = new Gym("");
         Set<ConstraintViolation<Gym>> violations = validator.validate(gym);
         assertFalse(violations.isEmpty());
-
         List<String> messages = violations.stream()
                 .map(ConstraintViolation::getMessage)
                 .toList();
