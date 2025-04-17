@@ -40,8 +40,8 @@ public class GymController {
     }
 
     @PatchMapping(value = "/gyms/{id}", produces = "application/json")
-    public ResponseEntity<Gym> updateGym(@PathVariable("id") UUID id, @RequestBody Map<String, String> request) {
-        String name = request.get("name");
+    public ResponseEntity<Gym> updateGym(@PathVariable("id") UUID id, @RequestBody @Valid Gym gym) {
+        String name = gym.getName();
         Gym updatedGym = service.updateGym(id, name);
         return ResponseEntity.ok(updatedGym);
     }
