@@ -40,9 +40,9 @@ jobs:
     - name: Run tests and build JaCoCo report
       run: mvn clean verify
 
-- name: Run SonarCloud analysis
-  env:
-    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    - name: Run SonarCloud analysis
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
           mvn sonar:sonar \
             -Dsonar.projectKey=tomerpeceniski_igym \
@@ -51,16 +51,16 @@ jobs:
             -Dsonar.token=$SONAR_TOKEN \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
 
-      - name: Check if code coverage is ≥ 90%
-        run: |
-          COVERAGE=$(grep -oPm1 "(?<=<counter type=\"INSTRUCTION\" missed=\")[0-9]+(?=\" covered=\")" target/site/jacoco/jacoco.xml)
-          COVERED=$(grep -oPm1 "(?<=<counter type=\"INSTRUCTION\" missed=\"[0-9]+\" covered=\")[0-9]+" target/site/jacoco/jacoco.xml)
-          TOTAL=$(awk "BEGIN {print $COVERAGE + $COVERED}")
-          PERCENT=$(awk "BEGIN {print ($COVERED / $TOTAL) * 100}")
-          echo "Coverage: $PERCENT%"
-          if (( $(echo "$PERCENT < 90.0" | bc -l) )); then
-            echo "❌ Coverage is below 90%!"
-            exit 1
-          else
-            echo "✅ Coverage is sufficient."
-          fi
+    - name: Check if code coverage is ≥ 90%
+      run: |
+        COVERAGE=$(grep -oPm1 "(?<=<counter type=\"INSTRUCTION\" missed=\")[0-9]+(?=\" covered=\")" target/site/jacoco/jacoco.xml)
+        COVERED=$(grep -oPm1 "(?<=<counter type=\"INSTRUCTION\" missed=\"[0-9]+\" covered=\")[0-9]+" target/site/jacoco/jacoco.xml)
+        TOTAL=$(awk "BEGIN {print $COVERAGE + $COVERED}")
+        PERCENT=$(awk "BEGIN {print ($COVERED / $TOTAL) * 100}")
+        echo "Coverage: $PERCENT%"
+        if (( $(echo "$PERCENT < 90.0" | bc -l) )); then
+          echo "❌ Coverage is below 90%!"
+          exit 1
+        else
+          echo "✅ Coverage is sufficient."
+        fi
