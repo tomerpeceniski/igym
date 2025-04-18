@@ -3,6 +3,7 @@ package igym.entities;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
+import lombok.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -11,6 +12,11 @@ import java.util.UUID;
  * Represents a workout plan which contains multiple exercises.
  */
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Workout {
 
     @Id
@@ -26,26 +32,4 @@ public class Workout {
     @OneToMany(cascade = CascadeType.ALL)
     @Valid
     private List<Exercise> exerciseList;
-
-    public Workout() {}
-
-    public UUID getId() {
-        return id;
-    }
-
-    public String getWorkoutName() {
-        return workoutName;
-    }
-
-    public void setWorkoutName(String workoutName) {
-        this.workoutName = workoutName;
-    }
-
-    public List<Exercise> getExerciseList() {
-        return exerciseList;
-    }
-
-    public void setExerciseList(List<Exercise> exerciseList) {
-        this.exerciseList = exerciseList;
-    }
 }
