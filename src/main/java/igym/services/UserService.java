@@ -46,7 +46,7 @@ public class UserService {
 
     @Transactional
     public User createUser(User user) {
-        logger.info("Attempting to create new user with username {}", user.getName());
+        logger.info("Attempting to create a new user", user.getName());
         logger.debug("User creation request with values: {}", user);
         if (repository.existsByName(user.getName())) {
             throw new DuplicateUserException("An user with the name " + user.getName() + " already exists");

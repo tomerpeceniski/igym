@@ -26,7 +26,7 @@ public class GymService {
 
     @Transactional
     public Gym createGym(Gym gym) {
-        logger.info("Attempting to create new gym with name {}", gym.getName());
+        logger.info("Attempting to create a new gym");
         logger.debug("Gym creation request with values: {}", gym);
         if (gymRepository.existsByName(gym.getName())) {
             throw new DuplicateGymException("A gym with the name '" + gym.getName() + "' already exists");

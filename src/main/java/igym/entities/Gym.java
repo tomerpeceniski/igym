@@ -26,7 +26,7 @@ public class Gym {
     @Column(nullable = false)
     private Status status = Status.active;
 
-     @UpdateTimestamp
+    @UpdateTimestamp
     private Instant updated_at;
 
     public Gym(String name) {
@@ -56,6 +56,7 @@ public class Gym {
         this.status = status;
     }
 
+    @SuppressWarnings("java:S1192")
     @Override
     public String toString() {
         return "{" +

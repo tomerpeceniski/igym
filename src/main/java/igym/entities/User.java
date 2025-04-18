@@ -50,6 +50,7 @@ public class User {
         this.status = status;
     }
 
+    @SuppressWarnings("java:S1192")
     @Override
     public String toString() {
         return "{" +
