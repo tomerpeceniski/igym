@@ -5,7 +5,9 @@ import igym.entities.enums.Status;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import lombok.ToString;
 
+@ToString
 @Table(name = "users")
 @Entity
 public class User {

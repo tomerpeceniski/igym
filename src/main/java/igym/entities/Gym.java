@@ -8,7 +8,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import igym.entities.enums.Status;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import lombok.ToString;
 
+@ToString
 @Table(name = "gyms")
 @Entity
 public class Gym {
@@ -26,7 +28,7 @@ public class Gym {
     @Column(nullable = false)
     private Status status = Status.active;
 
-     @UpdateTimestamp
+    @UpdateTimestamp
     private Instant updated_at;
 
     public Gym(String name) {

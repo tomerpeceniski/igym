@@ -33,7 +33,7 @@ public class UserController {
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<User>> findAll() {
+    public ResponseEntity<List<User>> findAll() {   
         List<User> list = service.findAll();
         return ResponseEntity.ok().body(list);
     }
