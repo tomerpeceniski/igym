@@ -111,24 +111,31 @@ public class WorkoutControllerTest {
         verify(workoutService, never()).createWorkout(any(Workout.class));
     }
 
-    @Test
-    @DisplayName("should return 400 Bad Request when exercise has invalid fields")
-    void testCreateWorkoutWithInvalidExercise() throws Exception {
-        Exercise ex = new Exercise();
-        ex.setName("");
-        ex.setWeight(-5);
-        ex.setNumReps(0);
-        ex.setNumSets(0);
-
-        workout.setExerciseList(List.of(ex));
-
+    @ParameterizedTest
+    @MethodSource("provideInvalidExercises")
+    @DisplayName("should return 400 Bad Request for invalid exercise fields")
+    void testCreateWorkoutWithInvalidExercises(Exercise invalidExercise) throws Exception {
+        Workout workout = new Workout();
+        workout.setWorkoutName("Valid Workout");
+        workout.setExerciseList(List.of(invalidExercise));
+    
         mockMvc.perform(post("/api/workouts")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(workout)))
                 .andExpect(status().isBadRequest());
-
+    
         verify(workoutService, never()).createWorkout(any(Workout.class));
     }
+    
+    private static Stream<Exercise> provideInvalidExercises() {
+        return Stream.of(
+            Exercise.builder().name("").weight(20).numReps(10).numSets(3).build(),    // invalid name
+            Exercise.builder().name("Pushup").weight(-1).numReps(10).numSets(3).build(), // invalid weight
+            Exercise.builder().name("Pushup").weight(20).numReps(0).numSets(3).build(),  // invalid reps
+            Exercise.builder().name("Pushup").weight(20).numReps(10).numSets(0).build()  // invalid sets
+        );
+    }
+    
 
     @Test
     @DisplayName("should return 500 Internal Server Error when service throws unexpected exception")
