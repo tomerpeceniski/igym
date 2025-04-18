@@ -8,7 +8,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import igym.entities.enums.Status;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import lombok.ToString;
 
+@ToString
 @Table(name = "gyms")
 @Entity
 public class Gym {
@@ -54,15 +56,5 @@ public class Gym {
 
     public void setStatus(Status status) {
         this.status = status;
-    }
-
-    @SuppressWarnings("java:S1192")
-    @Override
-    public String toString() {
-        return "{" +
-                "id=" + (id != null ? id : "null") +
-                ", name='" + name + '\'' +
-                ", status=" + status +
-                '}';
     }
 }

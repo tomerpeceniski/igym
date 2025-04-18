@@ -5,7 +5,9 @@ import igym.entities.enums.Status;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import lombok.ToString;
 
+@ToString
 @Table(name = "users")
 @Entity
 public class User {
@@ -48,15 +50,5 @@ public class User {
 
     public void setStatus(Status status) {
         this.status = status;
-    }
-
-    @SuppressWarnings("java:S1192")
-    @Override
-    public String toString() {
-        return "{" +
-                "id=" + (id != null ? id : "null") +
-                ", name='" + name + '\'' +
-                ", status=" + status +
-                '}';
     }
 }
