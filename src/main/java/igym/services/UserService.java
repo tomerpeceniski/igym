@@ -10,7 +10,6 @@ import igym.entities.User;
 import igym.entities.enums.Status;
 import igym.exceptions.UserNotFoundException;
 import igym.exceptions.DuplicateUserException;
-import igym.exceptions.GymNotFoundException;
 import igym.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 
@@ -61,9 +60,9 @@ public class UserService {
     public User updateUser(UUID id, String name) {
         logger.info("Attempting to update User with id: {}", id);
         User user = repository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
+                .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found."));
         if (repository.existsByName(name)) {
-            throw new DuplicateUserException("A user with the name '" + name + "' already exists");
+            throw new DuplicateUserException("A user with the name '" + name + "' already exists.");
         }
         user.setName(name);
         User savedUser = repository.save(user);
