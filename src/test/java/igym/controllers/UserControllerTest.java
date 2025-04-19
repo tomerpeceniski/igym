@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +33,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 
 import igym.entities.User;
 import igym.exceptions.UserNotFoundException;
@@ -54,25 +54,24 @@ public class UserControllerTest {
         @Autowired
         Validator validator;
 
-        private List<User> users;
         private final ObjectMapper objectMapper = new ObjectMapper();
-
-        @BeforeEach
-        public void configurations() {
-                users = new ArrayList<>();
-                users.add(new User("Maria Clown"));
-                users.add(new User("John Textor"));
-        }
+        private final UUID userId = UUID.randomUUID();
+        private final User user1 = new User("Maria Clown");
+        private final User user2 = new User("John Textor");
 
         @Test
         @DisplayName("Should return all saved users")
         public void findAllTest() throws Exception {
+                List<User> users = new ArrayList<>();
+                users.add(user1);
+                users.add(user2);
+
                 when(userService.findAll()).thenReturn(users);
 
                 mockMvc.perform(get("/users"))
                                 .andExpect(status().isOk())
-                                .andExpect(jsonPath("$[0].name").value(users.get(0).getName()))
-                                .andExpect(jsonPath("$[1].name").value(users.get(1).getName()));
+                                .andExpect(jsonPath("$[0].name").value(user1.getName()))
+                                .andExpect(jsonPath("$[1].name").value(user2.getName()));
         }
 
         @Test
@@ -122,13 +121,13 @@ public class UserControllerTest {
 
         @DisplayName("Should return the created user when creation was successful")
         void createUserTest() throws Exception {
-                when(userService.createUser(any(User.class))).thenReturn(users.get(0));
+                when(userService.createUser(any(User.class))).thenReturn(user1);
 
                 mockMvc.perform(post("/users")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(users.get(0))))
+                                .content(objectMapper.writeValueAsString(user1)))
                                 .andExpect(status().isCreated())
-                                .andExpect(jsonPath("$.name").value(users.get(0).getName()));
+                                .andExpect(jsonPath("$.name").value(user1.getName()));
 
                 verify(userService, times(1)).createUser(any(User.class));
         }
@@ -204,18 +203,79 @@ public class UserControllerTest {
         @DisplayName("Should return status 409 when creating duplicate user")
         void createDuplicateUserTest() throws Exception {
                 when(userService.createUser(any(User.class))).thenThrow(
-                                new DuplicateUserException("An user with the name " + users.get(0).getName()
+                                new DuplicateUserException("An user with the name " + user1.getName()
                                                 + " already exists."));
 
                 mockMvc.perform(post("/users")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(users.get(0))))
+                                .content(objectMapper.writeValueAsString(user1)))
                                 .andExpect(status().isConflict())
                                 .andExpect(jsonPath("$.message")
-                                                .value("An user with the name " + users.get(0).getName()
+                                                .value("An user with the name " + user1.getName()
                                                                 + " already exists."))
                                 .andExpect(jsonPath("$.error").value("Conflict"));
 
                 verify(userService, times(1)).createUser(any(User.class));
+        }
+
+        @Test
+        @DisplayName("should update a existing user and return status 200")
+        void testUpdateUserSuccess() throws Exception {
+                when(userService.updateUser(userId, user1.getName())).thenReturn(user1);
+                mockMvc.perform(patch("/users/{id}", userId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(user1)))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.id").value(user1.getId()))
+                                .andExpect(jsonPath("$.name").value(user1.getName()));
+                verify(userService, times(1)).updateUser(userId, user1.getName());
+        }
+
+        @Test
+        @DisplayName("should return 404 when trying to update a non existing user")
+        void testUpdateUserNotFound() throws Exception {
+                doThrow(new UserNotFoundException("User with id " + userId + " not found."))
+                                .when(userService).updateUser(userId, user1.getName());
+                mockMvc.perform(patch("/users/{id}", userId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(user1)))
+                                .andExpect(status().isNotFound())
+                                .andExpect(jsonPath("$.message").value("User with id " + userId + " not found."))
+                                .andExpect(jsonPath("$.error").value("Not Found"));
+                verify(userService, times(1)).updateUser(userId, user1.getName());
+        }
+
+        @Test
+        @DisplayName("should return 409 when trying to update a user with name already in use")
+        void testUpdateUserNameAlreadyInUse() throws Exception {
+                doThrow(new DuplicateUserException("A user with the name '" + user1.getName() + "' already exists."))
+                                .when(userService).updateUser(userId, user1.getName());
+                mockMvc.perform(patch("/users/{id}", userId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(user1)))
+                                .andExpect(status().isConflict())
+                                .andExpect(jsonPath("$.message")
+                                                .value("A user with the name '" + user1.getName()
+                                                                + "' already exists."))
+                                .andExpect(jsonPath("$.error").value("Conflict"));
+                verify(userService, times(1)).updateUser(userId, user1.getName());
+        }
+
+        @Test
+        @DisplayName("should return 400 when trying to update user with invalid name")
+        void testUpdateUserInvalidName() throws Exception {
+                User invalidUser = new User("");
+
+                mockMvc.perform(patch("/users/{id}", userId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(invalidUser)))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(jsonPath("$.message").value("Validation error"))
+                                .andExpect(jsonPath("$.errors", hasSize(2)))
+                                .andExpect(jsonPath("$.errors", containsInAnyOrder(
+                                                "Name cannot be blank",
+                                                "Name must be between 3 and 50 characters")));
+
+                verify(userService, never()).updateUser(any(), any());
         }
 }

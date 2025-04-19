@@ -232,8 +232,8 @@ public class GymControllerTest {
         }
 
         @Test
-        @DisplayName("should return 409 when trying to update a gym with already name in use")
-        void testUpdateGymAlreadyNameInUse() throws Exception {
+        @DisplayName("should return 409 when trying to update a gym with name already in use")
+        void testUpdateGymNameAlreadyInUse() throws Exception {
                 doThrow(new DuplicateGymException("A gym with the name '" + gym.getName() + "' already exists."))
                                 .when(gymService).updateGym(gymId, gym.getName());
                 mockMvc.perform(patch("/api/gyms/{gymId}", gymId)
@@ -244,6 +244,24 @@ public class GymControllerTest {
                                                 .value("A gym with the name '" + gym.getName() + "' already exists."))
                                 .andExpect(jsonPath("$.error").value("Conflict"));
                 verify(gymService, times(1)).updateGym(gymId, gym.getName());
+        }
+
+        @Test
+        @DisplayName("should return 400 when trying to update gym with invalid name")
+        void testUpdateGymInvalidName() throws Exception {
+                Gym invalidGym = new Gym("");
+
+                mockMvc.perform(patch("/api/gyms/{gymId}", gymId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(invalidGym)))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(jsonPath("$.message").value("Validation error"))
+                                .andExpect(jsonPath("$.errors", hasSize(2)))
+                                .andExpect(jsonPath("$.errors", containsInAnyOrder(
+                                                "Name cannot be blank",
+                                                "Name must be between 3 and 50 characters")));
+
+                verify(gymService, never()).updateGym(any(), any());
         }
 
         @Test
