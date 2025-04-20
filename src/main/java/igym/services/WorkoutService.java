@@ -1,5 +1,6 @@
 package igym.services;
 
+import igym.entities.Exercise;
 import igym.entities.Workout;
 import igym.repositories.WorkoutRepository;
 import jakarta.transaction.Transactional;
@@ -16,11 +17,15 @@ public class WorkoutService {
 
     /**
      * Creates a new workout with its list of exercises.
+     * 
      * @param workout the workout entity to save
      * @return the saved workout
      */
     @Transactional
     public Workout createWorkout(Workout workout) {
+        for (Exercise exercise : workout.getExerciseList()) {
+            exercise.setWorkout(workout); 
+        }
         return workoutRepository.save(workout);
     }
 }

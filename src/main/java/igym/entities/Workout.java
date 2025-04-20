@@ -8,6 +8,8 @@ import lombok.*;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 /**
  * Represents a workout plan which contains multiple exercises.
  * Lombok's @Setter is applied to the class, but the ID field
@@ -18,8 +20,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Workout {
 
     @Id
@@ -33,7 +33,8 @@ public class Workout {
     private String name;
 
     @NotEmpty(message = "Workout must contain at least one exercise")
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "workout", cascade = CascadeType.ALL)
     @Valid
+    @JsonManagedReference
     private List<Exercise> exerciseList;
 }
