@@ -2,9 +2,9 @@ name: Deploy Javadoc to GitHub Pages
 
 on:
   push:
-    branches:
-      - main
-      - feat/*
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   deploy:
