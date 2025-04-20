@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -46,6 +47,7 @@ public class WorkoutControllerTest {
         private final ObjectMapper objectMapper = new ObjectMapper();
 
         private Workout workout;
+        UUID gymId = UUID.randomUUID();
 
         @BeforeEach
         void setUp() {
@@ -65,16 +67,16 @@ public class WorkoutControllerTest {
         @Test
         @DisplayName("should return status 201 when a valid workout is created")
         void testCreateWorkoutSuccess() throws Exception {
-                when(workoutService.createWorkout(any(Workout.class))).thenReturn(workout);
+                when(workoutService.createWorkout(any(Workout.class), eq(gymId))).thenReturn(workout);
 
-                mockMvc.perform(post("/api/workouts")
+                mockMvc.perform(post("/api/gyms/{gymId}/workouts", gymId, gymId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(workout)))
                                 .andExpect(status().isCreated())
                                 .andExpect(jsonPath("$.name").value(workout.getName()))
                                 .andExpect(jsonPath("$.exerciseList[0].name").value("Squat"));
 
-                verify(workoutService, times(1)).createWorkout(any(Workout.class));
+                verify(workoutService, times(1)).createWorkout(any(Workout.class), eq(gymId));
         }
 
         @ParameterizedTest
@@ -91,7 +93,7 @@ public class WorkoutControllerTest {
                 invalidWorkout.setName(invalidName);
                 invalidWorkout.setExerciseList(List.of(ex));
 
-                MvcResult result = mockMvc.perform(post("/api/workouts")
+                MvcResult result = mockMvc.perform(post("/api/gyms/{gymId}/workouts", gymId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidWorkout)))
                                 .andExpect(status().isUnprocessableEntity())
@@ -104,7 +106,7 @@ public class WorkoutControllerTest {
                 assertTrue(expectedMessages.contains(actualMessage),
                                 "Expected one of " + expectedMessages + " but got: " + actualMessage);
 
-                verify(workoutService, never()).createWorkout(any(Workout.class));
+                verify(workoutService, never()).createWorkout(any(Workout.class), eq(gymId));
         }
 
         private static Stream<Arguments> provideInvalidWorkoutNames() {
@@ -120,12 +122,12 @@ public class WorkoutControllerTest {
         void testCreateWorkoutWithEmptyExerciseList() throws Exception {
                 workout.setExerciseList(List.of());
 
-                mockMvc.perform(post("/api/workouts")
+                mockMvc.perform(post("/api/gyms/{gymId}/workouts", gymId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(workout)))
                                 .andExpect(status().isUnprocessableEntity());
 
-                verify(workoutService, never()).createWorkout(any(Workout.class));
+                verify(workoutService, never()).createWorkout(any(Workout.class), eq(gymId));
         }
 
         @ParameterizedTest
@@ -137,7 +139,7 @@ public class WorkoutControllerTest {
                 workout.setName("Valid Workout");
                 workout.setExerciseList(List.of(invalidExercise));
 
-                MvcResult result = mockMvc.perform(post("/api/workouts")
+                MvcResult result = mockMvc.perform(post("/api/gyms/{gymId}/workouts", gymId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(workout)))
                                 .andExpect(status().isUnprocessableEntity())
@@ -150,7 +152,7 @@ public class WorkoutControllerTest {
                 assertTrue(expectedMessages.contains(actualMessage),
                                 "Expected one of " + expectedMessages + " but got: " + actualMessage);
 
-                verify(workoutService, never()).createWorkout(any(Workout.class));
+                verify(workoutService, never()).createWorkout(any(Workout.class), eq(gymId));
         }
 
         private static Stream<Arguments> provideInvalidExercises() {
@@ -182,15 +184,15 @@ public class WorkoutControllerTest {
         @Test
         @DisplayName("should return 500 Internal Server Error when service throws unexpected exception")
         void testCreateWorkoutInternalError() throws Exception {
-                when(workoutService.createWorkout(any(Workout.class)))
+                when(workoutService.createWorkout(any(Workout.class), eq(gymId)))
                                 .thenThrow(new RuntimeException("Unexpected failure"));
 
-                mockMvc.perform(post("/api/workouts")
+                mockMvc.perform(post("/api/gyms/{gymId}/workouts", gymId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(workout)))
                                 .andExpect(status().isInternalServerError());
 
-                verify(workoutService, times(1)).createWorkout(any(Workout.class));
+                verify(workoutService, times(1)).createWorkout(any(Workout.class), eq(gymId));
         }
 
 }

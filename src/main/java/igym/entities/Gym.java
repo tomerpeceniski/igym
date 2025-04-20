@@ -1,9 +1,12 @@
 package igym.entities;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.annotations.UpdateTimestamp;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import igym.entities.enums.Status;
 import jakarta.persistence.*;
@@ -26,8 +29,12 @@ public class Gym {
     @Column(nullable = false)
     private Status status = Status.active;
 
-     @UpdateTimestamp
+    @UpdateTimestamp
     private Instant updated_at;
+
+    @OneToMany(mappedBy = "gym", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Workout> workouts;
 
     public Gym(String name) {
         this.name = name;

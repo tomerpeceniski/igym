@@ -61,7 +61,7 @@ public class GymServiceTest {
 
         assertEquals("A gym with the name 'CrossFit Gym' already exists.", exception.getMessage());
         verify(gymRepository, times(1)).existsByName(gym.getName());
-        verify(gymRepository, never()).save(gym);
+        verify(gymRepository, never()).save(any(Gym.class));
     }
 
     @Test
@@ -83,14 +83,13 @@ public class GymServiceTest {
     @DisplayName("Should throw GymNotFoundException when attempting to update a gym that does not exist")
     void testUpdateGymNotFound() {
         UUID gymId = UUID.randomUUID();
-        Gym gym = new Gym("CrossFit Gym");
         String name = "Updated Gym";
         when(gymRepository.findById(gymId)).thenReturn(Optional.empty());
         GymNotFoundException exception = assertThrows(
                 GymNotFoundException.class,
                 () -> gymService.updateGym(gymId, name));
         assertEquals("Gym with id " + gymId + " not found.", exception.getMessage());
-        verify(gymRepository, never()).save(gym);
+        verify(gymRepository, never()).save(any(Gym.class));
     }
 
     @Test
@@ -107,7 +106,7 @@ public class GymServiceTest {
         assertEquals("A gym with the name '" + gym.getName() + "' already exists.",
                 exception.getMessage());
         verify(gymRepository, times(1)).existsByName(name);
-        verify(gymRepository, never()).save(gym);
+        verify(gymRepository, never()).save(any(Gym.class));
     }
 
     @Test

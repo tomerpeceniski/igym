@@ -3,6 +3,9 @@ package igym.controllers;
 import igym.entities.Workout;
 import igym.services.WorkoutService;
 import jakarta.validation.Valid;
+
+import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,9 +30,12 @@ public class WorkoutController {
      * @return the created workout and HTTP 201 status
      */
 
-    @PostMapping(value = "/workouts", produces = "application/json")
-    public ResponseEntity<Workout> createWorkout(@RequestBody @Valid Workout workout) {
-        Workout createdWorkout = workoutService.createWorkout(workout);
+    @PostMapping(value = "/gyms/{gymId}/workouts", produces = "application/json")
+    public ResponseEntity<Workout> createWorkout(
+            @PathVariable UUID gymId,
+            @RequestBody @Valid Workout workout) {
+        Workout createdWorkout = workoutService.createWorkout(workout, gymId);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdWorkout);
     }
+
 }

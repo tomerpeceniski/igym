@@ -8,6 +8,7 @@ import lombok.*;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 /**
@@ -37,4 +38,9 @@ public class Workout {
     @Valid
     @JsonManagedReference
     private List<Exercise> exerciseList;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "gym_id", nullable = false)
+    @JsonBackReference
+    private Gym gym;
 }
