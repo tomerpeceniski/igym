@@ -1,0 +1,7 @@
+igym
+igym.controllers
+igym.entities
+igym.entities.enums
+igym.exceptions
+igym.repositories
+igym.services
