@@ -1,5 +1,7 @@
 package igym.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import igym.repositories.GymRepository;
@@ -15,6 +17,7 @@ import igym.exceptions.*;
 @Service
 public class GymService {
 
+    private static final Logger logger = LoggerFactory.getLogger(GymService.class);
     private final GymRepository gymRepository;
 
     public GymService(GymRepository gymRepository) {
@@ -23,37 +26,50 @@ public class GymService {
 
     @Transactional
     public Gym createGym(Gym gym) {
-
+        logger.info("Attempting to create a new gym");
+        logger.debug("Gym creation request with values: {}", gym);
         if (gymRepository.existsByName(gym.getName())) {
-            throw new DuplicateGymException("A gym with the name '" + gym.getName() + "' already exists.");
+            throw new DuplicateGymException("A gym with the name '" + gym.getName() + "' already exists");
         }
-
-        return gymRepository.save(gym);
+        Gym savedGym = gymRepository.save(gym);
+        logger.info("New gym created with id {}", savedGym.getId());
+        logger.debug("New gym persisted: {}", savedGym);
+        return savedGym;
     }
 
     public Gym updateGym(UUID id, String name) {
+        logger.info("Attempting to update Gym with id: {}", id);
         Gym gym = gymRepository.findById(id)
                 .orElseThrow(() -> new GymNotFoundException("Gym with id " + id + " not found."));
         if (gymRepository.existsByName(name)) {
             throw new DuplicateGymException("A gym with the name '" + name + "' already exists.");
         }
         gym.setName(name);
-        return gymRepository.save(gym);
+        Gym savedGym = gymRepository.save(gym);
+        logger.info("Gym with id {} updated sucessfully", id);
+        logger.debug("Updated Gym persisted: {}", savedGym);
+        return savedGym;
     }
 
     public List<Gym> findAllGyms() {
-        return gymRepository.findAll();
+        logger.info("Fetching all gyms from the repository");
+        List<Gym> gyms = gymRepository.findAll();
+        logger.info("Found {} gyms", gyms.size());
+        logger.debug("Fetched gyms: {}", gyms);
+        return gyms;
     }
 
     public void deleteGym(UUID id) {
+        logger.info("Attempting to inactivate gym with id {}", id);
         Gym gym = (gymRepository.findById(id))
-                .orElseThrow(() -> new GymNotFoundException("Gym with id " + id + " not found."));
+                .orElseThrow(() -> new GymNotFoundException("Gym with id " + id + " not found"));
 
         if (gym.getStatus() == Status.inactive)
-            throw new GymNotFoundException("Gym with id " + id + " not found.");
+            throw new GymNotFoundException("Gym with id " + id + " not found");
 
         gym.setStatus(Status.inactive);
         gymRepository.save(gym);
+        logger.info("Gym with id {} inactivated", id);
     }
-
+    
 }

@@ -1,11 +1,17 @@
 package igym.entities;
 
+import java.time.Instant;
 import java.util.UUID;
+
+import org.hibernate.annotations.UpdateTimestamp;
+
 import igym.entities.enums.Status;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import lombok.ToString;
 
+@ToString
 @Table(name = "users")
 @Entity
 public class User {
@@ -22,6 +28,9 @@ public class User {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status = Status.active;
+
+    @UpdateTimestamp
+    private Instant updated_at;
 
     public User() {
     }

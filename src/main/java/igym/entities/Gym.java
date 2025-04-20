@@ -11,7 +11,9 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import igym.entities.enums.Status;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import lombok.ToString;
 
+@ToString
 @Table(name = "gyms")
 @Entity
 public class Gym {
