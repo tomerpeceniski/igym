@@ -34,7 +34,7 @@ class WorkoutServiceTest {
         ex.setNumSets(4);
 
         Workout workout = new Workout();
-        workout.setWorkoutName("Leg Day");
+        workout.setName("Leg Day");
         workout.setExerciseList(List.of(ex));
 
         when(workoutRepository.save(any(Workout.class))).thenReturn(workout);
@@ -42,7 +42,7 @@ class WorkoutServiceTest {
         Workout result = workoutService.createWorkout(workout);
 
         assertThat(result).isNotNull();
-        assertThat(result.getWorkoutName()).isEqualTo("Leg Day");
+        assertThat(result.getName()).isEqualTo("Leg Day");
         verify(workoutRepository, times(1)).save(workout);
     }
 }

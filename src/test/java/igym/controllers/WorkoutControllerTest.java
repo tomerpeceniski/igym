@@ -56,7 +56,7 @@ public class WorkoutControllerTest {
         ex.setNumSets(3);
 
         workout = new Workout();
-        workout.setWorkoutName("Leg Day");
+        workout.setName("Leg Day");
         workout.setExerciseList(List.of(ex));
 
         ReflectionTestUtils.setField(workout, "id", UUID.randomUUID());
@@ -71,7 +71,7 @@ public class WorkoutControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(workout)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.workoutName").value(workout.getWorkoutName()))
+                .andExpect(jsonPath("$.name").value(workout.getName()))
                 .andExpect(jsonPath("$.exerciseList[0].name").value("Squat"));
 
         verify(workoutService, times(1)).createWorkout(any(Workout.class));
@@ -88,7 +88,7 @@ public class WorkoutControllerTest {
         ex.setNumSets(3);
 
         Workout invalidWorkout = new Workout();
-        invalidWorkout.setWorkoutName(invalidName);
+        invalidWorkout.setName(invalidName);
         invalidWorkout.setExerciseList(List.of(ex));
 
         MvcResult result = mockMvc.perform(post("/api/workouts")
@@ -133,7 +133,7 @@ public class WorkoutControllerTest {
     void testCreateWorkoutWithInvalidExercises(Exercise invalidExercise, Set<String> expectedMessages)
             throws Exception {
         Workout workout = new Workout();
-        workout.setWorkoutName("Valid Workout");
+        workout.setName("Valid Workout");
         workout.setExerciseList(List.of(invalidExercise));
 
         MvcResult result = mockMvc.perform(post("/api/workouts")

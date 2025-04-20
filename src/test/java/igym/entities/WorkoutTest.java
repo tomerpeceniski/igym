@@ -32,7 +32,7 @@ class WorkoutTest {
     @DisplayName("Test valid workout")
     void testValidWorkout() {
         Workout workout = new Workout();
-        workout.setWorkoutName("Upper Body");
+        workout.setName("Upper Body");
         workout.setExerciseList(List.of(createValidExercise()));
 
         Set<ConstraintViolation<Workout>> violations = validator.validate(workout);
@@ -45,7 +45,7 @@ class WorkoutTest {
     @DisplayName("Test invalid workout names")
     void testInvalidWorkoutNames(String invalidName) {
         Workout workout = new Workout();
-        workout.setWorkoutName(invalidName);
+        workout.setName(invalidName);
         workout.setExerciseList(List.of(createValidExercise()));
 
         Set<ConstraintViolation<Workout>> violations = validator.validate(workout);
@@ -56,7 +56,7 @@ class WorkoutTest {
     @DisplayName("Test empty exercise list")
     void testEmptyExerciseList() {
         Workout workout = new Workout();
-        workout.setWorkoutName("Leg Day");
+        workout.setName("Leg Day");
         workout.setExerciseList(List.of());
 
         Set<ConstraintViolation<Workout>> violations = validator.validate(workout);
@@ -67,7 +67,7 @@ class WorkoutTest {
     @DisplayName("Test null exercise list")
     void testNullExerciseList() {
         Workout workout = new Workout();
-        workout.setWorkoutName("Push Day");
+        workout.setName("Push Day");
         workout.setExerciseList(null);
 
         Set<ConstraintViolation<Workout>> violations = validator.validate(workout);
