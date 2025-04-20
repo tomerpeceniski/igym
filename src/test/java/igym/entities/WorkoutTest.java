@@ -53,7 +53,7 @@ class WorkoutTest {
     }
 
     @Test
-    @DisplayName("Test valid exercise list")
+    @DisplayName("Test empty exercise list")
     void testEmptyExerciseList() {
         Workout workout = new Workout();
         workout.setWorkoutName("Leg Day");
@@ -64,7 +64,7 @@ class WorkoutTest {
     }
 
     @Test
-    @DisplayName("Test valid exercise list")
+    @DisplayName("Test null exercise list")
     void testNullExerciseList() {
         Workout workout = new Workout();
         workout.setWorkoutName("Push Day");
