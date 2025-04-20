@@ -2,7 +2,11 @@ package igym.entities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.time.Instant;
 import java.util.UUID;
+
+import org.hibernate.annotations.UpdateTimestamp;
+
 import igym.entities.enums.Status;
 
 import jakarta.persistence.*;
@@ -29,6 +33,9 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Gym> gyms = new ArrayList<>();
+
+    @UpdateTimestamp
+    private Instant updated_at;
 
     public User() {
     }

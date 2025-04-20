@@ -57,4 +57,18 @@ public class UserService {
         return savedUser;
     }
 
+    public User updateUser(UUID id, String name) {
+        logger.info("Attempting to update User with id: {}", id);
+        User user = repository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found."));
+        if (repository.existsByName(name)) {
+            throw new DuplicateUserException("A user with the name '" + name + "' already exists.");
+        }
+        user.setName(name);
+        User savedUser = repository.save(user);
+        logger.info("User with id {} updated sucessfully", id);
+        logger.debug("Updated User persisted: {}", savedUser);
+        return savedUser;
+    }
+
 }
