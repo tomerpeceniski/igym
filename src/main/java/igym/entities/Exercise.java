@@ -20,8 +20,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor // Optional if you want to create it with all fields
-@Builder // Optional if you want to use builder pattern
 public class Exercise {
 
     @Id

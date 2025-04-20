@@ -36,150 +36,161 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(MockitoExtension.class)
 public class WorkoutControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @SuppressWarnings("removal")
-    @MockBean
-    private WorkoutService workoutService;
+        @SuppressWarnings("removal")
+        @MockBean
+        private WorkoutService workoutService;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+        private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private Workout workout;
+        private Workout workout;
 
-    @BeforeEach
-    void setUp() {
-        Exercise ex = new Exercise();
-        ex.setName("Squat");
-        ex.setWeight(60);
-        ex.setNumReps(10);
-        ex.setNumSets(3);
+        @BeforeEach
+        void setUp() {
+                Exercise ex = new Exercise();
+                ex.setName("Squat");
+                ex.setWeight(60);
+                ex.setNumReps(10);
+                ex.setNumSets(3);
 
-        workout = new Workout();
-        workout.setName("Leg Day");
-        workout.setExerciseList(List.of(ex));
+                workout = new Workout();
+                workout.setName("Leg Day");
+                workout.setExerciseList(List.of(ex));
 
-        ReflectionTestUtils.setField(workout, "id", UUID.randomUUID());
-    }
+                ReflectionTestUtils.setField(workout, "id", UUID.randomUUID());
+        }
 
-    @Test
-    @DisplayName("should return status 201 when a valid workout is created")
-    void testCreateWorkoutSuccess() throws Exception {
-        when(workoutService.createWorkout(any(Workout.class))).thenReturn(workout);
+        @Test
+        @DisplayName("should return status 201 when a valid workout is created")
+        void testCreateWorkoutSuccess() throws Exception {
+                when(workoutService.createWorkout(any(Workout.class))).thenReturn(workout);
 
-        mockMvc.perform(post("/api/workouts")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(workout)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value(workout.getName()))
-                .andExpect(jsonPath("$.exerciseList[0].name").value("Squat"));
+                mockMvc.perform(post("/api/workouts")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(workout)))
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.name").value(workout.getName()))
+                                .andExpect(jsonPath("$.exerciseList[0].name").value("Squat"));
 
-        verify(workoutService, times(1)).createWorkout(any(Workout.class));
-    }
+                verify(workoutService, times(1)).createWorkout(any(Workout.class));
+        }
 
-    @ParameterizedTest
-    @MethodSource("provideInvalidWorkoutNames")
-    @DisplayName("should return 422 Unprocessable Entity for invalid workout names")
-    void testCreateWorkoutWithInvalidName(String invalidName, Set<String> expectedMessages) throws Exception {
-        Exercise ex = new Exercise();
-        ex.setName("Squat");
-        ex.setWeight(60);
-        ex.setNumReps(10);
-        ex.setNumSets(3);
+        @ParameterizedTest
+        @MethodSource("provideInvalidWorkoutNames")
+        @DisplayName("should return 422 Unprocessable Entity for invalid workout names")
+        void testCreateWorkoutWithInvalidName(String invalidName, Set<String> expectedMessages) throws Exception {
+                Exercise ex = new Exercise();
+                ex.setName("Squat");
+                ex.setWeight(60);
+                ex.setNumReps(10);
+                ex.setNumSets(3);
 
-        Workout invalidWorkout = new Workout();
-        invalidWorkout.setName(invalidName);
-        invalidWorkout.setExerciseList(List.of(ex));
+                Workout invalidWorkout = new Workout();
+                invalidWorkout.setName(invalidName);
+                invalidWorkout.setExerciseList(List.of(ex));
 
-        MvcResult result = mockMvc.perform(post("/api/workouts")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(invalidWorkout)))
-                .andExpect(status().isUnprocessableEntity())
-                .andReturn();
+                MvcResult result = mockMvc.perform(post("/api/workouts")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(invalidWorkout)))
+                                .andExpect(status().isUnprocessableEntity())
+                                .andReturn();
 
-        String responseBody = result.getResponse().getContentAsString();
-        JsonNode json = objectMapper.readTree(responseBody);
-        String actualMessage = json.get("errors").get(0).asText();
+                String responseBody = result.getResponse().getContentAsString();
+                JsonNode json = objectMapper.readTree(responseBody);
+                String actualMessage = json.get("errors").get(0).asText();
 
-        assertTrue(expectedMessages.contains(actualMessage),
-                "Expected one of " + expectedMessages + " but got: " + actualMessage);
+                assertTrue(expectedMessages.contains(actualMessage),
+                                "Expected one of " + expectedMessages + " but got: " + actualMessage);
 
-        verify(workoutService, never()).createWorkout(any(Workout.class));
-    }
+                verify(workoutService, never()).createWorkout(any(Workout.class));
+        }
 
-    private static Stream<Arguments> provideInvalidWorkoutNames() {
-        return Stream.of(
-                Arguments.of(null, Set.of("Workout name is required")),
-                Arguments.of("", Set.of("Workout name is required", "Name must be between 3 and 50 characters")),
-                Arguments.of("A".repeat(51), Set.of("Name must be between 3 and 50 characters")));
-    }
+        private static Stream<Arguments> provideInvalidWorkoutNames() {
+                return Stream.of(
+                                Arguments.of(null, Set.of("Workout name is required")),
+                                Arguments.of("", Set.of("Workout name is required",
+                                                "Name must be between 3 and 50 characters")),
+                                Arguments.of("A".repeat(51), Set.of("Name must be between 3 and 50 characters")));
+        }
 
-    @Test
-    @DisplayName("should return 422 Unprocessable Entity when workout has no exercises")
-    void testCreateWorkoutWithEmptyExerciseList() throws Exception {
-        workout.setExerciseList(List.of());
+        @Test
+        @DisplayName("should return 422 Unprocessable Entity when workout has no exercises")
+        void testCreateWorkoutWithEmptyExerciseList() throws Exception {
+                workout.setExerciseList(List.of());
 
-        mockMvc.perform(post("/api/workouts")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(workout)))
-                .andExpect(status().isUnprocessableEntity());
+                mockMvc.perform(post("/api/workouts")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(workout)))
+                                .andExpect(status().isUnprocessableEntity());
 
-        verify(workoutService, never()).createWorkout(any(Workout.class));
-    }
+                verify(workoutService, never()).createWorkout(any(Workout.class));
+        }
 
-    @ParameterizedTest
-    @MethodSource("provideInvalidExercises")
-    @DisplayName("should return 422 Unprocessable Entity for invalid exercise fields")
-    void testCreateWorkoutWithInvalidExercises(Exercise invalidExercise, Set<String> expectedMessages)
-            throws Exception {
-        Workout workout = new Workout();
-        workout.setName("Valid Workout");
-        workout.setExerciseList(List.of(invalidExercise));
+        @ParameterizedTest
+        @MethodSource("provideInvalidExercises")
+        @DisplayName("should return 422 Unprocessable Entity for invalid exercise fields")
+        void testCreateWorkoutWithInvalidExercises(Exercise invalidExercise, Set<String> expectedMessages)
+                        throws Exception {
+                Workout workout = new Workout();
+                workout.setName("Valid Workout");
+                workout.setExerciseList(List.of(invalidExercise));
 
-        MvcResult result = mockMvc.perform(post("/api/workouts")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(workout)))
-                .andExpect(status().isUnprocessableEntity())
-                .andReturn();
+                MvcResult result = mockMvc.perform(post("/api/workouts")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(workout)))
+                                .andExpect(status().isUnprocessableEntity())
+                                .andReturn();
 
-        String responseBody = result.getResponse().getContentAsString();
-        JsonNode json = objectMapper.readTree(responseBody);
-        String actualMessage = json.get("errors").get(0).asText();
+                String responseBody = result.getResponse().getContentAsString();
+                JsonNode json = objectMapper.readTree(responseBody);
+                String actualMessage = json.get("errors").get(0).asText();
 
-        assertTrue(expectedMessages.contains(actualMessage),
-                "Expected one of " + expectedMessages + " but got: " + actualMessage);
+                assertTrue(expectedMessages.contains(actualMessage),
+                                "Expected one of " + expectedMessages + " but got: " + actualMessage);
 
-        verify(workoutService, never()).createWorkout(any(Workout.class));
-    }
+                verify(workoutService, never()).createWorkout(any(Workout.class));
+        }
 
-    private static Stream<Arguments> provideInvalidExercises() {
-        return Stream.of(
-                Arguments.of(
-                        Exercise.builder().name("").weight(20).numReps(10).numSets(3).build(),
-                        Set.of("Exercise name is required", "Name must be between 3 and 50 characters")),
-                Arguments.of(
-                        Exercise.builder().name("Pushup").weight(-1).numReps(10).numSets(3).build(),
-                        Set.of("Weight must be zero or positive")),
-                Arguments.of(
-                        Exercise.builder().name("Pushup").weight(20).numReps(0).numSets(3).build(),
-                        Set.of("Reps must be at least 1")),
-                Arguments.of(
-                        Exercise.builder().name("Pushup").weight(20).numReps(10).numSets(0).build(),
-                        Set.of("Sets must be at least 1")));
-    }
+        private static Stream<Arguments> provideInvalidExercises() {
+                return Stream.of(
+                                Arguments.of(
+                                                createExercise("", 20, 10, 3),
+                                                Set.of("Exercise name is required",
+                                                                "Name must be between 3 and 50 characters")),
+                                Arguments.of(
+                                                createExercise("Pushup", -1, 10, 3),
+                                                Set.of("Weight must be zero or positive")),
+                                Arguments.of(
+                                                createExercise("Pushup", 20, 0, 3),
+                                                Set.of("Reps must be at least 1")),
+                                Arguments.of(
+                                                createExercise("Pushup", 20, 10, 0),
+                                                Set.of("Sets must be at least 1")));
+        }
 
-    @Test
-    @DisplayName("should return 500 Internal Server Error when service throws unexpected exception")
-    void testCreateWorkoutInternalError() throws Exception {
-        when(workoutService.createWorkout(any(Workout.class)))
-                .thenThrow(new RuntimeException("Unexpected failure"));
+        private static Exercise createExercise(String name, double weight, int reps, int sets) {
+                Exercise ex = new Exercise();
+                ex.setName(name);
+                ex.setWeight(weight);
+                ex.setNumReps(reps);
+                ex.setNumSets(sets);
+                return ex;
+        }
 
-        mockMvc.perform(post("/api/workouts")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(workout)))
-                .andExpect(status().isInternalServerError());
+        @Test
+        @DisplayName("should return 500 Internal Server Error when service throws unexpected exception")
+        void testCreateWorkoutInternalError() throws Exception {
+                when(workoutService.createWorkout(any(Workout.class)))
+                                .thenThrow(new RuntimeException("Unexpected failure"));
 
-        verify(workoutService, times(1)).createWorkout(any(Workout.class));
-    }
+                mockMvc.perform(post("/api/workouts")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(workout)))
+                                .andExpect(status().isInternalServerError());
+
+                verify(workoutService, times(1)).createWorkout(any(Workout.class));
+        }
 
 }
