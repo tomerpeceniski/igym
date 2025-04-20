@@ -1,4 +1,5 @@
 igym
+igym.config
 igym.controllers
 igym.entities
 igym.entities.enums
