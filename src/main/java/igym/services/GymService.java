@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import igym.repositories.GymRepository;
+import igym.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 
 import java.util.List;
@@ -19,9 +20,11 @@ public class GymService {
 
     private static final Logger logger = LoggerFactory.getLogger(GymService.class);
     private final GymRepository gymRepository;
+    private final UserRepository userRepository;
 
-    public GymService(GymRepository gymRepository) {
+    public GymService(GymRepository gymRepository, UserRepository userRepository) {
         this.gymRepository = gymRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -31,6 +34,7 @@ public class GymService {
         if (gymRepository.existsByName(gym.getName())) {
             throw new DuplicateGymException("A gym with the name '" + gym.getName() + "' already exists");
         }
+        gym.setUser(getMockedUser());
         Gym savedGym = gymRepository.save(gym);
         logger.info("New gym created with id {}", savedGym.getId());
         logger.debug("New gym persisted: {}", savedGym);
@@ -70,6 +74,12 @@ public class GymService {
         gym.setStatus(Status.inactive);
         gymRepository.save(gym);
         logger.info("Gym with id {} inactivated", id);
+    }
+
+    private User getMockedUser() {
+        // Temporary user insertion for developing purposes. Should be replaced when the authentication logic is implemented
+        String name = "Mocked User";
+        return userRepository.findByName(name).orElseGet(() -> userRepository.save(new User(name)));
     }
     
 }

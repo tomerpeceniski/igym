@@ -31,13 +31,13 @@ public class Gym {
     @UpdateTimestamp
     private Instant updated_at;
 
+    // @NotNull(message = "Gym must have a User") add this after Gym creation logic is defined
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     public Gym(String name) {
         this.name = name;
-        this.user = null;
     }
 
     public Gym() {

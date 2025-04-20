@@ -1,5 +1,6 @@
 package igym.repositories;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +12,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     public boolean existsById(@NonNull UUID id);
 
     public boolean existsByName(String name);
+
+    Optional<User> findByName(String name);
 }
