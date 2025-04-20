@@ -7,6 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * REST controller for managing workout creation.
+ */
 @RequestMapping(value = "/api")
 @RestController
 public class WorkoutController {
@@ -16,6 +19,13 @@ public class WorkoutController {
     public WorkoutController(WorkoutService workoutService) {
         this.workoutService = workoutService;
     }
+
+    /**
+     * Creates a new workout via POST request.
+     * 
+     * @param workout the workout to create
+     * @return the created workout and HTTP 201 status
+     */
 
     @PostMapping(value = "/workouts", produces = "application/json")
     public ResponseEntity<Workout> createWorkout(@RequestBody @Valid Workout workout) {
