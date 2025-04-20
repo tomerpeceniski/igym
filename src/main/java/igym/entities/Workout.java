@@ -10,6 +10,9 @@ import java.util.UUID;
 
 /**
  * Represents a workout plan which contains multiple exercises.
+ * Lombok's @Setter is applied to the class, but the ID field
+ * uses @Setter(AccessLevel.NONE)
+ * to prevent accidental assignment, as it's auto-generated.
  */
 @Entity
 @Getter
@@ -21,6 +24,7 @@ public class Workout {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Setter(AccessLevel.NONE)
     private UUID id;
 
     @NotBlank(message = "Workout name is required")
