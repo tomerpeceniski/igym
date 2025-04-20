@@ -262,14 +262,14 @@ public class UserControllerTest {
         }
 
         @Test
-        @DisplayName("should return 400 when trying to update user with invalid name")
+        @DisplayName("should return 422 when trying to update user with invalid name")
         void testUpdateUserInvalidName() throws Exception {
                 User invalidUser = new User("");
 
                 mockMvc.perform(patch("/users/{id}", userId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidUser)))
-                                .andExpect(status().isBadRequest())
+                                .andExpect(status().isUnprocessableEntity())
                                 .andExpect(jsonPath("$.message").value("Validation error"))
                                 .andExpect(jsonPath("$.errors", hasSize(2)))
                                 .andExpect(jsonPath("$.errors", containsInAnyOrder(

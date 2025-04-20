@@ -247,14 +247,14 @@ public class GymControllerTest {
         }
 
         @Test
-        @DisplayName("should return 400 when trying to update gym with invalid name")
+        @DisplayName("should return 422 when trying to update gym with invalid name")
         void testUpdateGymInvalidName() throws Exception {
                 Gym invalidGym = new Gym("");
 
                 mockMvc.perform(patch("/api/gyms/{gymId}", gymId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidGym)))
-                                .andExpect(status().isBadRequest())
+                                .andExpect(status().isUnprocessableEntity())
                                 .andExpect(jsonPath("$.message").value("Validation error"))
                                 .andExpect(jsonPath("$.errors", hasSize(2)))
                                 .andExpect(jsonPath("$.errors", containsInAnyOrder(
