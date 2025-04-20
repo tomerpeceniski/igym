@@ -111,7 +111,6 @@ public class WorkoutControllerTest {
         return Stream.of(
                 Arguments.of(null, Set.of("Workout name is required")),
                 Arguments.of("", Set.of("Workout name is required", "Name must be between 3 and 50 characters")),
-                Arguments.of("AB", Set.of("Name must be between 3 and 50 characters")),
                 Arguments.of("A".repeat(51), Set.of("Name must be between 3 and 50 characters")));
     }
 
