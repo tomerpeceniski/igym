@@ -1,5 +1,7 @@
 package igym.entities;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import igym.entities.enums.Status;
 
@@ -24,6 +26,9 @@ public class User {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status = Status.active;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Gym> gyms = new ArrayList<>();
 
     public User() {
     }
@@ -50,5 +55,13 @@ public class User {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+    
+    public List<Gym> getGyms() {
+        return gyms;
+    }
+    
+    public void setGyms(List<Gym> gyms) {
+        this.gyms = gyms;
     }
 }

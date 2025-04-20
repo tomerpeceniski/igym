@@ -31,8 +31,13 @@ public class Gym {
     @UpdateTimestamp
     private Instant updated_at;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     public Gym(String name) {
         this.name = name;
+        this.user = null;
     }
 
     public Gym() {
@@ -56,5 +61,13 @@ public class Gym {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }
