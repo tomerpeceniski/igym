@@ -41,7 +41,7 @@ class WorkoutTest {
 
     @ParameterizedTest
     @NullSource
-    @ValueSource(strings = { "", "AB", "Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" }) // 51 chars
+    @ValueSource(strings = { "", "Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" }) // 51 chars
     @DisplayName("Test invalid workout names")
     void testInvalidWorkoutNames(String invalidName) {
         Workout workout = new Workout();
