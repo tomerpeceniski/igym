@@ -136,8 +136,10 @@
 				<configuration>
 					<failOnError>false</failOnError>
 					<doclint>none</doclint>
-					<source>21</source>
 					<encoding>UTF-8</encoding>
+					<source>21</source>
+					<outputDirectory>${project.build.directory}/site</outputDirectory>
+					<additionalJOption>-Xdoclint:none</additionalJOption>
 				</configuration>
 			</plugin>
 		</plugins>
