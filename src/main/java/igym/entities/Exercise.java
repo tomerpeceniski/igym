@@ -7,7 +7,6 @@ import lombok.*;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 /**
  * Represents an exercise within a workout.
