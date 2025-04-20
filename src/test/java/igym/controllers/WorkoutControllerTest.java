@@ -1,5 +1,6 @@
 package igym.controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import igym.entities.Exercise;
 import igym.entities.Workout;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +19,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -74,8 +79,8 @@ public class WorkoutControllerTest {
 
     @ParameterizedTest
     @MethodSource("provideInvalidWorkoutNames")
-    @DisplayName("should return 400 Bad Request for invalid workout names")
-    void testCreateWorkoutWithInvalidName(String invalidName) throws Exception {
+    @DisplayName("should return 422 Unprocessable Entity for invalid workout names")
+    void testCreateWorkoutWithInvalidName(String invalidName, Set<String> expectedMessages) throws Exception {
         Exercise ex = new Exercise();
         ex.setName("Squat");
         ex.setWeight(60);
@@ -86,56 +91,83 @@ public class WorkoutControllerTest {
         invalidWorkout.setWorkoutName(invalidName);
         invalidWorkout.setExerciseList(List.of(ex));
 
-        mockMvc.perform(post("/api/workouts")
+        MvcResult result = mockMvc.perform(post("/api/workouts")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidWorkout)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn();
+
+        String responseBody = result.getResponse().getContentAsString();
+        JsonNode json = objectMapper.readTree(responseBody);
+        String actualMessage = json.get("errors").get(0).asText();
+
+        assertTrue(expectedMessages.contains(actualMessage),
+                "Expected one of " + expectedMessages + " but got: " + actualMessage);
 
         verify(workoutService, never()).createWorkout(any(Workout.class));
     }
 
-    private static Stream<String> provideInvalidWorkoutNames() {
-        return Stream.of(null, "", "  ", "AB", "A".repeat(51));
+    private static Stream<Arguments> provideInvalidWorkoutNames() {
+        return Stream.of(
+                Arguments.of(null, Set.of("Workout name is required")),
+                Arguments.of("", Set.of("Workout name is required", "Name must be between 3 and 50 characters")),
+                Arguments.of("AB", Set.of("Name must be between 3 and 50 characters")),
+                Arguments.of("A".repeat(51), Set.of("Name must be between 3 and 50 characters")));
     }
 
     @Test
-    @DisplayName("should return 400 Bad Request when workout has no exercises")
+    @DisplayName("should return 422 Unprocessable Entity when workout has no exercises")
     void testCreateWorkoutWithEmptyExerciseList() throws Exception {
         workout.setExerciseList(List.of());
 
         mockMvc.perform(post("/api/workouts")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(workout)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isUnprocessableEntity());
 
         verify(workoutService, never()).createWorkout(any(Workout.class));
     }
 
     @ParameterizedTest
     @MethodSource("provideInvalidExercises")
-    @DisplayName("should return 400 Bad Request for invalid exercise fields")
-    void testCreateWorkoutWithInvalidExercises(Exercise invalidExercise) throws Exception {
+    @DisplayName("should return 422 Unprocessable Entity for invalid exercise fields")
+    void testCreateWorkoutWithInvalidExercises(Exercise invalidExercise, Set<String> expectedMessages)
+            throws Exception {
         Workout workout = new Workout();
         workout.setWorkoutName("Valid Workout");
         workout.setExerciseList(List.of(invalidExercise));
-    
-        mockMvc.perform(post("/api/workouts")
+
+        MvcResult result = mockMvc.perform(post("/api/workouts")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(workout)))
-                .andExpect(status().isBadRequest());
-    
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn();
+
+        String responseBody = result.getResponse().getContentAsString();
+        JsonNode json = objectMapper.readTree(responseBody);
+        String actualMessage = json.get("errors").get(0).asText();
+
+        assertTrue(expectedMessages.contains(actualMessage),
+                "Expected one of " + expectedMessages + " but got: " + actualMessage);
+
         verify(workoutService, never()).createWorkout(any(Workout.class));
     }
-    
-    private static Stream<Exercise> provideInvalidExercises() {
+
+    private static Stream<Arguments> provideInvalidExercises() {
         return Stream.of(
-            Exercise.builder().name("").weight(20).numReps(10).numSets(3).build(),    // invalid name
-            Exercise.builder().name("Pushup").weight(-1).numReps(10).numSets(3).build(), // invalid weight
-            Exercise.builder().name("Pushup").weight(20).numReps(0).numSets(3).build(),  // invalid reps
-            Exercise.builder().name("Pushup").weight(20).numReps(10).numSets(0).build()  // invalid sets
-        );
+                Arguments.of(
+                        Exercise.builder().name("").weight(20).numReps(10).numSets(3).build(),
+                        Set.of("Exercise name is required", "Name must be between 3 and 50 characters")),
+                Arguments.of(
+                        Exercise.builder().name("Pushup").weight(-1).numReps(10).numSets(3).build(),
+                        Set.of("Weight must be zero or positive")),
+                Arguments.of(
+                        Exercise.builder().name("Pushup").weight(20).numReps(0).numSets(3).build(),
+                        Set.of("Reps must be at least 1")),
+                Arguments.of(
+                        Exercise.builder().name("Pushup").weight(20).numReps(10).numSets(0).build(),
+                        Set.of("Sets must be at least 1")));
     }
-    
 
     @Test
     @DisplayName("should return 500 Internal Server Error when service throws unexpected exception")
