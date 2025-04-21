@@ -88,7 +88,7 @@ public class GymServiceTest {
         GymNotFoundException exception = assertThrows(
                 GymNotFoundException.class,
                 () -> gymService.updateGym(gymId, name));
-        assertEquals("Gym with id " + gymId + " not found.", exception.getMessage());
+        assertEquals("Gym with id " + gymId + " not found", exception.getMessage());
         verify(gymRepository, never()).save(any(Gym.class));
     }
 

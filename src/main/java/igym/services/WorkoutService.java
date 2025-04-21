@@ -3,8 +3,6 @@ package igym.services;
 import igym.entities.Exercise;
 import igym.entities.Gym;
 import igym.entities.Workout;
-import igym.exceptions.GymNotFoundException;
-import igym.repositories.GymRepository;
 import igym.repositories.WorkoutRepository;
 import jakarta.transaction.Transactional;
 
@@ -16,11 +14,11 @@ import org.springframework.stereotype.Service;
 public class WorkoutService {
 
     private final WorkoutRepository workoutRepository;
-    private final GymRepository gymRepository; 
+    private final GymService gymService;
 
-    public WorkoutService(WorkoutRepository workoutRepository, GymRepository gymRepository) {
+    public WorkoutService(WorkoutRepository workoutRepository, GymService gymService) {
         this.workoutRepository = workoutRepository;
-        this.gymRepository = gymRepository;
+        this.gymService = gymService;
     }
 
     /**
@@ -31,9 +29,7 @@ public class WorkoutService {
      */
     @Transactional
     public Workout createWorkout(Workout workout, UUID gymId) {
-        Gym gym = gymRepository.findById(gymId)
-                .orElseThrow(() -> new GymNotFoundException("Gym not found"));
-
+        Gym gym = gymService.findById(gymId);
         workout.setGym(gym);
 
         if (workout.getExerciseList() != null) {
