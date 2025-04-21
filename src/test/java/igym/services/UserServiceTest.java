@@ -135,4 +135,31 @@ class UserServiceTest {
         verify(repository, times(1)).existsByName(name);
         verify(repository, never()).save(user1);
     }
+
+    @Test
+    @DisplayName("Should return the user when an existent user is passed")
+    void testFindExistentById() {
+        when(repository.findById(userId)).thenReturn(Optional.of(user1));
+        User returnedUser = service.findById(userId);
+
+        assertEquals(returnedUser, user1);
+        verify(repository, times(1)).findById(userId);
+    }
+
+    @Test
+    @DisplayName("Should return UserNotFoundException when a non existent user is passed")
+    void testFindNonExistentById() {
+        when(repository.findById(userId)).thenThrow(new UserNotFoundException("User with id " + userId + " not found"));
+        assertThrows(UserNotFoundException.class, () -> service.findById(userId));
+        verify(repository, times(1)).findById(userId);
+    }
+
+    @Test
+    @DisplayName("Should return UserNotFoundException when an inactive user is passed")
+    void testFindInactiveById() {
+        user1.setStatus(Status.inactive);
+        when(repository.findById(userId)).thenReturn(Optional.of(user1));
+        assertThrows(UserNotFoundException.class, () -> service.findById(userId));
+        verify(repository, times(1)).findById(userId);
+    }
 }
