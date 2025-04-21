@@ -189,5 +189,18 @@ public class GymServiceTest {
                 () -> gymService.findById(gymId));
         assertEquals("Gym with id " + gymId + " not found", exception.getMessage());
     }
-
+    
+    @Test
+    @DisplayName("should throw GymNotFoundException when attempting to find a inactive gym")
+    void testFindInactiveGym() {
+        UUID gymId = UUID.randomUUID();
+        Gym gym = new Gym("CrossFit Gym");
+        ReflectionTestUtils.setField(gym, "id", gymId);
+        gym.setStatus(Status.inactive);
+        when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
+        GymNotFoundException exception = assertThrows(
+                GymNotFoundException.class,
+                () -> gymService.findById(gymId));
+        assertEquals("Gym with id " + gymId + " not found", exception.getMessage());
+    }
 }

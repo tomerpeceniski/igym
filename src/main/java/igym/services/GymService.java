@@ -61,8 +61,11 @@ public class GymService {
     public void deleteGym(UUID id) {
         logger.info("Attempting to inactivate gym with id {}", id);
         Gym gym = findById(id);
-        if (gym.getStatus() == Status.inactive)
+        
+        if (gym.getStatus() == Status.inactive) {
+            logger.warn("Gym with id {} is inactive", id);
             throw new GymNotFoundException("Gym with id " + id + " not found");
+        }
 
         gym.setStatus(Status.inactive);
         gymRepository.save(gym);
@@ -71,9 +74,15 @@ public class GymService {
 
     public Gym findById(UUID id) {
         logger.info("Fetching gym with id: {}", id);
+
         Gym gym = gymRepository.findById(id)
                 .orElseThrow(() -> new GymNotFoundException("Gym with id " + id + " not found"));
-        logger.debug("Fetched gyms: {}", gym);
+        if (gym.getStatus() == Status.inactive) {
+            logger.warn("Gym with id {} is inactive", id);
+            throw new GymNotFoundException("Gym with id " + id + " not found");
+        }
+
+        logger.debug("Fetched gym: {}", gym);
         return gym;
     }
 

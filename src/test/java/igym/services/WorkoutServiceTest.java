@@ -4,9 +4,7 @@ import igym.entities.Exercise;
 import igym.entities.Gym;
 import igym.entities.Workout;
 import igym.exceptions.GymNotFoundException;
-import igym.repositories.GymRepository;
 import igym.repositories.WorkoutRepository;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
