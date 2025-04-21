@@ -7,13 +7,15 @@ import java.util.UUID;
 
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import igym.entities.enums.Status;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.ToString;
 
-@ToString
+@ToString(exclude = "gyms")
 @Table(name = "users")
 @Entity
 public class User {
@@ -32,6 +34,7 @@ public class User {
     private Status status = Status.active;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Gym> gyms = new ArrayList<>();
 
     @UpdateTimestamp
@@ -67,7 +70,7 @@ public class User {
     public List<Gym> getGyms() {
         return gyms;
     }
-    
+
     public void setGyms(List<Gym> gyms) {
         this.gyms = gyms;
     }

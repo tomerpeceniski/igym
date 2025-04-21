@@ -30,12 +30,11 @@ public class GymController {
         this.service = service;
     }
 
-    @PostMapping(value = "/gyms", produces = "application/json")
-    public ResponseEntity<Gym> createGym(@RequestBody @Valid Gym gym) {
-
-        Gym createdGym = service.createGym(gym);
+    // When authentication process is set, change the signature of this method
+    @PostMapping(value = "/gyms/{userId}", produces = "application/json")
+    public ResponseEntity<Gym> createGym(@RequestBody @Valid Gym gym, @PathVariable UUID userId) {
+        Gym createdGym = service.createGym(gym, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdGym);
-
     }
 
     @PatchMapping(value = "/gyms/{id}", produces = "application/json")

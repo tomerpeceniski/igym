@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import igym.entities.enums.Status;
@@ -13,7 +14,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.ToString;
 
-@ToString
+@ToString(exclude = "user")
 @Table(name = "gyms")
 @Entity
 public class Gym {
@@ -34,11 +35,11 @@ public class Gym {
     @UpdateTimestamp
     private Instant updated_at;
 
-    // @NotNull(message = "Gym must have a User") add this after Gym creation logic is defined
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
     private User user;
-    
+
     @OneToMany(mappedBy = "gym", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Workout> workouts;

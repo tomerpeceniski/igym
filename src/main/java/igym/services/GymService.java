@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import igym.repositories.GymRepository;
-import igym.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 
 import java.util.List;
@@ -20,21 +19,25 @@ public class GymService {
 
     private static final Logger logger = LoggerFactory.getLogger(GymService.class);
     private final GymRepository gymRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    public GymService(GymRepository gymRepository, UserRepository userRepository) {
+    public GymService(GymRepository gymRepository, UserService userService) {
         this.gymRepository = gymRepository;
-        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     @Transactional
-    public Gym createGym(Gym gym) {
+    public Gym createGym(Gym gym, UUID userId) {
         logger.info("Attempting to create a new gym");
         logger.debug("Gym creation request with values: {}", gym);
-        if (gymRepository.existsByName(gym.getName())) {
-            throw new DuplicateGymException("A gym with the name '" + gym.getName() + "' already exists");
+
+        User user = userService.findById(userId);
+        gym.setUser(user);
+        
+        if(gymRepository.existsByNameAndUserId(gym.getName(), userId)) {
+            throw new DuplicateGymException("A gym with the name '" + gym.getName() + "' already exists for this user");
         }
-        gym.setUser(getMockedUser());
+        
         Gym savedGym = gymRepository.save(gym);
         logger.info("New gym created with id {}", savedGym.getId());
         logger.debug("New gym persisted: {}", savedGym);
@@ -82,12 +85,6 @@ public class GymService {
         gym.setStatus(Status.inactive);
         gymRepository.save(gym);
         logger.info("Gym with id {} inactivated", id);
-    }
-
-    private User getMockedUser() {
-        // Temporary user insertion for developing purposes. Should be replaced when the authentication logic is implemented
-        String name = "Mocked User";
-        return userRepository.findByName(name).orElseGet(() -> userRepository.save(new User(name)));
     }
     
     public Gym findById(UUID id) {

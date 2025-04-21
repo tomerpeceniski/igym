@@ -70,5 +70,18 @@ public class UserService {
         logger.debug("Updated User persisted: {}", savedUser);
         return savedUser;
     }
+    
+    public User findById(UUID id) {
+        logger.info("Fetching user with id: {}", id);
+
+        User user = repository.findById(id).orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
+        if (user.getStatus() == Status.inactive) {
+            logger.warn("User with id {} is inactive", id);
+            throw new UserNotFoundException("User with id " + id + " not found");
+        }
+
+        logger.debug("Fetched user: {}", user);
+        return user;
+    }
 
 }
