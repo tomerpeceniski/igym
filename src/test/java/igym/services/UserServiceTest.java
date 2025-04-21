@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import igym.entities.Gym;
 import igym.entities.User;
 import igym.entities.enums.Status;
 import igym.exceptions.UserNotFoundException;
@@ -56,11 +57,13 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Should delete user from repository")
+    @DisplayName("Should inactivate user and all its gyms")
     void deleteUserTest() {
+        user1.setGyms(List.of(new Gym("Mocked Gym")));
         when(repository.findById(user1.getId())).thenReturn(Optional.of(user1));
         service.deleteUser(user1.getId());
         assertEquals(Status.inactive, user1.getStatus());
+        assertEquals(Status.inactive, user1.getGyms().get(0).getStatus());
     }
 
     @Test
