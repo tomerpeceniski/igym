@@ -155,7 +155,7 @@ public class GymServiceTest {
 
     @Test
     @DisplayName("should throw GymAlreadyDeletedException when attempting to delete a inactive gym")
-    void testDeleteInactiveGym(){
+    void testDeleteInactiveGym() {
         UUID gymId = UUID.randomUUID();
         Gym gym = new Gym("CrossFit Gym");
         ReflectionTestUtils.setField(gym, "id", gymId);
@@ -165,6 +165,29 @@ public class GymServiceTest {
             gymService.deleteGym(gymId);
         });
         verify(gymRepository, times(1)).findById(gymId);
+    }
+
+    @Test
+    @DisplayName("should find a gym by its ID")
+    void testFindById() {
+        UUID gymId = UUID.randomUUID();
+        Gym gym = new Gym("CrossFit Gym");
+        ReflectionTestUtils.setField(gym, "id", gymId);
+        when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
+        Gym result = gymService.findById(gymId);
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo("CrossFit Gym");
+    }
+
+    @Test
+    @DisplayName("should throw GymNotFoundException when attempting to find a gym that does not exist")
+    void testFindByIdNotFound() {
+        UUID gymId = UUID.randomUUID();
+        when(gymRepository.findById(gymId)).thenReturn(Optional.empty());
+        GymNotFoundException exception = assertThrows(
+                GymNotFoundException.class,
+                () -> gymService.findById(gymId));
+        assertEquals("Gym with id " + gymId + " not found", exception.getMessage());
     }
 
 }
