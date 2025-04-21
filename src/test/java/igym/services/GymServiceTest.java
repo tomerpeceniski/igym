@@ -1,6 +1,7 @@
 package igym.services;
 
 import igym.entities.Gym;
+import igym.entities.User;
 import igym.entities.enums.Status;
 import igym.exceptions.DuplicateGymException;
 import igym.exceptions.GymNotFoundException;
@@ -29,38 +30,43 @@ public class GymServiceTest {
     @Mock
     private GymRepository gymRepository;
 
+    @Mock
+    private UserService userService;
+
     @InjectMocks
     private GymService gymService;
 
     @Test
     @DisplayName("should create a new gym when given a valid name")
     void testCreateGym() {
-
         Gym gym = new Gym("CrossFit Gym");
+        UUID userId = UUID.randomUUID();
 
+        when(userService.findById(any(UUID.class))).thenReturn(new User("Mocked User"));
         when(gymRepository.save(any(Gym.class))).thenReturn(gym);
 
-        Gym result = gymService.createGym(gym);
+        Gym result = gymService.createGym(gym, userId);
 
         assertThat(result).isNotNull();
-        assertThat(result.getName()).isEqualTo("CrossFit Gym");
+        assertThat(result.getName()).isEqualTo(gym.getName());
         verify(gymRepository, times(1)).save(any(Gym.class));
     }
 
     @Test
     @DisplayName("should throw DuplicateGymException when attempting to create a gym with a duplicate name")
     void testAlreadyCreatedGymName() {
-
         Gym gym = new Gym("CrossFit Gym");
-
-        when(gymRepository.existsByName(gym.getName())).thenReturn(true);
+        UUID userId = UUID.randomUUID();
+        
+        when(userService.findById(any(UUID.class))).thenReturn(new User("Mocked User"));
+        when(gymRepository.existsByNameAndUserId(gym.getName(), userId)).thenReturn(true);
 
         DuplicateGymException exception = assertThrows(
                 DuplicateGymException.class,
-                () -> gymService.createGym(gym));
+                () -> gymService.createGym(gym, userId));
 
-        assertEquals("A gym with the name 'CrossFit Gym' already exists", exception.getMessage());
-        verify(gymRepository, times(1)).existsByName(gym.getName());
+        assertEquals("A gym with the name 'CrossFit Gym' already exists for this user", exception.getMessage());
+        verify(gymRepository, times(1)).existsByNameAndUserId(gym.getName(), userId);
         verify(gymRepository, never()).save(any(Gym.class));
     }
 
@@ -189,7 +195,7 @@ public class GymServiceTest {
                 () -> gymService.findById(gymId));
         assertEquals("Gym with id " + gymId + " not found", exception.getMessage());
     }
-    
+
     @Test
     @DisplayName("should throw GymNotFoundException when attempting to find a inactive gym")
     void testFindInactiveGym() {

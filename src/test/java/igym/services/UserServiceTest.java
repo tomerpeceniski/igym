@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import igym.entities.Gym;
 import igym.entities.User;
 import igym.entities.enums.Status;
 import igym.exceptions.UserNotFoundException;
@@ -56,11 +57,13 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Should delete user from repository")
+    @DisplayName("Should inactivate user and all its gyms")
     void deleteUserTest() {
+        user1.setGyms(List.of(new Gym("Mocked Gym")));
         when(repository.findById(user1.getId())).thenReturn(Optional.of(user1));
         service.deleteUser(user1.getId());
         assertEquals(Status.inactive, user1.getStatus());
+        assertEquals(Status.inactive, user1.getGyms().get(0).getStatus());
     }
 
     @Test
@@ -134,5 +137,32 @@ class UserServiceTest {
                 exception.getMessage());
         verify(repository, times(1)).existsByName(name);
         verify(repository, never()).save(user1);
+    }
+
+    @Test
+    @DisplayName("Should return the user when an existent user is passed")
+    void testFindExistentById() {
+        when(repository.findById(userId)).thenReturn(Optional.of(user1));
+        User returnedUser = service.findById(userId);
+
+        assertEquals(returnedUser, user1);
+        verify(repository, times(1)).findById(userId);
+    }
+
+    @Test
+    @DisplayName("Should return UserNotFoundException when a non existent user is passed")
+    void testFindNonExistentById() {
+        when(repository.findById(userId)).thenThrow(new UserNotFoundException("User with id " + userId + " not found"));
+        assertThrows(UserNotFoundException.class, () -> service.findById(userId));
+        verify(repository, times(1)).findById(userId);
+    }
+
+    @Test
+    @DisplayName("Should return UserNotFoundException when an inactive user is passed")
+    void testFindInactiveById() {
+        user1.setStatus(Status.inactive);
+        when(repository.findById(userId)).thenReturn(Optional.of(user1));
+        assertThrows(UserNotFoundException.class, () -> service.findById(userId));
+        verify(repository, times(1)).findById(userId);
     }
 }

@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import igym.entities.Gym;
 import igym.entities.User;
 import igym.entities.enums.Status;
 import igym.exceptions.UserNotFoundException;
@@ -34,14 +35,26 @@ public class UserService {
     @Transactional
     public void deleteUser(UUID id) {
         logger.info("Attempting to inactivate user with id {}", id);
-        User user = repository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
+        User user = findById(id);
         if (user.getStatus() == Status.inactive) {
             throw new UserNotFoundException("User with id " + id + " not found");
         }
         user.setStatus(Status.inactive);
+        inactivateGyms(user);
         repository.save(user);
         logger.info("User with id {} inactivated", id);
+    }
+
+    private void inactivateGyms(User user) {
+        List<Gym> gyms = user.getGyms();
+        if(gyms.stream().anyMatch(g -> g.getStatus() == Status.active)) logger.info("Inactivating {} gyms for user {}", gyms.size(), user.getId());
+
+        gyms.forEach(gym -> {
+            if (gym.getStatus() == Status.active) {
+                gym.setStatus(Status.inactive);
+                logger.debug("Gym {} inactivated", gym.getId());
+            }
+        });
     }
 
     @Transactional
@@ -69,6 +82,20 @@ public class UserService {
         logger.info("User with id {} updated sucessfully", id);
         logger.debug("Updated User persisted: {}", savedUser);
         return savedUser;
+    }
+
+    public User findById(UUID id) {
+        logger.info("Fetching user with id: {}", id);
+
+        User user = repository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
+        if (user.getStatus() == Status.inactive) {
+            logger.warn("User with id {} is inactive", id);
+            throw new UserNotFoundException("User with id " + id + " not found");
+        }
+
+        logger.debug("Fetched user: {}", user);
+        return user;
     }
 
 }

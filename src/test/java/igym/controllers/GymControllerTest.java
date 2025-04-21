@@ -52,6 +52,7 @@ public class GymControllerTest {
 
         private final ObjectMapper objectMapper = new ObjectMapper();
         UUID gymId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
         Gym gym = new Gym("Location 1");
         Gym gym1 = new Gym("Location 2");
 
@@ -64,52 +65,52 @@ public class GymControllerTest {
         @Test
         @DisplayName("should return a gym and status 201")
         void testCreateGymSuccess() throws Exception {
-                when(gymService.createGym(any(Gym.class))).thenReturn(gym);
+                when(gymService.createGym(any(Gym.class), any(UUID.class))).thenReturn(gym);
 
-                mockMvc.perform(post("/api/gyms")
+                mockMvc.perform(post("/api/gyms/{userId}", userId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(gym)))
                                 .andExpect(status().isCreated())
                                 .andExpect(jsonPath("$.name").value(gym.getName()));
 
-                verify(gymService, times(1)).createGym(any(Gym.class));
+                verify(gymService, times(1)).createGym(any(Gym.class), any(UUID.class));
         }
 
         @Test
-        @DisplayName("should return 409 Conflict when gym name already exists")
+        @DisplayName("should return 409 Conflict when gym name already exists for this user")
         void testCreateGymWithDuplicateName() throws Exception {
-                when(gymService.createGym(any(Gym.class)))
-                                .thenThrow(new DuplicateGymException("A gym with the name 'Gold Gym' already exists."));
+                when(gymService.createGym(any(Gym.class), any(UUID.class)))
+                                .thenThrow(new DuplicateGymException("A gym with the name 'Location 1' already exists for this user"));
 
-                mockMvc.perform(post("/api/gyms")
+                mockMvc.perform(post("/api/gyms/{userId}", userId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(gym)))
                                 .andExpect(status().isConflict())
                                 .andExpect(jsonPath("$.message")
-                                                .value("A gym with the name 'Gold Gym' already exists."))
+                                                .value("A gym with the name 'Location 1' already exists for this user"))
                                 .andExpect(jsonPath("$.status").value(409))
                                 .andExpect(jsonPath("$.error").value("Conflict"));
 
-                verify(gymService, times(1)).createGym(any(Gym.class));
+                verify(gymService, times(1)).createGym(any(Gym.class), any(UUID.class));
         }
 
         @Test
         @DisplayName("should return 422 Unprocessable Entity when name is null")
         void testCreateGymWithNullName() throws Exception {
-                mockMvc.perform(post("/api/gyms")
+                mockMvc.perform(post("/api/gyms/{userId}", userId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new Gym(null))))
                                 .andExpect(status().isUnprocessableEntity())
                                 .andExpect(jsonPath("$.message").value("Validation error"))
                                 .andExpect(jsonPath("$.errors").value("Name cannot be blank"));
 
-                verify(gymService, never()).createGym(any(Gym.class));
+                verify(gymService, never()).createGym(any(Gym.class), any(UUID.class));
         }
 
         @Test
         @DisplayName("should return 422 Unprocessable Entity when name an empty string")
         void testCreateGymWithEmptyStringName() throws Exception {
-                mockMvc.perform(post("/api/gyms")
+                mockMvc.perform(post("/api/gyms/{userId}", userId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new Gym(""))))
                                 .andExpect(status().isUnprocessableEntity())
@@ -118,33 +119,33 @@ public class GymControllerTest {
                                                 "Name cannot be blank",
                                                 "Name must be between 3 and 50 characters")));
 
-                verify(gymService, never()).createGym(any(Gym.class));
+                verify(gymService, never()).createGym(any(Gym.class), any(UUID.class));
         }
 
         @Test
         @DisplayName("should return 422 Unprocessable Entity when name has more than 50 characters")
         void testCreateGymWithTooLongName() throws Exception {
-                mockMvc.perform(post("/api/gyms")
+                mockMvc.perform(post("/api/gyms/{userId}", userId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new Gym("a".repeat(51)))))
                                 .andExpect(status().isUnprocessableEntity())
                                 .andExpect(jsonPath("$.message").value("Validation error"))
                                 .andExpect(jsonPath("$.errors").value("Name must be between 3 and 50 characters"));
 
-                verify(gymService, never()).createGym(any(Gym.class));
+                verify(gymService, never()).createGym(any(Gym.class), any(UUID.class));
         }
 
         @Test
         @DisplayName("should return 422 Unprocessable Entity when name has less than 3 characters")
         void testCreateGymWithTooShortName() throws Exception {
-                mockMvc.perform(post("/api/gyms")
+                mockMvc.perform(post("/api/gyms/{userId}", userId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new Gym("a"))))
                                 .andExpect(status().isUnprocessableEntity())
                                 .andExpect(jsonPath("$.message").value("Validation error"))
                                 .andExpect(jsonPath("$.errors").value("Name must be between 3 and 50 characters"));
 
-                verify(gymService, never()).createGym(any(Gym.class));
+                verify(gymService, never()).createGym(any(Gym.class), any(UUID.class));
         }
 
         @Test

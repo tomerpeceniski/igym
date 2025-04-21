@@ -19,18 +19,25 @@ public class GymService {
 
     private static final Logger logger = LoggerFactory.getLogger(GymService.class);
     private final GymRepository gymRepository;
+    private final UserService userService;
 
-    public GymService(GymRepository gymRepository) {
+    public GymService(GymRepository gymRepository, UserService userService) {
         this.gymRepository = gymRepository;
+        this.userService = userService;
     }
 
     @Transactional
-    public Gym createGym(Gym gym) {
+    public Gym createGym(Gym gym, UUID userId) {
         logger.info("Attempting to create a new gym");
         logger.debug("Gym creation request with values: {}", gym);
-        if (gymRepository.existsByName(gym.getName())) {
-            throw new DuplicateGymException("A gym with the name '" + gym.getName() + "' already exists");
+
+        User user = userService.findById(userId);
+        gym.setUser(user);
+        
+        if(gymRepository.existsByNameAndUserId(gym.getName(), userId)) {
+            throw new DuplicateGymException("A gym with the name '" + gym.getName() + "' already exists for this user");
         }
+        
         Gym savedGym = gymRepository.save(gym);
         logger.info("New gym created with id {}", savedGym.getId());
         logger.debug("New gym persisted: {}", savedGym);
@@ -79,7 +86,7 @@ public class GymService {
         gymRepository.save(gym);
         logger.info("Gym with id {} inactivated", id);
     }
-
+    
     public Gym findById(UUID id) {
         logger.info("Fetching gym with id: {}", id);
 
