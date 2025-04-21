@@ -83,13 +83,20 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-params</artifactId>
+			<version>5.11.4</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.30</version>
+			<version>1.18.30</version> <!-- Check for latest version if needed -->
 			<scope>provided</scope>
 		</dependency>
+
+
 	</dependencies>
 
 	<build>
@@ -121,6 +128,19 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.10.1</version>
+				<configuration>
+					<failOnError>false</failOnError>
+					<doclint>none</doclint>
+					<encoding>UTF-8</encoding>
+					<source>21</source>
+					<outputDirectory>${project.build.directory}/site</outputDirectory>
+					<additionalJOption>-Xdoclint:none</additionalJOption>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

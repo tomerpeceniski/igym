@@ -94,12 +94,12 @@ public class GymControllerTest {
         }
 
         @Test
-        @DisplayName("should return 400 Bad Request when name is null")
+        @DisplayName("should return 422 Unprocessable Entity when name is null")
         void testCreateGymWithNullName() throws Exception {
                 mockMvc.perform(post("/api/gyms")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new Gym(null))))
-                                .andExpect(status().isBadRequest())
+                                .andExpect(status().isUnprocessableEntity())
                                 .andExpect(jsonPath("$.message").value("Validation error"))
                                 .andExpect(jsonPath("$.errors").value("Name cannot be blank"));
 
@@ -107,12 +107,12 @@ public class GymControllerTest {
         }
 
         @Test
-        @DisplayName("should return 400 Bad Request when name an empty string")
+        @DisplayName("should return 422 Unprocessable Entity when name an empty string")
         void testCreateGymWithEmptyStringName() throws Exception {
                 mockMvc.perform(post("/api/gyms")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new Gym(""))))
-                                .andExpect(status().isBadRequest())
+                                .andExpect(status().isUnprocessableEntity())
                                 .andExpect(jsonPath("$.errors", hasSize(2))) // Ensure two errors exist
                                 .andExpect(jsonPath("$.errors", containsInAnyOrder(
                                                 "Name cannot be blank",
@@ -122,12 +122,12 @@ public class GymControllerTest {
         }
 
         @Test
-        @DisplayName("should return 400 Bad Request when name has more than 50 characters")
+        @DisplayName("should return 422 Unprocessable Entity when name has more than 50 characters")
         void testCreateGymWithTooLongName() throws Exception {
                 mockMvc.perform(post("/api/gyms")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new Gym("a".repeat(51)))))
-                                .andExpect(status().isBadRequest())
+                                .andExpect(status().isUnprocessableEntity())
                                 .andExpect(jsonPath("$.message").value("Validation error"))
                                 .andExpect(jsonPath("$.errors").value("Name must be between 3 and 50 characters"));
 
@@ -135,12 +135,12 @@ public class GymControllerTest {
         }
 
         @Test
-        @DisplayName("should return 400 Bad Request when name has less than 3 characters")
+        @DisplayName("should return 422 Unprocessable Entity when name has less than 3 characters")
         void testCreateGymWithTooShortName() throws Exception {
                 mockMvc.perform(post("/api/gyms")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new Gym("a"))))
-                                .andExpect(status().isBadRequest())
+                                .andExpect(status().isUnprocessableEntity())
                                 .andExpect(jsonPath("$.message").value("Validation error"))
                                 .andExpect(jsonPath("$.errors").value("Name must be between 3 and 50 characters"));
 
@@ -247,14 +247,14 @@ public class GymControllerTest {
         }
 
         @Test
-        @DisplayName("should return 400 when trying to update gym with invalid name")
+        @DisplayName("should return 422 when trying to update gym with invalid name")
         void testUpdateGymInvalidName() throws Exception {
                 Gym invalidGym = new Gym("");
 
                 mockMvc.perform(patch("/api/gyms/{gymId}", gymId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidGym)))
-                                .andExpect(status().isBadRequest())
+                                .andExpect(status().isUnprocessableEntity())
                                 .andExpect(jsonPath("$.message").value("Validation error"))
                                 .andExpect(jsonPath("$.errors", hasSize(2)))
                                 .andExpect(jsonPath("$.errors", containsInAnyOrder(

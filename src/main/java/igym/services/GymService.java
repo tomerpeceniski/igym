@@ -39,15 +39,22 @@ public class GymService {
 
     public Gym updateGym(UUID id, String name) {
         logger.info("Attempting to update Gym with id: {}", id);
-        Gym gym = gymRepository.findById(id)
-                .orElseThrow(() -> new GymNotFoundException("Gym with id " + id + " not found."));
+
+        Gym gym = findById(id);
         if (gymRepository.existsByName(name)) {
             throw new DuplicateGymException("A gym with the name '" + name + "' already exists.");
         }
+        if (gym.getStatus() == Status.inactive) {
+            logger.warn("Gym with id {} is inactive", id);
+            throw new GymNotFoundException("Gym with id " + id + " not found");
+        }
+
         gym.setName(name);
         Gym savedGym = gymRepository.save(gym);
+        
         logger.info("Gym with id {} updated sucessfully", id);
         logger.debug("Updated Gym persisted: {}", savedGym);
+
         return savedGym;
     }
 
@@ -61,15 +68,30 @@ public class GymService {
 
     public void deleteGym(UUID id) {
         logger.info("Attempting to inactivate gym with id {}", id);
-        Gym gym = (gymRepository.findById(id))
-                .orElseThrow(() -> new GymNotFoundException("Gym with id " + id + " not found"));
+        Gym gym = findById(id);
 
-        if (gym.getStatus() == Status.inactive)
+        if (gym.getStatus() == Status.inactive) {
+            logger.warn("Gym with id {} is inactive", id);
             throw new GymNotFoundException("Gym with id " + id + " not found");
+        }
 
         gym.setStatus(Status.inactive);
         gymRepository.save(gym);
         logger.info("Gym with id {} inactivated", id);
     }
-    
+
+    public Gym findById(UUID id) {
+        logger.info("Fetching gym with id: {}", id);
+
+        Gym gym = gymRepository.findById(id)
+                .orElseThrow(() -> new GymNotFoundException("Gym with id " + id + " not found"));
+        if (gym.getStatus() == Status.inactive) {
+            logger.warn("Gym with id {} is inactive", id);
+            throw new GymNotFoundException("Gym with id " + id + " not found");
+        }
+
+        logger.debug("Fetched gym: {}", gym);
+        return gym;
+    }
+
 }

@@ -133,12 +133,12 @@ public class UserControllerTest {
         }
 
         @Test
-        @DisplayName("Should return status 400 when creating user with null name")
+        @DisplayName("Should return status 422 Unprocessable Entity when creating user with null name")
         void createNullNameUserTest() throws Exception {
                 mockMvc.perform(post("/users")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new User())))
-                                .andExpect(status().isBadRequest())
+                                .andExpect(status().isUnprocessableEntity())
                                 .andExpect(jsonPath("$.message").value("Validation error"))
                                 .andExpect(jsonPath("$.errors").value("Name cannot be blank"));
 
@@ -146,12 +146,12 @@ public class UserControllerTest {
         }
 
         @Test
-        @DisplayName("Should return status 400 when creating user with blank name")
+        @DisplayName("Should return status 422 Unprocessable Entity when creating user with blank name")
         void createBlankNameUserTest() throws Exception {
                 mockMvc.perform(post("/users")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new User("     "))))
-                                .andExpect(status().isBadRequest())
+                                .andExpect(status().isUnprocessableEntity())
                                 .andExpect(jsonPath("$.message").value("Validation error"))
                                 .andExpect(jsonPath("$.errors").value("Name cannot be blank"));
 
@@ -159,12 +159,12 @@ public class UserControllerTest {
         }
 
         @Test
-        @DisplayName("Should return status 400 when creating user with empty name")
+        @DisplayName("Should return status 422 Unprocessable Entity when creating user with empty name")
         void createEmptyNameUserTest() throws Exception {
                 mockMvc.perform(post("/users")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new User(""))))
-                                .andExpect(status().isBadRequest())
+                                .andExpect(status().isUnprocessableEntity())
                                 .andExpect(jsonPath("$.errors", hasSize(2))) // Ensure two errors exist
                                 .andExpect(jsonPath("$.errors", containsInAnyOrder(
                                                 "Name cannot be blank",
@@ -174,12 +174,12 @@ public class UserControllerTest {
         }
 
         @Test
-        @DisplayName("Should return status 400 when creating user with name with more than 50 characters")
+        @DisplayName("Should return status 422 Unprocessable Entity when creating user with name with more than 50 characters")
         void createBigNameUserTest() throws Exception {
                 mockMvc.perform(post("/users")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new User("a".repeat(51)))))
-                                .andExpect(status().isBadRequest())
+                                .andExpect(status().isUnprocessableEntity())
                                 .andExpect(jsonPath("$.message").value("Validation error"))
                                 .andExpect(jsonPath("$.errors").value("Name must be between 3 and 50 characters"));
 
@@ -187,12 +187,12 @@ public class UserControllerTest {
         }
 
         @Test
-        @DisplayName("Should return status 400 when creating user with name with less than 3 characters")
+        @DisplayName("Should return status 422 Unprocessable Entity when creating user with name with less than 3 characters")
         void createSmallNameUserTest() throws Exception {
                 mockMvc.perform(post("/users")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new User("a"))))
-                                .andExpect(status().isBadRequest())
+                                .andExpect(status().isUnprocessableEntity())
                                 .andExpect(jsonPath("$.message").value("Validation error"))
                                 .andExpect(jsonPath("$.errors").value("Name must be between 3 and 50 characters"));
 
@@ -262,14 +262,14 @@ public class UserControllerTest {
         }
 
         @Test
-        @DisplayName("should return 400 when trying to update user with invalid name")
+        @DisplayName("should return 422 when trying to update user with invalid name")
         void testUpdateUserInvalidName() throws Exception {
                 User invalidUser = new User("");
 
                 mockMvc.perform(patch("/users/{id}", userId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidUser)))
-                                .andExpect(status().isBadRequest())
+                                .andExpect(status().isUnprocessableEntity())
                                 .andExpect(jsonPath("$.message").value("Validation error"))
                                 .andExpect(jsonPath("$.errors", hasSize(2)))
                                 .andExpect(jsonPath("$.errors", containsInAnyOrder(
