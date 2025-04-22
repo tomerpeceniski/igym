@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import igym.entities.Exercise;
 import igym.entities.Workout;
+import igym.exceptions.WorkoutNotFoundException;
 import igym.services.WorkoutService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(WorkoutController.class)
@@ -193,6 +194,33 @@ public class WorkoutControllerTest {
                                 .andExpect(status().isInternalServerError());
 
                 verify(workoutService, times(1)).createWorkout(any(Workout.class), eq(gymId));
+        }
+
+        @Test
+        @DisplayName("should return 204 No Content when deleting existing workout")
+        void testDeleteWorkoutSuccess() throws Exception {
+                UUID workoutId = UUID.randomUUID();
+
+                doNothing().when(workoutService).deleteWorkout(workoutId);
+
+                mockMvc.perform(delete("/api/{id}", workoutId))
+                                .andExpect(status().isNoContent());
+
+                verify(workoutService, times(1)).deleteWorkout(workoutId);
+        }
+
+        @Test
+        @DisplayName("should return 404 Not Found when workout does not exist")
+        void testDeleteWorkoutNotFound() throws Exception {
+                UUID workoutId = UUID.randomUUID();
+
+                doThrow(new WorkoutNotFoundException("Workout not found")).when(workoutService)
+                                .deleteWorkout(workoutId);
+
+                mockMvc.perform(delete("/api/{id}", workoutId))
+                                .andExpect(status().isNotFound());
+
+                verify(workoutService, times(1)).deleteWorkout(workoutId);
         }
 
 }
