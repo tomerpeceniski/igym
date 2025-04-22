@@ -53,20 +53,21 @@ public class GymServiceTest {
     }
 
     @Test
-    @DisplayName("should throw DuplicateGymException when attempting to create a gym with a duplicate name")
+    @DisplayName("should throw DuplicateGymException when attempting to create a gym with an existing name and status active")
     void testAlreadyCreatedGymName() {
         Gym gym = new Gym("CrossFit Gym");
+        gym.setStatus(Status.active);
         UUID userId = UUID.randomUUID();
         
         when(userService.findById(any(UUID.class))).thenReturn(new User("Mocked User"));
-        when(gymRepository.existsByNameAndUserId(gym.getName(), userId)).thenReturn(true);
+        when(gymRepository.existsByNameAndUserIdAndStatus(gym.getName(), userId, Status.active)).thenReturn(true);
 
         DuplicateGymException exception = assertThrows(
                 DuplicateGymException.class,
                 () -> gymService.createGym(gym, userId));
 
         assertEquals("A gym with the name 'CrossFit Gym' already exists for this user", exception.getMessage());
-        verify(gymRepository, times(1)).existsByNameAndUserId(gym.getName(), userId);
+        verify(gymRepository, times(1)).existsByNameAndUserIdAndStatus(gym.getName(), userId, Status.active);
         verify(gymRepository, never()).save(any(Gym.class));
     }
 

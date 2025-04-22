@@ -34,7 +34,8 @@ public class GymService {
         User user = userService.findById(userId);
         gym.setUser(user);
         
-        if(gymRepository.existsByNameAndUserId(gym.getName(), userId)) {
+        if(gymRepository.existsByNameAndUserIdAndStatus(gym.getName(), userId, Status.active)) {
+            logger.warn("A gym with the name '{}' already exists for user with id {}", gym.getName(), userId);
             throw new DuplicateGymException("A gym with the name '" + gym.getName() + "' already exists for this user");
         }
         
