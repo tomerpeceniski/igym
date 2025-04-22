@@ -62,7 +62,6 @@ public class UserService {
         logger.info("Attempting to create a new user");
         logger.debug("User creation request with values: {}", user);
         if (repository.existsByNameAndStatus(user.getName(), Status.active)) {
-            logger.warn("A user with the name '{}' already exists", user.getName());
             throw new DuplicateUserException("An user with the name " + user.getName() + " already exists");
         }
         User savedUser = repository.save(user);
