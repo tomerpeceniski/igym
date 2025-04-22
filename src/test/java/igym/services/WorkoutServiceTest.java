@@ -60,6 +60,22 @@ class WorkoutServiceTest {
     }
 
     @Test
+    @DisplayName("Should create workout when exercise list is null")
+    void testCreateWorkoutWithNullExerciseList() {
+        Workout workout = new Workout();
+        workout.setName("Stretching Routine");
+        workout.setExerciseList(null); // important
+
+        when(gymService.findById(gymId)).thenReturn(new Gym("Test Gym"));
+        when(workoutRepository.save(any(Workout.class))).thenReturn(workout);
+
+        Workout result = workoutService.createWorkout(workout, gymId);
+
+        assertEquals("Stretching Routine", result.getName());
+        verify(workoutRepository, times(1)).save(workout);
+    }
+
+    @Test
     @DisplayName("Should return an exeception when gym not found in workout creation")
     void testGymNotFoundInWorkoutCreation() {
         Exercise ex = new Exercise();
@@ -131,7 +147,7 @@ class WorkoutServiceTest {
 
         Workout workout = new Workout();
         workout.setName("Cardio Day");
-        workout.setStatus(Status.inactive); 
+        workout.setStatus(Status.inactive);
 
         when(workoutRepository.findById(workoutId)).thenReturn(java.util.Optional.of(workout));
 
@@ -143,6 +159,24 @@ class WorkoutServiceTest {
         verify(workoutRepository, times(1)).findById(workoutId);
         verify(workoutRepository, never()).save(any());
         assertEquals(Status.inactive, workout.getStatus());
+    }
+
+    @Test
+    @DisplayName("Should delete workout with no exercises")
+    void testDeleteWorkoutWithNoExercises() {
+        UUID workoutId = UUID.randomUUID();
+
+        Workout workout = new Workout();
+        workout.setName("Cardio Day");
+        workout.setStatus(Status.active);
+        workout.setExerciseList(null);
+
+        when(workoutRepository.findById(workoutId)).thenReturn(java.util.Optional.of(workout));
+
+        workoutService.deleteWorkout(workoutId);
+
+        assertEquals(Status.inactive, workout.getStatus());
+        verify(workoutRepository).save(workout);
     }
 
 }
