@@ -81,7 +81,6 @@ public class UserService {
         }
         
         if (repository.existsByNameAndStatus(name, Status.active)) {
-            logger.warn("A user with the name '{}' already exists", name);
             throw new DuplicateUserException("A user with the name '" + name + "' already exists.");
         }
         user.setName(name);
