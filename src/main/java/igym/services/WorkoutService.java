@@ -6,6 +6,7 @@ import igym.entities.Workout;
 import igym.repositories.WorkoutRepository;
 import jakarta.transaction.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -40,4 +41,10 @@ public class WorkoutService {
 
         return workoutRepository.save(workout);
     }
+
+    public List<Workout> getWorkoutsByGymId(UUID gymId) {
+        Gym gym = gymService.findById(gymId);
+        return workoutRepository.findByGym(gym);
+    }
+
 }

@@ -80,4 +80,63 @@ class WorkoutServiceTest {
         verify(gymService, times(1)).findById(gymId);
         verify(workoutRepository, never()).save(any());
     }
+
+    @Test
+    @DisplayName("Should return multiple workouts by gym ID")
+    void testGetMultipleWorkoutsByGymId() {
+        Gym gym = new Gym("My Gym");
+        UUID gymId = UUID.randomUUID();
+
+        Exercise ex1 = new Exercise();
+        ex1.setName("Pushup");
+        ex1.setWeight(0);
+        ex1.setNumReps(15);
+        ex1.setNumSets(3);
+
+        Exercise ex2 = new Exercise();
+        ex2.setName("Squat");
+        ex2.setWeight(40);
+        ex2.setNumReps(10);
+        ex2.setNumSets(4);
+
+        Workout workout1 = new Workout();
+        workout1.setName("Upper Body");
+        workout1.setExerciseList(List.of(ex1));
+        workout1.setGym(gym);
+
+        Workout workout2 = new Workout();
+        workout2.setName("Leg Day");
+        workout2.setExerciseList(List.of(ex2));
+        workout2.setGym(gym);
+
+        when(gymService.findById(gymId)).thenReturn(gym);
+        when(workoutRepository.findByGym(gym)).thenReturn(List.of(workout1, workout2));
+
+        List<Workout> workouts = workoutService.getWorkoutsByGymId(gymId);
+
+        assertEquals(2, workouts.size());
+        assertEquals("Upper Body", workouts.get(0).getName());
+        assertEquals("Leg Day", workouts.get(1).getName());
+
+        verify(gymService, times(1)).findById(gymId);
+        verify(workoutRepository, times(1)).findByGym(gym);
+    }
+
+    @Test
+    @DisplayName("Should throw GymNotFoundException when gym ID does not exist in getWorkoutsByGymId")
+    void testGetWorkoutsByGymIdGymNotFound() {
+        UUID gymId = UUID.randomUUID();
+
+        when(gymService.findById(gymId))
+                .thenThrow(new GymNotFoundException("Gym with id " + gymId + " not found"));
+
+        GymNotFoundException exception = assertThrows(
+                GymNotFoundException.class,
+                () -> workoutService.getWorkoutsByGymId(gymId));
+
+        assertEquals("Gym with id " + gymId + " not found", exception.getMessage());
+        verify(gymService, times(1)).findById(gymId);
+        verify(workoutRepository, never()).findByGym(any());
+    }
+
 }
