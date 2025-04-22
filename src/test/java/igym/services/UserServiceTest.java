@@ -125,6 +125,19 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Should throw UserNotFoundException when attempting to update a user that is inactive")
+    void testUpdateUserInactive() {
+        String name = user2.getName();
+        user1.setStatus(Status.inactive);
+        when(repository.findById(userId)).thenReturn(Optional.of(user1));
+        UserNotFoundException exception = assertThrows(
+                UserNotFoundException.class,
+                () -> service.updateUser(userId, name));
+        assertEquals("User with id " + userId + " not found", exception.getMessage());
+        verify(repository, never()).save(user1);
+    }
+
+    @Test
     @DisplayName("Should throw DuplicateUserException when attempting to update a user to a name that is already in use and if the updated name is the same as the existing one user active")
     void testUpdateUserExistingName() {
         String name = user2.getName();
