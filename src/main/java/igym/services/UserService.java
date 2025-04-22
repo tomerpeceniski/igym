@@ -61,7 +61,8 @@ public class UserService {
     public User createUser(User user) {
         logger.info("Attempting to create a new user");
         logger.debug("User creation request with values: {}", user);
-        if (repository.existsByName(user.getName())) {
+        if (repository.existsByNameAndStatus(user.getName(), Status.active)) {
+            logger.warn("A user with the name '{}' already exists", user.getName());
             throw new DuplicateUserException("An user with the name " + user.getName() + " already exists");
         }
         User savedUser = repository.save(user);
@@ -74,7 +75,14 @@ public class UserService {
         logger.info("Attempting to update User with id: {}", id);
         User user = repository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found."));
-        if (repository.existsByName(name)) {
+
+        if (user.getStatus() == Status.inactive) {
+            logger.warn("User with id {} is inactive", id);
+            throw new UserNotFoundException("User with id " + id + " not found");
+        }
+        
+        if (repository.existsByNameAndStatus(name, Status.active)) {
+            logger.warn("A user with the name '{}' already exists", name);
             throw new DuplicateUserException("A user with the name '" + name + "' already exists.");
         }
         user.setName(name);

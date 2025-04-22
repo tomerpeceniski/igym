@@ -92,9 +92,9 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Should return an error when trying to create a duplicate user")
+    @DisplayName("Should return an error when trying to create a duplicate user with status active")
     void createDuplicateUserTest() {
-        when(repository.existsByName(user1.getName())).thenReturn(true);
+        when(repository.existsByNameAndStatus(user1.getName(), Status.active)).thenReturn(true);
         assertThrows(DuplicateUserException.class, () -> service.createUser(user1));
         verify(repository, never()).save(user1);
     }
@@ -104,7 +104,7 @@ class UserServiceTest {
     void testUpdateUser() {
         String name = user2.getName();
         when(repository.findById(userId)).thenReturn(Optional.of(user1));
-        when(repository.existsByName(name)).thenReturn(false);
+        when(repository.existsByNameAndStatus(name, Status.active)).thenReturn(false);
         when(repository.save(any(User.class))).thenReturn(user1);
         User result = service.updateUser(userId, name);
         assertThat(result).isNotNull();
@@ -125,17 +125,17 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Should throw DuplicateUserException when attempting to update a user to a name that is already in use")
+    @DisplayName("Should throw DuplicateUserException when attempting to update a user to a name that is already in use and if the updated name is the same as the existing one user active")
     void testUpdateUserExistingName() {
         String name = user2.getName();
         when(repository.findById(userId)).thenReturn(Optional.of(user1));
-        when(repository.existsByName(name)).thenReturn(true);
+        when(repository.existsByNameAndStatus(name, Status.active)).thenReturn(true);
         DuplicateUserException exception = assertThrows(
                 DuplicateUserException.class,
                 () -> service.updateUser(userId, name));
         assertEquals("A user with the name '" + name + "' already exists.",
                 exception.getMessage());
-        verify(repository, times(1)).existsByName(name);
+        verify(repository, times(1)).existsByNameAndStatus(name, Status.active);
         verify(repository, never()).save(user1);
     }
 
