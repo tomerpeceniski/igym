@@ -203,7 +203,7 @@ public class WorkoutControllerTest {
 
                 doNothing().when(workoutService).deleteWorkout(workoutId);
 
-                mockMvc.perform(delete("/api/{id}", workoutId))
+                mockMvc.perform(delete("/api/workouts/{id}", workoutId))
                                 .andExpect(status().isNoContent());
 
                 verify(workoutService, times(1)).deleteWorkout(workoutId);
@@ -217,7 +217,7 @@ public class WorkoutControllerTest {
                 doThrow(new WorkoutNotFoundException("Workout not found")).when(workoutService)
                                 .deleteWorkout(workoutId);
 
-                mockMvc.perform(delete("/api/{id}", workoutId))
+                mockMvc.perform(delete("/api/workouts/{id}", workoutId))
                                 .andExpect(status().isNotFound());
 
                 verify(workoutService, times(1)).deleteWorkout(workoutId);
