@@ -11,6 +11,8 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import igym.entities.enums.Status;
+
 /**
  * Represents a workout plan which contains multiple exercises.
  * Lombok's @Setter is applied to the class, but the ID field
@@ -32,6 +34,10 @@ public class Workout {
     @Column(nullable = false, length = 50)
     @Size(min = 1, max = 50, message = "Name must be between 3 and 50 characters")
     private String name;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status = Status.active;
 
     @NotEmpty(message = "Workout must contain at least one exercise")
     @OneToMany(mappedBy = "workout", cascade = CascadeType.ALL)

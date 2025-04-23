@@ -3,7 +3,9 @@ package igym.services;
 import igym.entities.Exercise;
 import igym.entities.Gym;
 import igym.entities.Workout;
+import igym.entities.enums.Status;
 import igym.exceptions.GymNotFoundException;
+import igym.exceptions.WorkoutNotFoundException;
 import igym.repositories.WorkoutRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -58,6 +60,22 @@ class WorkoutServiceTest {
     }
 
     @Test
+    @DisplayName("Should create workout when exercise list is null")
+    void testCreateWorkoutWithNullExerciseList() {
+        Workout workout = new Workout();
+        workout.setName("Stretching Routine");
+        workout.setExerciseList(null);
+
+        when(gymService.findById(gymId)).thenReturn(new Gym("Test Gym"));
+        when(workoutRepository.save(any(Workout.class))).thenReturn(workout);
+
+        Workout result = workoutService.createWorkout(workout, gymId);
+
+        assertEquals("Stretching Routine", result.getName());
+        verify(workoutRepository, times(1)).save(workout);
+    }
+
+    @Test
     @DisplayName("Should return an exeception when gym not found in workout creation")
     void testGymNotFoundInWorkoutCreation() {
         Exercise ex = new Exercise();
@@ -80,4 +98,85 @@ class WorkoutServiceTest {
         verify(gymService, times(1)).findById(gymId);
         verify(workoutRepository, never()).save(any());
     }
+
+    @Test
+    @DisplayName("Test soft delete of existing workout")
+    void testDeleteWorkoutByIdSuccess() {
+        UUID workoutId = UUID.randomUUID();
+
+        Exercise ex = new Exercise();
+        ex.setName("Squat");
+        ex.setWeight(60);
+        ex.setNumReps(10);
+        ex.setNumSets(4);
+
+        Workout workout = new Workout();
+        workout.setName("Leg Day");
+        workout.setExerciseList(List.of(ex));
+        workout.setStatus(Status.active);
+        ex.setStatus(Status.active);
+        ex.setWorkout(workout);
+
+        when(workoutRepository.findById(workoutId)).thenReturn(java.util.Optional.of(workout));
+
+        workoutService.deleteWorkout(workoutId);
+
+        assertEquals(Status.inactive, workout.getStatus());
+        assertEquals(Status.inactive, ex.getStatus());
+        verify(workoutRepository).save(workout);
+    }
+
+    @Test
+    @DisplayName("Test delete workout not found throws exception")
+    void testDeleteWorkoutNotFound() {
+        UUID workoutId = UUID.randomUUID();
+
+        when(workoutRepository.findById(workoutId)).thenReturn(java.util.Optional.empty());
+
+        WorkoutNotFoundException exception = assertThrows(WorkoutNotFoundException.class,
+                () -> workoutService.deleteWorkout(workoutId));
+
+        assertEquals("Workout with id " + workoutId + " not found", exception.getMessage());
+        verify(workoutRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when deleting workout already marked as inactive")
+    void testDeleteWorkoutAlreadyInactive() {
+        UUID workoutId = UUID.randomUUID();
+
+        Workout workout = new Workout();
+        workout.setName("Cardio Day");
+        workout.setStatus(Status.inactive);
+
+        when(workoutRepository.findById(workoutId)).thenReturn(java.util.Optional.of(workout));
+
+        WorkoutNotFoundException exception = assertThrows(WorkoutNotFoundException.class,
+                () -> workoutService.deleteWorkout(workoutId));
+
+        assertEquals("Workout with id " + workoutId + " not found", exception.getMessage());
+
+        verify(workoutRepository, times(1)).findById(workoutId);
+        verify(workoutRepository, never()).save(any());
+        assertEquals(Status.inactive, workout.getStatus());
+    }
+
+    @Test
+    @DisplayName("Should delete workout with no exercises")
+    void testDeleteWorkoutWithNoExercises() {
+        UUID workoutId = UUID.randomUUID();
+
+        Workout workout = new Workout();
+        workout.setName("Cardio Day");
+        workout.setStatus(Status.active);
+        workout.setExerciseList(null);
+
+        when(workoutRepository.findById(workoutId)).thenReturn(java.util.Optional.of(workout));
+
+        workoutService.deleteWorkout(workoutId);
+
+        assertEquals(Status.inactive, workout.getStatus());
+        verify(workoutRepository).save(workout);
+    }
+
 }
