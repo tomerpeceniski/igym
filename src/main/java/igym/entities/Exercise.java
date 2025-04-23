@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
+import igym.entities.enums.Status;
+
 /**
  * Represents an exercise within a workout.
  *
@@ -45,6 +47,10 @@ public class Exercise {
     private int numSets;
 
     private String note;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status = Status.active;
 
     @ManyToOne
     @JoinColumn(name = "workout_id", nullable = false)

@@ -73,4 +73,11 @@ public class GlobalExceptionHandler {
         Map<String, Object> body = buildResponseBody(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
+
+    @ExceptionHandler(WorkoutNotFoundException.class)
+    public ResponseEntity<Object> handleWorkoutNotFoundException(WorkoutNotFoundException ex) {
+        logger.error(ex.getMessage());
+        Map<String, Object> body = buildResponseBody(HttpStatus.NOT_FOUND, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
 }
