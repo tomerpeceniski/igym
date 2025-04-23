@@ -83,6 +83,7 @@ class UserServiceTest {
         verify(repository, never()).save(user1);
     }
 
+    @Test
     @DisplayName("Should return a list that contains the saved user")
     void createUserTest() {
         when(repository.save(user1)).thenReturn(user1);

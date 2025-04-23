@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import igym.entities.Exercise;
 import igym.entities.Workout;
+import igym.exceptions.WorkoutNotFoundException;
 import igym.services.WorkoutService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -228,6 +229,33 @@ public class WorkoutControllerTest {
                                 .andExpect(jsonPath("$[1].name").value("Leg Day"));
 
                 verify(workoutService, times(1)).getWorkoutsByGymId(gymId);
+
+        }
+
+        @DisplayName("should return 204 No Content when deleting existing workout")
+        void testDeleteWorkoutSuccess() throws Exception {
+                UUID workoutId = UUID.randomUUID();
+
+                doNothing().when(workoutService).deleteWorkout(workoutId);
+
+                mockMvc.perform(delete("/api/workouts/{id}", workoutId))
+                                .andExpect(status().isNoContent());
+
+                verify(workoutService, times(1)).deleteWorkout(workoutId);
+        }
+
+        @Test
+        @DisplayName("should return 404 Not Found when workout does not exist")
+        void testDeleteWorkoutNotFound() throws Exception {
+                UUID workoutId = UUID.randomUUID();
+
+                doThrow(new WorkoutNotFoundException("Workout not found")).when(workoutService)
+                                .deleteWorkout(workoutId);
+
+                mockMvc.perform(delete("/api/workouts/{id}", workoutId))
+                                .andExpect(status().isNotFound());
+
+                verify(workoutService, times(1)).deleteWorkout(workoutId);
         }
 
 }

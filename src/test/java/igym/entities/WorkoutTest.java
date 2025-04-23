@@ -5,6 +5,8 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
 
+import igym.entities.enums.Status;
+
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -74,4 +76,14 @@ class WorkoutTest {
         assertFalse(violations.isEmpty(), "Expected violation for null exercise list");
     }
 
+    @Test
+    @DisplayName("Test workout default status is active")
+    void testWorkoutDefaultStatus() {
+        Workout workout = new Workout();
+        workout.setName("Core Day");
+        workout.setExerciseList(List.of(createValidExercise()));
+        Set<ConstraintViolation<Workout>> violations = validator.validate(workout);
+        assertTrue(violations.isEmpty());
+        assertEquals(Status.active, workout.getStatus(), "Default status should be active");
+    }
 }
