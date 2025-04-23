@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -50,6 +51,11 @@ public class WorkoutService {
         logger.info("New workout created with id: {}", savedWorkout.getId());
         logger.debug("New workout persisted: {}", savedWorkout);
         return savedWorkout;
+    }
+
+    public List<Workout> getWorkoutsByGymId(UUID gymId) {
+        Gym gym = gymService.findById(gymId);
+        return workoutRepository.findByGym(gym);
     }
 
     /**

@@ -197,6 +197,41 @@ public class WorkoutControllerTest {
         }
 
         @Test
+        @DisplayName("should return all workouts for a given gym")
+        void testGetWorkoutsByGymId() throws Exception {
+                Exercise ex1 = new Exercise();
+                ex1.setName("Pushup");
+                ex1.setWeight(0);
+                ex1.setNumReps(15);
+                ex1.setNumSets(3);
+
+                Exercise ex2 = new Exercise();
+                ex2.setName("Squat");
+                ex2.setWeight(40);
+                ex2.setNumReps(10);
+                ex2.setNumSets(4);
+
+                Workout workout1 = new Workout();
+                workout1.setName("Upper Body");
+                workout1.setExerciseList(List.of(ex1));
+
+                Workout workout2 = new Workout();
+                workout2.setName("Leg Day");
+                workout2.setExerciseList(List.of(ex2));
+
+                when(workoutService.getWorkoutsByGymId(gymId)).thenReturn(List.of(workout1, workout2));
+
+                mockMvc.perform(get("/api/gyms/{gymId}/workouts", gymId)
+                                .contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.length()").value(2))
+                                .andExpect(jsonPath("$[0].name").value("Upper Body"))
+                                .andExpect(jsonPath("$[1].name").value("Leg Day"));
+
+                verify(workoutService, times(1)).getWorkoutsByGymId(gymId);
+
+        }
+
         @DisplayName("should return 204 No Content when deleting existing workout")
         void testDeleteWorkoutSuccess() throws Exception {
                 UUID workoutId = UUID.randomUUID();
