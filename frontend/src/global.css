@@ -1,14 +1,35 @@
 body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Roboto', sans-serif;
-    background-color: #f9f9f9;
-    color: #333;
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+#root {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.layout-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 40px;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .layout-container {
+    flex-direction: column;
   }
-  
-  #root {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 24px;
+
+  .MuiCard-root {
+    width: 100% !important;
   }
-  
+
+  h2 {
+    font-size: 1.2rem;
+  }
+}
