@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import igym.repositories.GymRepository;
+import igym.repositories.WorkoutRepository;
 import jakarta.transaction.Transactional;
 
 import java.util.List;
@@ -20,8 +21,10 @@ public class GymService {
     private static final Logger logger = LoggerFactory.getLogger(GymService.class);
     private final GymRepository gymRepository;
     private final UserService userService;
+    private final WorkoutRepository workoutRepository;
 
-    public GymService(GymRepository gymRepository, UserService userService) {
+    public GymService(GymRepository gymRepository, UserService userService, WorkoutRepository workoutRepository) {
+        this.workoutRepository = workoutRepository;
         this.gymRepository = gymRepository;
         this.userService = userService;
     }
@@ -33,11 +36,11 @@ public class GymService {
 
         User user = userService.findById(userId);
         gym.setUser(user);
-        
-        if(gymRepository.existsByNameAndUserIdAndStatus(gym.getName(), userId, Status.active)) {
+
+        if (gymRepository.existsByNameAndUserIdAndStatus(gym.getName(), userId, Status.active)) {
             throw new DuplicateGymException("A gym with the name '" + gym.getName() + "' already exists for this user");
         }
-        
+
         Gym savedGym = gymRepository.save(gym);
         logger.info("New gym created with id {}", savedGym.getId());
         logger.debug("New gym persisted: {}", savedGym);
@@ -59,7 +62,7 @@ public class GymService {
 
         gym.setName(name);
         Gym savedGym = gymRepository.save(gym);
-        
+
         logger.info("Gym with id {} updated sucessfully", id);
         logger.debug("Updated Gym persisted: {}", savedGym);
 
@@ -82,11 +85,34 @@ public class GymService {
             throw new GymNotFoundException("Gym with id " + id + " not found");
         }
 
+        inactivateWorkouts(gym);
         gym.setStatus(Status.inactive);
         gymRepository.save(gym);
         logger.info("Gym with id {} inactivated", id);
     }
-    
+
+    private void inactivateWorkouts(Gym gym) {
+        List<Workout> workouts = workoutRepository.findByGym(gym);
+        if (workouts.stream().anyMatch(w -> w.getStatus() == Status.active)) {
+            logger.info("Inactivating {} workouts for gym {}", workouts.size(), gym.getId());
+        }
+
+        workouts.forEach(workout -> {
+            if (workout.getStatus() == Status.active) {
+                workout.setStatus(Status.inactive);
+                if (workout.getExerciseList() != null) {
+                    workout.getExerciseList().forEach(ex -> {
+                        ex.setStatus(Status.inactive);
+                        logger.debug("Exercise {} inactivated", ex.getId());
+                    });
+                }
+                logger.debug("Workout {} inactivated", workout.getId());
+            }
+        });
+
+        workoutRepository.saveAll(workouts); // Save all updated workouts
+    }
+
     public Gym findById(UUID id) {
         logger.info("Fetching gym with id: {}", id);
 
