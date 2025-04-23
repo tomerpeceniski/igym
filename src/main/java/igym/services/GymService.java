@@ -48,12 +48,13 @@ public class GymService {
         logger.info("Attempting to update Gym with id: {}", id);
 
         Gym gym = findById(id);
-        if (gymRepository.existsByName(name)) {
-            throw new DuplicateGymException("A gym with the name '" + name + "' already exists.");
-        }
         if (gym.getStatus() == Status.inactive) {
             logger.warn("Gym with id {} is inactive", id);
             throw new GymNotFoundException("Gym with id " + id + " not found");
+        }
+
+        if (gymRepository.existsByNameAndStatus(name, Status.active)) {
+            throw new DuplicateGymException("A gym with the name '" + name + "' already exists.");
         }
 
         gym.setName(name);

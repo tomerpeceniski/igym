@@ -8,8 +8,7 @@ import igym.entities.Gym;
 import igym.entities.enums.Status;
 
 public interface GymRepository extends JpaRepository<Gym, UUID> {
-    boolean existsByName(String name);
-
+    boolean existsByNameAndStatus(String name, Status status);
     boolean existsByNameAndUserIdAndStatus(String name, UUID userId, Status status);
 
     

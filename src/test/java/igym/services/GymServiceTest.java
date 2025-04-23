@@ -78,7 +78,7 @@ public class GymServiceTest {
         Gym gym = new Gym("CrossFit Gym");
         String name = "Updated Gym";
         when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
-        when(gymRepository.existsByName(name)).thenReturn(false);
+        when(gymRepository.existsByNameAndStatus(name, Status.active)).thenReturn(false);
         when(gymRepository.save(any(Gym.class))).thenReturn(gym);
         Gym result = gymService.updateGym(gymId, name);
         assertThat(result).isNotNull();
@@ -100,19 +100,19 @@ public class GymServiceTest {
     }
 
     @Test
-    @DisplayName("Should throw DuplicateGymException when attempting to update a gym to a name that is already in use")
+    @DisplayName("Should throw DuplicateGymException when attempting to update a gym to a name that is already in use for a active gym")
     void testUpdateGymExistingName() {
         UUID gymId = UUID.randomUUID();
         Gym gym = new Gym("CrossFit Gym");
         String name = "CrossFit Gym";
         when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
-        when(gymRepository.existsByName(name)).thenReturn(true);
+        when(gymRepository.existsByNameAndStatus(name, Status.active)).thenReturn(true);
         DuplicateGymException exception = assertThrows(
                 DuplicateGymException.class,
                 () -> gymService.updateGym(gymId, name));
         assertEquals("A gym with the name '" + gym.getName() + "' already exists.",
                 exception.getMessage());
-        verify(gymRepository, times(1)).existsByName(name);
+        verify(gymRepository, times(1)).existsByNameAndStatus(name, Status.active);
         verify(gymRepository, never()).save(any(Gym.class));
     }
 
