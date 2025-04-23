@@ -6,6 +6,8 @@ import igym.entities.enums.Status;
 import igym.exceptions.DuplicateGymException;
 import igym.exceptions.GymNotFoundException;
 import igym.repositories.GymRepository;
+import igym.repositories.WorkoutRepository;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -13,6 +15,7 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,6 +35,9 @@ public class GymServiceTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private WorkoutRepository workoutRepository;
 
     @InjectMocks
     private GymService gymService;
@@ -58,7 +64,7 @@ public class GymServiceTest {
         Gym gym = new Gym("CrossFit Gym");
         gym.setStatus(Status.active);
         UUID userId = UUID.randomUUID();
-        
+
         when(userService.findById(any(UUID.class))).thenReturn(new User("Mocked User"));
         when(gymRepository.existsByNameAndUserIdAndStatus(gym.getName(), userId, Status.active)).thenReturn(true);
 
@@ -143,9 +149,14 @@ public class GymServiceTest {
         Gym gym = new Gym("CrossFit Gym");
         ReflectionTestUtils.setField(gym, "id", gymId);
         gym.setStatus(Status.active);
+
         when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
+        when(workoutRepository.findByGym(gym)).thenReturn(Collections.emptyList());
+
         gymService.deleteGym(gymId);
+
         verify(gymRepository, times(1)).findById(gymId);
+        verify(workoutRepository, times(1)).findByGym(gym);
         assertTrue(gym.getStatus() == Status.inactive);
     }
 
