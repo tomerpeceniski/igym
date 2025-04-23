@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import GymsPage from './pages/home.jsx';
+import GymsPage from './pages/HomePage.jsx';
 
 function App() {
   return (
