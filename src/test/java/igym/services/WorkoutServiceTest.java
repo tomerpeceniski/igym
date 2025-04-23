@@ -64,7 +64,7 @@ class WorkoutServiceTest {
     void testCreateWorkoutWithNullExerciseList() {
         Workout workout = new Workout();
         workout.setName("Stretching Routine");
-        workout.setExerciseList(null); // important
+        workout.setExerciseList(null);
 
         when(gymService.findById(gymId)).thenReturn(new Gym("Test Gym"));
         when(workoutRepository.save(any(Workout.class))).thenReturn(workout);
