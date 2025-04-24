@@ -26,7 +26,7 @@ export default function HomePage() {
 
         <div style={{ flexGrow: 1 }}>
           <h2 style={{ textAlign: 'center' }}>{selectedGym}</h2>
-          <div style={{ display: 'flex' }}>
+          <div className="workout-cards-container">
             {currentGym.workouts.map((workout, index) => (
               <WorkoutCard key={index} workout={workout} />
             ))}

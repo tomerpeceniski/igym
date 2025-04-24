@@ -46,3 +46,9 @@ body {
   display: flex;
   justify-content: space-between;
 }
+
+.workout-cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
