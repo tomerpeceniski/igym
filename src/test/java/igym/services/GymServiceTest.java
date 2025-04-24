@@ -1,7 +1,9 @@
 package igym.services;
 
+import igym.entities.Exercise;
 import igym.entities.Gym;
 import igym.entities.User;
+import igym.entities.Workout;
 import igym.entities.enums.Status;
 import igym.exceptions.DuplicateGymException;
 import igym.exceptions.GymNotFoundException;
@@ -143,21 +145,36 @@ public class GymServiceTest {
     }
 
     @Test
-    @DisplayName("should delete a gym from the repository")
-    void testDeleteGym() {
+    @DisplayName("should delete a gym and inactivate workouts and their exercises")
+    void testDeleteGymAndInactivateWorkouts() {
         UUID gymId = UUID.randomUUID();
         Gym gym = new Gym("CrossFit Gym");
         ReflectionTestUtils.setField(gym, "id", gymId);
         gym.setStatus(Status.active);
 
+        Exercise exercise = new Exercise();
+        exercise.setName("Exercise 1");
+        ReflectionTestUtils.setField(exercise, "id", UUID.randomUUID());
+        exercise.setStatus(Status.active);
+
+        Workout workout = new Workout();
+        workout.setName("Workout 1");
+        ReflectionTestUtils.setField(workout, "id", UUID.randomUUID());
+        workout.setStatus(Status.active);
+        workout.setExerciseList(List.of(exercise));
+
         when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
-        when(workoutRepository.findByGym(gym)).thenReturn(Collections.emptyList());
+        when(workoutRepository.findByGym(gym)).thenReturn(List.of(workout));
 
         gymService.deleteGym(gymId);
 
-        verify(gymRepository, times(1)).findById(gymId);
-        verify(workoutRepository, times(1)).findByGym(gym);
-        assertTrue(gym.getStatus() == Status.inactive);
+        assertEquals(Status.inactive, gym.getStatus());
+        assertEquals(Status.inactive, workout.getStatus());
+        assertEquals(Status.inactive, exercise.getStatus());
+
+        verify(gymRepository).findById(gymId);
+        verify(workoutRepository).findByGym(gym);
+        verify(workoutRepository).saveAll(List.of(workout));
     }
 
     @Test
