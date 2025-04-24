@@ -71,4 +71,17 @@ public class WorkoutController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Retrieves a updated workout by its ID.
+     * 
+     * @param workoutId the ID of the workout to retrieve
+     * @return the workout with the specified ID and HTTP 200 status
+     */
+    @PatchMapping(value = "/workouts/{id}", produces = "application/json")
+    public ResponseEntity<Workout> updateWorkout(@PathVariable("id") UUID workoutId,
+            @RequestBody @Valid Workout workout) {
+        Workout updatedWorkout = workoutService.updateWorkout(workoutId, workout);
+        return ResponseEntity.ok(updatedWorkout);
+    }
+
 }
