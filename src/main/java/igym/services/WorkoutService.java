@@ -13,10 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 public class WorkoutService {
@@ -121,27 +118,17 @@ public class WorkoutService {
 
         existingWorkout.setName(updatedWorkout.getName());
 
-        Map<UUID, Exercise> existingMap = existingWorkout.getExerciseList().stream()
-                .collect(Collectors.toMap(Exercise::getId, Function.identity()));
+        List<Exercise> updatedExercises = updatedWorkout.getExerciseList() != null
+                ? updatedWorkout.getExerciseList()
+                : new ArrayList<>();
 
-        List<Exercise> newList = new ArrayList<>();
+        updatedExercises.forEach(ex -> {
+            ex.setWorkout(existingWorkout);
+            ex.setStatus(Status.active);
+        });
 
-        for (Exercise incoming : updatedWorkout.getExerciseList()) {
-            if (incoming.getId() != null && existingMap.containsKey(incoming.getId())) {
-                Exercise toUpdate = existingMap.get(incoming.getId());
-                toUpdate.setName(incoming.getName());
-                toUpdate.setWeight(incoming.getWeight());
-                toUpdate.setNumReps(incoming.getNumReps());
-                toUpdate.setNumSets(incoming.getNumSets());
-                toUpdate.setNote(incoming.getNote());
-                newList.add(toUpdate);
-            } else {
-                incoming.setWorkout(existingWorkout);
-                newList.add(incoming);
-            }
-        }
-
-        existingWorkout.setExerciseList(newList);
+        existingWorkout.setExerciseList(updatedExercises);
+        existingWorkout.setStatus(Status.active);
 
         Workout savedWorkout = workoutRepository.save(existingWorkout);
         logger.info("Workout with id {} updated successfully", savedWorkout.getId());
