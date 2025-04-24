@@ -5,9 +5,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function WorkoutCard({ workout }) {
   return (
-    <Card style={{ width: 250, margin: 10 }}>
+    <Card className="workout-card">
       <CardContent>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="workout-card-header">
           <Typography variant="h6">{workout.name}</Typography>
           <div>
             <IconButton size="small">

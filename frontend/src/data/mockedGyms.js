@@ -76,6 +76,68 @@ const gyms = [
           ]
         }
       ]
+    },
+    {
+      name: 'Gym D',
+      workouts: [
+        {
+          name: 'Workout Gamma',
+          exercises: [
+            { name: 'Bent Over Row', weight: 50, repetitions: 10, sets: 4, note: null },
+            { name: 'Lat Pulldown', weight: 45, repetitions: 12, sets: 3, note: 'Hold 1s at the top' },
+            { name: 'Single Arm Row', weight: 30, repetitions: 10, sets: 3, note: null },
+            { name: 'Pull-ups', weight: 0, repetitions: 8, sets: 3, note: 'Use resistance band if needed' },
+          ]
+        },
+        {
+          name: 'Workout Delta',
+          exercises: [
+            { name: 'Barbell Curl', weight: 20, repetitions: 12, sets: 3, note: null },
+            { name: 'Alternating Dumbbell Curl', weight: 18, repetitions: 10, sets: 3, note: null },
+            { name: 'Hammer Curl', weight: 16, repetitions: 10, sets: 3, note: null },
+            { name: 'Triceps Pushdown', weight: 30, repetitions: 12, sets: 3, note: null },
+          ]
+        },
+        {
+          name: 'Workout Epsilon',
+          exercises: [
+            { name: 'Overhead Triceps Extension', weight: 20, repetitions: 10, sets: 3, note: null },
+            { name: 'Dips', weight: 0, repetitions: 15, sets: 3, note: 'Control the descent' },
+            { name: 'Bench Triceps Dips', weight: 0, repetitions: 15, sets: 3, note: null },
+          ]
+        },
+        {
+          name: 'Workout Alfa',
+          exercises: [
+            { name: 'Overhead Triceps Extension', weight: 20, repetitions: 10, sets: 3, note: null },
+            { name: 'Dips', weight: 0, repetitions: 15, sets: 3, note: 'Control the descent' },
+            { name: 'Bench Triceps Dips', weight: 0, repetitions: 15, sets: 3, note: null },
+          ]
+        },
+        
+        {
+          name: 'Workout Beta',
+          exercises: [
+            { name: 'Overhead Triceps Extension', weight: 20, repetitions: 10, sets: 3, note: null },
+            { name: 'Dips', weight: 0, repetitions: 15, sets: 3, note: 'Control the descent' },
+            { name: 'Bench Triceps Dips', weight: 0, repetitions: 15, sets: 3, note: null },
+          ]
+        }
+      ]
+    },
+    {
+      name: 'Gym E',
+      workouts: [
+        {
+          name: 'Workout Gamma',
+          exercises: [
+            { name: 'Bent Over Row', weight: 50, repetitions: 10, sets: 4, note: null },
+            { name: 'Lat Pulldown', weight: 45, repetitions: 12, sets: 3, note: 'Hold 1s at the top' },
+            { name: 'Single Arm Row', weight: 30, repetitions: 10, sets: 3, note: null },
+            { name: 'Pull-ups', weight: 0, repetitions: 8, sets: 3, note: 'Use resistance band if needed' },
+          ]
+        }
+      ]
     }
   ];
   
