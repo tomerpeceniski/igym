@@ -258,4 +258,21 @@ public class WorkoutControllerTest {
                 verify(workoutService, times(1)).deleteWorkout(workoutId);
         }
 
+        @Test
+        @DisplayName("shoudl return 200 OK when updating a workout and its exercises")
+        void testUpdateWorkout() throws Exception {
+                UUID workoutId = UUID.randomUUID();
+
+                when(workoutService.updateWorkout(eq(workoutId), any(Workout.class))).thenReturn(workout);
+
+                mockMvc.perform(patch("/api/workouts/{id}", workoutId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(workout)))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.name").value(workout.getName()))
+                                .andExpect(jsonPath("$.exerciseList[0].name").value("Squat"));
+
+                verify(workoutService, times(1)).updateWorkout(eq(workoutId), any(Workout.class));
+        }
+
 }

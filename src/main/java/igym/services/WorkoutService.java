@@ -1,5 +1,6 @@
 package igym.services;
 
+import igym.entities.Exercise;
 import igym.entities.Gym;
 import igym.entities.Workout;
 import igym.entities.enums.Status;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -91,5 +93,46 @@ public class WorkoutService {
 
         workoutRepository.save(workout);
         logger.info("Workout with id {} and its exercises have been inactivated", workoutId);
+    }
+
+    /**
+     * Updates workout details.
+     * This method updates the workout's name and the exercise list.
+     * It does not update the gym associated with the workout.
+     */
+    @Transactional
+    public Workout updateWorkout(UUID workoutId, Workout updatedWorkout) {
+        logger.info("Attempting to update workout with id: {}", workoutId);
+        logger.debug("Update request with values: {}", updatedWorkout);
+
+        Workout existingWorkout = workoutRepository.findById(workoutId)
+                .orElseThrow(() -> {
+                    logger.warn("Workout with id {} not found", workoutId);
+                    return new WorkoutNotFoundException("Workout with id " + workoutId + " not found");
+                });
+
+        if (existingWorkout.getStatus() == Status.inactive) {
+            logger.warn("Workout with id {} is inactive and cannot be updated", workoutId);
+            throw new WorkoutNotFoundException("Workout with id " + workoutId + " not found");
+        }
+
+        existingWorkout.setName(updatedWorkout.getName());
+
+        List<Exercise> updatedExercises = updatedWorkout.getExerciseList() != null
+                ? updatedWorkout.getExerciseList()
+                : new ArrayList<>();
+
+        updatedExercises.forEach(ex -> {
+            ex.setWorkout(existingWorkout);
+            ex.setStatus(Status.active);
+        });
+
+        existingWorkout.setExerciseList(updatedExercises);
+        existingWorkout.setStatus(Status.active);
+
+        Workout savedWorkout = workoutRepository.save(existingWorkout);
+        logger.info("Workout with id {} updated successfully", savedWorkout.getId());
+        logger.debug("Updated workout details: {}", savedWorkout);
+        return savedWorkout;
     }
 }
