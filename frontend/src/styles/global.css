@@ -10,10 +10,8 @@ body {
   max-width: 100%;
   padding: 30px;
   margin: 0 auto;
-  justify-content: center;
-  gap: '12px';
+  gap: 12px;
   margin-bottom: 32px;
-  align-items: center;
 }
 
 .header-container {
