@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.time.Instant;
 import java.util.UUID;
+
+import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -47,6 +50,9 @@ public class Exercise {
     private int numSets;
 
     private String note;
+
+    @UpdateTimestamp
+    private Instant updated_at;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

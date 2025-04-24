@@ -5,8 +5,11 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+
+import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -38,6 +41,9 @@ public class Workout {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status = Status.active;
+
+    @UpdateTimestamp
+    private Instant updated_at;
 
     @NotEmpty(message = "Workout must contain at least one exercise")
     @OneToMany(mappedBy = "workout", cascade = CascadeType.ALL)
