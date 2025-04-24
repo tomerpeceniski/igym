@@ -5,6 +5,7 @@ import igym.entities.User;
 import igym.entities.enums.Status;
 import igym.exceptions.DuplicateGymException;
 import igym.exceptions.GymNotFoundException;
+import igym.exceptions.UserNotFoundException;
 import igym.repositories.GymRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -57,7 +58,7 @@ public class GymServiceTest {
     void testAlreadyCreatedGymName() {
         Gym gym = new Gym("CrossFit Gym");
         UUID userId = UUID.randomUUID();
-        
+
         when(userService.findById(any(UUID.class))).thenReturn(new User("Mocked User"));
         when(gymRepository.existsByNameAndUserId(gym.getName(), userId)).thenReturn(true);
 
@@ -209,4 +210,56 @@ public class GymServiceTest {
                 () -> gymService.findById(gymId));
         assertEquals("Gym with id " + gymId + " not found", exception.getMessage());
     }
+
+    @Test
+    @DisplayName("should return gyms when user exists and gyms are active")
+    void testFindGymsByUserId() {
+        UUID userId = UUID.randomUUID();
+        User user = new User("Test User");
+        Gym gym1 = new Gym("Gym 1");
+        Gym gym2 = new Gym("Gym 2");
+        gym1.setStatus(Status.active);
+        gym2.setStatus(Status.active);
+        List<Gym> gyms = List.of(gym1, gym2);
+
+        when(userService.findById(userId)).thenReturn(user);
+        when(gymRepository.findByUserIdAndStatus(userId, Status.active)).thenReturn(gyms);
+
+        List<Gym> result = gymService.findGymsByUserId(userId);
+
+        assertThat(result).hasSize(2).containsExactlyElementsOf(gyms);
+        verify(userService).findById(userId);
+        verify(gymRepository).findByUserIdAndStatus(userId, Status.active);
+    }
+
+    @Test
+    @DisplayName("should throw GymNotFoundException when user has no active gyms")
+    void testFindGymsByUserId_noGyms() {
+        UUID userId = UUID.randomUUID();
+        User user = new User("Test User");
+
+        when(userService.findById(userId)).thenReturn(user);
+        when(gymRepository.findByUserIdAndStatus(userId, Status.active)).thenReturn(List.of());
+
+        GymNotFoundException ex = assertThrows(GymNotFoundException.class, () -> gymService.findGymsByUserId(userId));
+
+        assertEquals("No active gyms found for user with id " + userId, ex.getMessage());
+        verify(userService).findById(userId);
+        verify(gymRepository).findByUserIdAndStatus(userId, Status.active);
+    }
+
+    @Test
+    @DisplayName("should throw UserNotFoundException when user is not found when trying to find gym for this user id")
+    void testFindGymsByUserId_userNotFound() {
+        UUID userId = UUID.randomUUID();
+
+        when(userService.findById(userId))
+                .thenThrow(new UserNotFoundException("User with id " + userId + " not found"));
+
+        assertThrows(UserNotFoundException.class, () -> gymService.findGymsByUserId(userId));
+
+        verify(userService).findById(userId);
+        verify(gymRepository, never()).findByUserIdAndStatus(any(), any());
+    }
+
 }

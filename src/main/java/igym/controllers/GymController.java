@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import igym.entities.*;
+import igym.exceptions.GymNotFoundException;
+import igym.exceptions.UserNotFoundException;
 import igym.services.GymService;
 import jakarta.validation.Valid;
 
@@ -48,6 +50,20 @@ public class GymController {
     public ResponseEntity<List<Gym>> findAllGyms() {
         List<Gym> gyms = service.findAllGyms();
 
+        return ResponseEntity.ok(gyms);
+    }
+
+    /**
+     * Retrieves all active gyms associated with a specific user.
+     *
+     * @param userId the ID of the user whose gyms should be retrieved
+     * @return a list of active gyms belonging to the user
+     * @throws UserNotFoundException if the user does not exist or is inactive
+     * @throws GymNotFoundException  if the user has no active gyms
+     */
+    @GetMapping(value = "/users/{userId}/gyms", produces = "application/json")
+    public ResponseEntity<List<Gym>> getGymsByUserId(@PathVariable UUID userId) {
+        List<Gym> gyms = service.findGymsByUserId(userId);
         return ResponseEntity.ok(gyms);
     }
 
