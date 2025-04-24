@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -237,4 +238,140 @@ class WorkoutServiceTest {
         verify(workoutRepository).save(workout);
     }
 
+    @Test
+    @DisplayName("Test succesfully update workout and its exercises")
+    void testUpdateWorkout() {
+        UUID workoutId = UUID.randomUUID();
+
+        Exercise ex1 = new Exercise();
+        ex1.setName("Squat");
+        ex1.setWeight(60);
+        ex1.setNumReps(10);
+        ex1.setNumSets(4);
+
+        Workout existingWorkout = new Workout();
+        existingWorkout.setName("Leg Day");
+        existingWorkout.setExerciseList(new ArrayList<>(List.of(ex1)));
+        existingWorkout.setStatus(Status.active);
+
+        when(workoutRepository.findById(workoutId)).thenReturn(java.util.Optional.of(existingWorkout));
+        when(workoutRepository.save(any(Workout.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Exercise ex2 = new Exercise();
+        ex2.setName("Deadlift");
+        ex2.setWeight(80);
+        ex2.setNumReps(8);
+        ex2.setNumSets(3);
+
+        Workout updatedWorkout = new Workout();
+        updatedWorkout.setName("Full Body Day");
+        updatedWorkout.setExerciseList(new ArrayList<>(List.of(ex2)));
+
+        workoutService.updateWorkout(workoutId, updatedWorkout);
+
+        assertEquals("Full Body Day", existingWorkout.getName());
+        assertEquals(1, existingWorkout.getExerciseList().size());
+        assertEquals("Deadlift", existingWorkout.getExerciseList().get(0).getName());
+        assertEquals(Status.active, existingWorkout.getStatus());
+
+    }
+
+    @Test
+    @DisplayName("Test update workout not found throws exception")
+    void testUpdateWorkoutNotFound() {
+        UUID workoutId = UUID.randomUUID();
+
+        when(workoutRepository.findById(workoutId)).thenReturn(java.util.Optional.empty());
+
+        WorkoutNotFoundException exception = assertThrows(WorkoutNotFoundException.class,
+                () -> workoutService.updateWorkout(workoutId, new Workout()));
+
+        assertEquals("Workout with id " + workoutId + " not found", exception.getMessage());
+        verify(workoutRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Test update workout with null exercise list")
+    void testUpdateWorkoutWithNullExerciseList() {
+        UUID workoutId = UUID.randomUUID();
+
+        Workout existingWorkout = new Workout();
+        existingWorkout.setName("Leg Day");
+        existingWorkout.setExerciseList(new ArrayList<>());
+        existingWorkout.setStatus(Status.active);
+
+        when(workoutRepository.findById(workoutId)).thenReturn(java.util.Optional.of(existingWorkout));
+        when(workoutRepository.save(any(Workout.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Workout updatedWorkout = new Workout();
+        updatedWorkout.setName("Leg Day Updated");
+        updatedWorkout.setExerciseList(null);
+
+        workoutService.updateWorkout(workoutId, updatedWorkout);
+
+        assertEquals("Leg Day Updated", existingWorkout.getName());
+        assertEquals(0, existingWorkout.getExerciseList().size());
+        assertEquals(Status.active, existingWorkout.getStatus());
+        verify(workoutRepository).save(existingWorkout);
+    }
+
+    @Test
+    @DisplayName("Test update inactive workout throws exception")
+    void testUpdateInactiveWorkout() {
+        UUID workoutId = UUID.randomUUID();
+
+        Workout existingWorkout = new Workout();
+        existingWorkout.setName("Leg Day");
+        existingWorkout.setExerciseList(new ArrayList<>());
+        existingWorkout.setStatus(Status.inactive);
+
+        when(workoutRepository.findById(workoutId)).thenReturn(java.util.Optional.of(existingWorkout));
+
+        WorkoutNotFoundException exception = assertThrows(WorkoutNotFoundException.class,
+                () -> workoutService.updateWorkout(workoutId, new Workout()));
+
+        assertEquals("Workout with id " + workoutId + " not found", exception.getMessage());
+        verify(workoutRepository, never()).save(any());
+        assertEquals(Status.inactive, existingWorkout.getStatus());
+    }
+
+    @Test
+    @DisplayName("Test update workout nad its exercises trying to set the status to inactive should return a workout and it's exercises with status active")
+    void testUpdateWorkoutAndItsExercisesTryingToSetStatusToInactive() {
+        UUID workoutId = UUID.randomUUID();
+
+        Exercise ex1 = new Exercise();
+        ex1.setName("Squat");
+        ex1.setWeight(60);
+        ex1.setNumReps(10);
+        ex1.setNumSets(4);
+
+        Workout existingWorkout = new Workout();
+        existingWorkout.setName("Leg Day");
+        existingWorkout.setExerciseList(new ArrayList<>(List.of(ex1)));
+        existingWorkout.setStatus(Status.active);
+
+        when(workoutRepository.findById(workoutId)).thenReturn(java.util.Optional.of(existingWorkout));
+        when(workoutRepository.save(any(Workout.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Exercise ex2 = new Exercise();
+        ex2.setName("Deadlift");
+        ex2.setWeight(80);
+        ex2.setNumReps(8);
+        ex2.setNumSets(3);
+
+        Workout updatedWorkout = new Workout();
+        updatedWorkout.setName("Full Body Day");
+        updatedWorkout.setExerciseList(new ArrayList<>(List.of(ex2)));
+        updatedWorkout.setStatus(Status.inactive);
+        updatedWorkout.getExerciseList().forEach(ex -> ex.setStatus(Status.inactive));
+
+        workoutService.updateWorkout(workoutId, updatedWorkout);
+
+        assertEquals("Full Body Day", existingWorkout.getName());
+        assertEquals(1, existingWorkout.getExerciseList().size());
+        assertEquals("Deadlift", existingWorkout.getExerciseList().get(0).getName());
+        assertEquals(Status.active, existingWorkout.getStatus());
+        assertEquals(Status.active, existingWorkout.getExerciseList().get(0).getStatus());
+    }
 }
