@@ -13,7 +13,7 @@ const WorkoutCard = ({ workout }) => {
     const handleCloseClick = () => { };
 
     return (
-        <Box sx={{ width: '100%', maxWidth: { xs: '100%', sm: 600, md: 800 }, mx: 'auto', px: 2 }}>
+        <Box sx={{ width: '100%', maxWidth: { xs: '100%', md: 800 }, mx: 'auto', px: 2 }}>
             <WorkoutCardActions
                 isEditing={isEditing}
                 onEdit={handleEditClick}
