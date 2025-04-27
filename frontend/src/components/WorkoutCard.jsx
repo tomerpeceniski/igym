@@ -1,24 +1,39 @@
-import { Card, CardContent, IconButton, Typography, Box } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import CloseIcon from '@mui/icons-material/Close';
+import { useState } from 'react';
+import { Card, CardContent, Typography, Box } from '@mui/material';
 import ExercisesTable from './ExercisesTable';
+import WorkoutCardActions from './WorkoutCardActions'; // 👈 import the new component
 
 const WorkoutCard = ({ workout }) => {
-    return (
-        <Box sx={{  width: 'fit-content' }}>
+    const [isEditing, setIsEditing] = useState(false);
 
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-                <IconButton aria-label="edit workout" size="small">
-                    <EditIcon />
-                </IconButton>
-                <IconButton aria-label="delete workout" size="small">
-                    <DeleteIcon />
-                </IconButton>
-                <IconButton aria-label="close" size="small">
-                    <CloseIcon />
-                </IconButton>
-            </Box>
+    const handleEditClick = () => {
+        setIsEditing(true);
+    };
+
+    const handleSaveClick = () => {
+        setIsEditing(false);
+    };
+
+    const handleCancelClick = () => {
+        setIsEditing(false);
+    };
+
+    const handleDeleteClick = () => {
+    };
+
+    const handleCloseClick = () => {
+    };
+
+    return (
+        <Box sx={{ width: 'fit-content' }}>
+            <WorkoutCardActions
+                isEditing={isEditing}
+                onEdit={handleEditClick}
+                onSave={handleSaveClick}
+                onCancel={handleCancelClick}
+                onDelete={handleDeleteClick}
+                onClose={handleCloseClick}
+            />
 
             <Card sx={{ minWidth: 275, borderRadius: 2, boxShadow: 3, p: 2 }}>
                 <Box sx={{ textAlign: 'center', mt: 2, mb: 2 }}>
@@ -28,13 +43,10 @@ const WorkoutCard = ({ workout }) => {
                 </Box>
 
                 <CardContent>
-                    <ExercisesTable exercises={workout.exercises} />
+                    <ExercisesTable exercises={workout.exercises} isEditing={isEditing} />
                 </CardContent>
             </Card>
-
         </Box>
-
-
     );
 };
 
