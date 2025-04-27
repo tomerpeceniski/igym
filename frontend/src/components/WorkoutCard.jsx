@@ -1,14 +1,12 @@
 import { Card, CardHeader, CardContent, Typography } from '@mui/material';
+import ExercisesTable from './ExercisesTable';
 
 const WorkoutCard = ({ workout }) => {
     return (
         <Card sx={{ minWidth: 275, borderRadius: 2, boxShadow: 3 }}>
-            <CardHeader title={workout.name} sx={{ textAlign: 'center' }}/>
-
+            <CardHeader title={workout.name} sx={{ textAlign: 'center' }} />
             <CardContent>
-                <Typography variant="body1">
-                    Exercise Table
-                </Typography>
+                <ExercisesTable exercises={workout.exercises} />
             </CardContent>
         </Card>
     );
