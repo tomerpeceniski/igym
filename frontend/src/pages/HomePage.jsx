@@ -1,38 +1,42 @@
 import React, { useState } from 'react';
+import { Box, Typography } from '@mui/material';
 import GreetingTitle from '../components/GreetingTitle.jsx';
 import GymSelector from '../components/GymSelector.jsx';
 import WorkoutCard from '../components/WorkoutCard.jsx';
 import gyms from '../data/mockedGyms';
-import '../styles/global.css';
 
 export default function HomePage() {
   const [selectedGym, setSelectedGym] = useState(gyms[0].name);
   const currentGym = gyms.find(g => g.name === selectedGym);
 
   return (
-    <div>
-      <div className="header-container">
+    <Box>
+      <Box display="flex" justifyContent="center" mb={4}>
         <GreetingTitle />
-      </div>
+      </Box>
 
-      <div className="layout-container">
-        <div style={{ minWidth: '200px' }}>
+      <Box display="flex" gap={7.5} alignItems="flex-start">
+        
+        <Box sx={{ minWidth: 200 }}>
           <GymSelector
             gyms={gyms}
             selectedGym={selectedGym}
             onChange={(e) => setSelectedGym(e.target.value)}
           />
-        </div>
+        </Box>
 
-        <div style={{ flexGrow: 1 }}>
-          <h2 style={{ textAlign: 'center' }}>{selectedGym}</h2>
-          <div className="workout-cards-container">
+        <Box sx={{ flexGrow: 1 }}>
+          <Typography variant="h5" align="center" gutterBottom>
+            {selectedGym}
+          </Typography>
+
+          <Box display="flex" flexWrap="wrap" justifyContent="flex-start">
             {currentGym.workouts.map((workout, index) => (
               <WorkoutCard key={index} workout={workout} />
             ))}
-          </div>
-        </div>
-      </div>
-    </div>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
   );
 }
