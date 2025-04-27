@@ -6,7 +6,7 @@ const WorkoutPage = () => {
     const workout = gyms[0].workouts[0];
 
     return (
-        <Container maxWidth="md" sx={{ padding: 4, }}>
+        <Container maxWidth="md" sx={{ padding: 2, }}>
             <Box display="flex" justifyContent="center">
                 <WorkoutCard workout={workout} />
             </Box>

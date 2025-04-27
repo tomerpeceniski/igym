@@ -6,9 +6,9 @@ import ExercisesTable from './ExercisesTable';
 
 const WorkoutCard = ({ workout }) => {
     return (
-        <Card sx={{ minWidth: 275, borderRadius: 2, boxShadow: 3, px: 2, pt: 4, pb: 2, position: 'relative' }}>
-            
-            <Box sx={{ position: 'absolute', top: 16, right: 16, display: 'flex', gap: 1 }}>
+        <Box sx={{  width: 'fit-content' }}>
+
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
                 <IconButton aria-label="edit workout" size="small">
                     <EditIcon />
                 </IconButton>
@@ -20,14 +20,21 @@ const WorkoutCard = ({ workout }) => {
                 </IconButton>
             </Box>
 
-            <Typography variant="h5" align="center">
-                {workout.name}
-            </Typography>
+            <Card sx={{ minWidth: 275, borderRadius: 2, boxShadow: 3, p: 2 }}>
+                <Box sx={{ textAlign: 'center', mt: 2, mb: 2 }}>
+                    <Typography variant="h5">
+                        {workout.name}
+                    </Typography>
+                </Box>
 
-            <CardContent>
-                <ExercisesTable exercises={workout.exercises} />
-            </CardContent>
-        </Card>
+                <CardContent>
+                    <ExercisesTable exercises={workout.exercises} />
+                </CardContent>
+            </Card>
+
+        </Box>
+
+
     );
 };
 
