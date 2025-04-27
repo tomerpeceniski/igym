@@ -2,7 +2,7 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextF
 
 const ExercisesTable = ({ exercises, isEditing }) => {
   return (
-    <TableContainer>
+    <TableContainer sx={{ overflowX: 'auto' }}> {/* 👈 Enable horizontal scroll */}
       <Table>
         <TableHead>
           <TableRow>
@@ -18,35 +18,59 @@ const ExercisesTable = ({ exercises, isEditing }) => {
             <TableRow key={index}>
               <TableCell>
                 {isEditing ? (
-                  <TextField variant="standard" defaultValue={exercise.name} fullWidth />
+                  <TextField 
+                    variant="standard" 
+                    defaultValue={exercise.name} 
+                    fullWidth 
+                    multiline 
+                    maxRows={2} 
+                  />
                 ) : (
                   exercise.name
                 )}
               </TableCell>
               <TableCell align="right">
                 {isEditing ? (
-                  <TextField variant="standard" defaultValue={exercise.weight} fullWidth />
+                  <TextField 
+                    variant="standard" 
+                    defaultValue={exercise.weight} 
+                    fullWidth 
+                  />
                 ) : (
                   exercise.weight
                 )}
               </TableCell>
               <TableCell align="right">
                 {isEditing ? (
-                  <TextField variant="standard" defaultValue={exercise.repetitions} fullWidth />
+                  <TextField 
+                    variant="standard" 
+                    defaultValue={exercise.repetitions} 
+                    fullWidth 
+                  />
                 ) : (
                   exercise.repetitions
                 )}
               </TableCell>
               <TableCell align="right">
                 {isEditing ? (
-                  <TextField variant="standard" defaultValue={exercise.sets} fullWidth />
+                  <TextField 
+                    variant="standard" 
+                    defaultValue={exercise.sets} 
+                    fullWidth 
+                  />
                 ) : (
                   exercise.sets
                 )}
               </TableCell>
               <TableCell>
                 {isEditing ? (
-                  <TextField variant="standard" defaultValue={exercise.note || ''} fullWidth />
+                  <TextField 
+                    variant="standard" 
+                    defaultValue={exercise.note || ''} 
+                    fullWidth 
+                    multiline 
+                    maxRows={4} 
+                  />
                 ) : (
                   exercise.note || '-'
                 )}
