@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import GreetingTitle from '../components/GreetingTitle.jsx';
 import GymSelector from '../components/GymSelector.jsx';
-import WorkoutCard from '../components/WorkoutCard.jsx';
+import WorkoutSummary from '../components/WorkoutSummary.jsx';
 import gyms from '../data/mockedGyms';
 import '../styles/global.css';
 
@@ -28,7 +28,7 @@ export default function HomePage() {
           <h2 style={{ textAlign: 'center' }}>{selectedGym}</h2>
           <div className="workout-cards-container">
             {currentGym.workouts.map((workout, index) => (
-              <WorkoutCard key={index} workout={workout} />
+              <WorkoutSummary key={index} workout={workout} />
             ))}
           </div>
         </div>

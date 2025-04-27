@@ -1,16 +1,15 @@
-import { Container, Typography } from '@mui/material';
+import { Container, Typography, Box } from '@mui/material';
+import WorkoutCard from '../components/WorkoutCard';
+import gyms from '../data/mockedGyms';
 
 const WorkoutPage = () => {
-    return (
-        <Container maxWidth="md" sx={{
-            backgroundColor: 'background.default',
-            borderRadius: 2,
-            padding: 4,
-        }}>
+    const workout = gyms[0].workouts[0];
 
-            <Typography variant="h2" align="center" gutterBottom>
-                Workout A
-            </Typography>
+    return (
+        <Container maxWidth="md" sx={{ padding: 4, }}>
+            <Box display="flex" justifyContent="center">
+                <WorkoutCard workout={workout} />
+            </Box>
         </Container>
     );
 };
