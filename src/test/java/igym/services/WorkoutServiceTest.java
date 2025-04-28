@@ -6,6 +6,7 @@ import igym.entities.Workout;
 import igym.entities.enums.Status;
 import igym.exceptions.GymNotFoundException;
 import igym.exceptions.WorkoutNotFoundException;
+import igym.repositories.GymRepository;
 import igym.repositories.WorkoutRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,7 +31,7 @@ class WorkoutServiceTest {
     private WorkoutRepository workoutRepository;
 
     @Mock
-    private GymService gymService;
+    private GymRepository gymRepository;
 
     @InjectMocks
     private WorkoutService workoutService;
@@ -49,7 +51,7 @@ class WorkoutServiceTest {
         workout.setName("Leg Day");
         workout.setExerciseList(List.of(ex));
 
-        when(gymService.findById(gymId)).thenReturn(new Gym("Test Gym"));
+        when(gymRepository.findById(gymId)).thenReturn(Optional.of(new Gym("Test Gym")));
         when(workoutRepository.save(any(Workout.class))).thenReturn(workout);
 
         Workout result = workoutService.createWorkout(workout, gymId);
@@ -66,7 +68,7 @@ class WorkoutServiceTest {
         workout.setName("Stretching Routine");
         workout.setExerciseList(null);
 
-        when(gymService.findById(gymId)).thenReturn(new Gym("Test Gym"));
+        when(gymRepository.findById(gymId)).thenReturn(Optional.of(new Gym("Test Gym")));
         when(workoutRepository.save(any(Workout.class))).thenReturn(workout);
 
         Workout result = workoutService.createWorkout(workout, gymId);
@@ -88,14 +90,14 @@ class WorkoutServiceTest {
         workout.setName("Leg Day");
         workout.setExerciseList(List.of(ex));
 
-        when(gymService.findById(gymId)).thenThrow(new GymNotFoundException("Gym with id " + gymId + " not found"));
-
+        when(gymRepository.findById(gymId)).thenReturn(Optional.empty());
+    
         GymNotFoundException exception = assertThrows(
                 GymNotFoundException.class,
                 () -> workoutService.createWorkout(workout, gymId));
 
         assertEquals("Gym with id " + gymId + " not found", exception.getMessage());
-        verify(gymService, times(1)).findById(gymId);
+        verify(gymRepository, times(1)).findById(gymId);
         verify(workoutRepository, never()).save(any());
     }
 
@@ -127,7 +129,7 @@ class WorkoutServiceTest {
         workout2.setExerciseList(List.of(ex2));
         workout2.setGym(gym);
 
-        when(gymService.findById(gymId)).thenReturn(gym);
+        when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
         when(workoutRepository.findByGym(gym)).thenReturn(List.of(workout1, workout2));
 
         List<Workout> workouts = workoutService.getWorkoutsByGymId(gymId);
@@ -136,7 +138,7 @@ class WorkoutServiceTest {
         assertEquals("Upper Body", workouts.get(0).getName());
         assertEquals("Leg Day", workouts.get(1).getName());
 
-        verify(gymService, times(1)).findById(gymId);
+        verify(gymRepository, times(1)).findById(gymId);
         verify(workoutRepository, times(1)).findByGym(gym);
     }
 
@@ -145,15 +147,14 @@ class WorkoutServiceTest {
     void testGetWorkoutsByGymIdGymNotFound() {
         UUID gymId = UUID.randomUUID();
 
-        when(gymService.findById(gymId))
-                .thenThrow(new GymNotFoundException("Gym with id " + gymId + " not found"));
+        when(gymRepository.findById(gymId)).thenReturn(Optional.empty());
 
         GymNotFoundException exception = assertThrows(
                 GymNotFoundException.class,
                 () -> workoutService.getWorkoutsByGymId(gymId));
 
         assertEquals("Gym with id " + gymId + " not found", exception.getMessage());
-        verify(gymService, times(1)).findById(gymId);
+        verify(gymRepository, times(1)).findById(gymId);
         verify(workoutRepository, never()).findByGym(any());
 
     }

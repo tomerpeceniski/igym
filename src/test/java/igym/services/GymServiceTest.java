@@ -39,6 +39,9 @@ public class GymServiceTest {
     @Mock
     private WorkoutRepository workoutRepository;
 
+    @Mock
+    private WorkoutService workoutService;
+
     @InjectMocks
     private GymService gymService;
 
@@ -167,6 +170,12 @@ public class GymServiceTest {
 
         when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
         when(workoutRepository.findByGym(gym)).thenReturn(List.of(workout));
+
+        doAnswer(invocation -> {
+                workout.setStatus(Status.inactive);
+                workout.getExerciseList().forEach(e -> e.setStatus(Status.inactive));
+            return null;
+        }).when(workoutService).deleteWorkout(workout.getId());
 
         gymService.deleteGym(gymId);
 

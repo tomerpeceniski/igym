@@ -22,11 +22,13 @@ public class GymService {
     private final GymRepository gymRepository;
     private final UserService userService;
     private final WorkoutRepository workoutRepository;
+    private final WorkoutService workoutService;
 
-    public GymService(GymRepository gymRepository, UserService userService, WorkoutRepository workoutRepository) {
+    public GymService(GymRepository gymRepository, UserService userService, WorkoutRepository workoutRepository, WorkoutService workoutService) {
         this.workoutRepository = workoutRepository;
         this.gymRepository = gymRepository;
         this.userService = userService;
+        this.workoutService = workoutService;
     }
 
     @Transactional
@@ -72,13 +74,10 @@ public class GymService {
         return gyms;
     }
 
+    @Transactional
     public void deleteGym(UUID id) {
-        logger.info("Attempting to inactivate gym with id {}", id);
+        logger.info("Attempting to inactivate gym with id {}", id);        
         Gym gym = findById(id);
-
-        if (gym.getStatus() == Status.inactive) {
-            throw new GymNotFoundException("Gym with id " + id + " not found");
-        }
 
         inactivateWorkouts(gym);
         gym.setStatus(Status.inactive);
@@ -88,24 +87,10 @@ public class GymService {
 
     private void inactivateWorkouts(Gym gym) {
         List<Workout> workouts = workoutRepository.findByGym(gym);
-        if (workouts.stream().anyMatch(w -> w.getStatus() == Status.active)) {
-            logger.info("Inactivating {} workouts for gym {}", workouts.size(), gym.getId());
+        if(workouts != null) {
+            workouts.forEach(w -> workoutService.deleteWorkout(w.getId()));
         }
-
-        workouts.forEach(workout -> {
-            if (workout.getStatus() == Status.active) {
-                workout.setStatus(Status.inactive);
-                if (workout.getExerciseList() != null) {
-                    workout.getExerciseList().forEach(ex -> {
-                        ex.setStatus(Status.inactive);
-                        logger.debug("Exercise {} inactivated", ex.getId());
-                    });
-                }
-                logger.debug("Workout {} inactivated", workout.getId());
-            }
-        });
-
-        workoutRepository.saveAll(workouts); // Save all updated workouts
+        workoutRepository.saveAll(workouts);
     }
 
     public Gym findById(UUID id) {
