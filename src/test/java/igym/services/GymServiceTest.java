@@ -8,6 +8,7 @@ import igym.entities.enums.Status;
 import igym.exceptions.DuplicateGymException;
 import igym.exceptions.GymNotFoundException;
 import igym.repositories.GymRepository;
+import igym.repositories.UserRepository;
 import igym.repositories.WorkoutRepository;
 
 import org.junit.jupiter.api.DisplayName;
@@ -34,7 +35,7 @@ public class GymServiceTest {
     private GymRepository gymRepository;
 
     @Mock
-    private UserService userService;
+    private UserRepository userRepository;
 
     @Mock
     private WorkoutRepository workoutRepository;
@@ -51,7 +52,7 @@ public class GymServiceTest {
         Gym gym = new Gym("CrossFit Gym");
         UUID userId = UUID.randomUUID();
 
-        when(userService.findById(any(UUID.class))).thenReturn(new User("Mocked User"));
+        when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(new User("Mocked User")));
         when(gymRepository.save(any(Gym.class))).thenReturn(gym);
 
         Gym result = gymService.createGym(gym, userId);
@@ -68,7 +69,7 @@ public class GymServiceTest {
         gym.setStatus(Status.active);
         UUID userId = UUID.randomUUID();
 
-        when(userService.findById(any(UUID.class))).thenReturn(new User("Mocked User"));
+        when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(new User("Mocked User")));
         when(gymRepository.existsByNameAndUserIdAndStatus(gym.getName(), userId, Status.active)).thenReturn(true);
 
         DuplicateGymException exception = assertThrows(
@@ -89,7 +90,7 @@ public class GymServiceTest {
         gym.setUser(mockedUser);
         String name = "Updated Gym";
         when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
-        when(gymRepository.existsByNameAndUserIdAndStatus(name, mockedUser.getId() , Status.active)).thenReturn(false);
+        when(gymRepository.existsByNameAndUserIdAndStatus(name, mockedUser.getId(), Status.active)).thenReturn(false);
         when(gymRepository.save(any(Gym.class))).thenReturn(gym);
         Gym result = gymService.updateGym(gymId, name);
         assertThat(result).isNotNull();
@@ -172,8 +173,8 @@ public class GymServiceTest {
         when(workoutRepository.findByGym(gym)).thenReturn(List.of(workout));
 
         doAnswer(invocation -> {
-                workout.setStatus(Status.inactive);
-                workout.getExerciseList().forEach(e -> e.setStatus(Status.inactive));
+            workout.setStatus(Status.inactive);
+            workout.getExerciseList().forEach(e -> e.setStatus(Status.inactive));
             return null;
         }).when(workoutService).deleteWorkout(workout.getId());
 

@@ -13,18 +13,28 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.boot.test.context.SpringBootTest;
 
+import igym.entities.Exercise;
 import igym.entities.Gym;
 import igym.entities.User;
+import igym.entities.Workout;
 import igym.entities.enums.Status;
 import igym.exceptions.UserNotFoundException;
 import igym.exceptions.DuplicateUserException;
 import igym.repositories.UserRepository;
 
+@SpringBootTest
 class UserServiceTest {
 
-    private UserRepository repository = mock(UserRepository.class);
-    private UserService service = new UserService(repository);
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private GymService gymService;
+    @InjectMocks
+    private UserService userService;
 
     private UUID userId;
     private User user1;
@@ -43,86 +53,105 @@ class UserServiceTest {
         List<User> users = new ArrayList<>();
         users.add(user1);
         users.add(user2);
-        when(repository.findAll()).thenReturn(users);
-        List<User> listUsers = service.findAll();
+        when(userRepository.findAll()).thenReturn(users);
+        List<User> listUsers = userService.findAll();
         assertIterableEquals(listUsers, users);
     }
 
     @Test
     @DisplayName("Should return an empty list if no user was saved")
     void emptyListTest() {
-        when(repository.findAll()).thenReturn(List.of());
-        List<User> list = service.findAll();
+        when(userRepository.findAll()).thenReturn(List.of());
+        List<User> list = userService.findAll();
         assertTrue(list.isEmpty());
     }
 
     @Test
     @DisplayName("Should inactivate user and all its gyms")
     void deleteUserTest() {
-        user1.setGyms(List.of(new Gym("Mocked Gym")));
-        when(repository.findById(user1.getId())).thenReturn(Optional.of(user1));
-        service.deleteUser(user1.getId());
+        Gym gym = new Gym("Mocked Gym");
+        Exercise exercise = new Exercise();
+        exercise.setName("Mocked Exercise");
+        Workout workout = new Workout();
+        workout.setName("Mocked Workout");
+        workout.setExerciseList(List.of(exercise));
+        gym.setWorkouts(List.of(workout));
+        user1.setGyms(List.of(gym));
+        when(userRepository.findById(user1.getId())).thenReturn(Optional.of(user1));
+        
+        doAnswer(invocation -> {
+            gym.setStatus(Status.inactive);
+            gym.getWorkouts().forEach(w -> {
+                w.setStatus(Status.inactive);
+                w.getExerciseList().forEach(e -> e.setStatus(Status.inactive));
+            });
+        return null;
+    }).when(gymService).deleteGym(gym.getId());
+        
+        userService.deleteUser(user1.getId());
         assertEquals(Status.inactive, user1.getStatus());
-        assertEquals(Status.inactive, user1.getGyms().get(0).getStatus());
+        assertEquals(Status.inactive, gym.getStatus());
+        assertEquals(Status.inactive, workout.getStatus());
+        assertEquals(Status.inactive, exercise.getStatus());
     }
 
     @Test
     @DisplayName("Should throw exception when trying to delete inexistent user")
     void deleteNonExistentUserTest() {
-        when(repository.findById(user1.getId())).thenReturn(Optional.empty());
-        assertThrowsExactly(UserNotFoundException.class, () -> service.deleteUser(user1.getId()));
-        verify(repository, never()).save(user1);
+        when(userRepository.findById(user1.getId())).thenReturn(Optional.empty());
+        assertThrowsExactly(UserNotFoundException.class, () -> userService.deleteUser(user1.getId()));
+        verify(userRepository, never()).save(user1);
     }
 
     @Test
     @DisplayName("Should throw exception when trying to delete already deleted user")
     void deleteDeletedUserTest() {
         user1.setStatus(Status.inactive);
-        when(repository.findById(user1.getId())).thenReturn(Optional.of(user1));
-        assertThrowsExactly(UserNotFoundException.class, () -> service.deleteUser(user1.getId()));
-        verify(repository, never()).save(user1);
+        when(userRepository.findById(user1.getId())).thenReturn(Optional.of(user1));
+        assertThrowsExactly(UserNotFoundException.class, () -> userService.deleteUser(user1.getId()));
+        verify(userRepository, never()).save(user1);
     }
 
     @Test
     @DisplayName("Should return a list that contains the saved user")
     void createUserTest() {
-        when(repository.save(user1)).thenReturn(user1);
-        User savedUser = service.createUser(user1);
+        when(userRepository.save(user1)).thenReturn(user1);
+        User savedUser = userService.createUser(user1);
         assertEquals(user1, savedUser);
-        verify(repository, times(1)).save(user1);
+        verify(userRepository, times(1)).save(user1);
     }
 
     @Test
     @DisplayName("Should return an error when trying to create a duplicate user with status active")
     void createDuplicateUserTest() {
-        when(repository.existsByNameAndStatus(user1.getName(), Status.active)).thenReturn(true);
-        assertThrows(DuplicateUserException.class, () -> service.createUser(user1));
-        verify(repository, never()).save(user1);
+        when(userRepository.existsByNameAndStatus(user1.getName(), Status.active)).thenReturn(true);
+        assertThrows(DuplicateUserException.class, () -> userService.createUser(user1));
+        verify(userRepository, never()).save(user1);
     }
 
     @Test
     @DisplayName("should successfully update a user when provided with a valid new name")
     void testUpdateUser() {
         String name = user2.getName();
-        when(repository.findById(userId)).thenReturn(Optional.of(user1));
-        when(repository.existsByNameAndStatus(name, Status.active)).thenReturn(false);
-        when(repository.save(any(User.class))).thenReturn(user1);
-        User result = service.updateUser(userId, name);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user1));
+        when(userRepository.existsByNameAndStatus(name, Status.active)).thenReturn(false);
+        when(userRepository.save(any(User.class))).thenReturn(user1);
+        User result = userService.updateUser(userId, name);
         assertThat(result).isNotNull();
         assertThat(result.getName()).isEqualTo(name);
-        verify(repository, times(1)).save(any(User.class));
+        verify(userRepository, times(1)).save(any(User.class));
     }
 
     @Test
     @DisplayName("Should throw UserNotFoundException when attempting to update a user that does not exist")
     void testUpdateUserNotFound() {
         String name = user2.getName();
-        when(repository.findById(userId)).thenReturn(Optional.empty());
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
         UserNotFoundException exception = assertThrows(
                 UserNotFoundException.class,
-                () -> service.updateUser(userId, name));
-        assertEquals("User with id " + userId + " not found.", exception.getMessage());
-        verify(repository, never()).save(user1);
+                () -> userService.updateUser(userId, name));
+        assertEquals("User with id " + userId + " not found", exception.getMessage());
+        verify(userRepository, never()).save(user1);
     }
 
     @Test
@@ -130,53 +159,53 @@ class UserServiceTest {
     void testUpdateUserInactive() {
         String name = user2.getName();
         user1.setStatus(Status.inactive);
-        when(repository.findById(userId)).thenReturn(Optional.of(user1));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user1));
         UserNotFoundException exception = assertThrows(
                 UserNotFoundException.class,
-                () -> service.updateUser(userId, name));
+                () -> userService.updateUser(userId, name));
         assertEquals("User with id " + userId + " not found", exception.getMessage());
-        verify(repository, never()).save(user1);
+        verify(userRepository, never()).save(user1);
     }
 
     @Test
     @DisplayName("Should throw DuplicateUserException when attempting to update a user to a name that is already in use and if the updated name is the same as the existing one user active")
     void testUpdateUserExistingName() {
         String name = user2.getName();
-        when(repository.findById(userId)).thenReturn(Optional.of(user1));
-        when(repository.existsByNameAndStatus(name, Status.active)).thenReturn(true);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user1));
+        when(userRepository.existsByNameAndStatus(name, Status.active)).thenReturn(true);
         DuplicateUserException exception = assertThrows(
                 DuplicateUserException.class,
-                () -> service.updateUser(userId, name));
+                () -> userService.updateUser(userId, name));
         assertEquals("A user with the name '" + name + "' already exists.",
                 exception.getMessage());
-        verify(repository, times(1)).existsByNameAndStatus(name, Status.active);
-        verify(repository, never()).save(user1);
+        verify(userRepository, times(1)).existsByNameAndStatus(name, Status.active);
+        verify(userRepository, never()).save(user1);
     }
 
     @Test
     @DisplayName("Should return the user when an existent user is passed")
     void testFindExistentById() {
-        when(repository.findById(userId)).thenReturn(Optional.of(user1));
-        User returnedUser = service.findById(userId);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user1));
+        User returnedUser = userService.findById(userId);
 
         assertEquals(returnedUser, user1);
-        verify(repository, times(1)).findById(userId);
+        verify(userRepository, times(1)).findById(userId);
     }
 
     @Test
     @DisplayName("Should return UserNotFoundException when a non existent user is passed")
     void testFindNonExistentById() {
-        when(repository.findById(userId)).thenThrow(new UserNotFoundException("User with id " + userId + " not found"));
-        assertThrows(UserNotFoundException.class, () -> service.findById(userId));
-        verify(repository, times(1)).findById(userId);
+        when(userRepository.findById(userId)).thenThrow(new UserNotFoundException("User with id " + userId + " not found"));
+        assertThrows(UserNotFoundException.class, () -> userService.findById(userId));
+        verify(userRepository, times(1)).findById(userId);
     }
 
     @Test
     @DisplayName("Should return UserNotFoundException when an inactive user is passed")
     void testFindInactiveById() {
         user1.setStatus(Status.inactive);
-        when(repository.findById(userId)).thenReturn(Optional.of(user1));
-        assertThrows(UserNotFoundException.class, () -> service.findById(userId));
-        verify(repository, times(1)).findById(userId);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user1));
+        assertThrows(UserNotFoundException.class, () -> userService.findById(userId));
+        verify(userRepository, times(1)).findById(userId);
     }
 }

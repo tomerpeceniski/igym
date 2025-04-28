@@ -19,9 +19,11 @@ public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserRepository repository;
+    private final GymService gymService;
 
-    public UserService(UserRepository repository) {
+    public UserService(UserRepository repository, GymService gymService) {
         this.repository = repository;
+        this.gymService = gymService;
     }
 
     public List<User> findAll() {
@@ -36,9 +38,6 @@ public class UserService {
     public void deleteUser(UUID id) {
         logger.info("Attempting to inactivate user with id {}", id);
         User user = findById(id);
-        if (user.getStatus() == Status.inactive) {
-            throw new UserNotFoundException("User with id " + id + " not found");
-        }
         user.setStatus(Status.inactive);
         inactivateGyms(user);
         repository.save(user);
@@ -47,14 +46,7 @@ public class UserService {
 
     private void inactivateGyms(User user) {
         List<Gym> gyms = user.getGyms();
-        if(gyms.stream().anyMatch(g -> g.getStatus() == Status.active)) logger.info("Inactivating {} gyms for user {}", gyms.size(), user.getId());
-
-        gyms.forEach(gym -> {
-            if (gym.getStatus() == Status.active) {
-                gym.setStatus(Status.inactive);
-                logger.debug("Gym {} inactivated", gym.getId());
-            }
-        });
+        gyms.forEach(g -> gymService.deleteGym(g.getId()));
     }
 
     @Transactional
@@ -72,13 +64,7 @@ public class UserService {
 
     public User updateUser(UUID id, String name) {
         logger.info("Attempting to update User with id: {}", id);
-        User user = repository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found."));
-
-        if (user.getStatus() == Status.inactive) {
-            logger.warn("User with id {} is inactive", id);
-            throw new UserNotFoundException("User with id " + id + " not found");
-        }
+        User user = findById(id);
         
         if (repository.existsByNameAndStatus(name, Status.active)) {
             throw new DuplicateUserException("A user with the name '" + name + "' already exists.");

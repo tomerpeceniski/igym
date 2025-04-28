@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import igym.repositories.GymRepository;
+import igym.repositories.UserRepository;
 import igym.repositories.WorkoutRepository;
 import jakarta.transaction.Transactional;
 
@@ -20,15 +21,15 @@ public class GymService {
 
     private static final Logger logger = LoggerFactory.getLogger(GymService.class);
     private final GymRepository gymRepository;
-    private final UserService userService;
     private final WorkoutRepository workoutRepository;
     private final WorkoutService workoutService;
+    private final UserRepository userRepository;
 
-    public GymService(GymRepository gymRepository, UserService userService, WorkoutRepository workoutRepository, WorkoutService workoutService) {
+    public GymService(GymRepository gymRepository, WorkoutRepository workoutRepository, WorkoutService workoutService, UserRepository userRepository) {
         this.workoutRepository = workoutRepository;
         this.gymRepository = gymRepository;
-        this.userService = userService;
         this.workoutService = workoutService;
+        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -36,7 +37,7 @@ public class GymService {
         logger.info("Attempting to create a new gym");
         logger.debug("Gym creation request with values: {}", gym);
 
-        User user = userService.findById(userId);
+        User user = findUserById(userId);
         gym.setUser(user);
 
         if (gymRepository.existsByNameAndUserIdAndStatus(gym.getName(), userId, Status.active)) {
@@ -105,6 +106,16 @@ public class GymService {
 
         logger.debug("Fetched gym: {}", gym);
         return gym;
+    }
+
+    public User findUserById(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
+        if (user.getStatus() == Status.inactive) {
+            logger.warn("User with id {} is inactive", userId);
+            throw new UserNotFoundException("User with id " + userId + " not found");
+        }
+        return user;
     }
 
 }
