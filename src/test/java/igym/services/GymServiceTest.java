@@ -17,7 +17,6 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,7 +26,6 @@ import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 public class GymServiceTest {
@@ -84,9 +82,11 @@ public class GymServiceTest {
     void testUpdateGym() {
         UUID gymId = UUID.randomUUID();
         Gym gym = new Gym("CrossFit Gym");
+        User mockedUser = new User("MockedUser");
+        gym.setUser(mockedUser);
         String name = "Updated Gym";
         when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
-        when(gymRepository.existsByNameAndStatus(name, Status.active)).thenReturn(false);
+        when(gymRepository.existsByNameAndUserIdAndStatus(name, mockedUser.getId() , Status.active)).thenReturn(false);
         when(gymRepository.save(any(Gym.class))).thenReturn(gym);
         Gym result = gymService.updateGym(gymId, name);
         assertThat(result).isNotNull();
@@ -113,14 +113,16 @@ public class GymServiceTest {
         UUID gymId = UUID.randomUUID();
         Gym gym = new Gym("CrossFit Gym");
         String name = "CrossFit Gym";
+        User mockedUser = new User("MockedUser");
+        gym.setUser(mockedUser);
         when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
-        when(gymRepository.existsByNameAndStatus(name, Status.active)).thenReturn(true);
+        when(gymRepository.existsByNameAndUserIdAndStatus(name, mockedUser.getId(), Status.active)).thenReturn(true);
         DuplicateGymException exception = assertThrows(
                 DuplicateGymException.class,
                 () -> gymService.updateGym(gymId, name));
-        assertEquals("A gym with the name '" + gym.getName() + "' already exists.",
+        assertEquals("A gym with the name '" + gym.getName() + "' already exists for this user",
                 exception.getMessage());
-        verify(gymRepository, times(1)).existsByNameAndStatus(name, Status.active);
+        verify(gymRepository, times(1)).existsByNameAndUserIdAndStatus(name, mockedUser.getId(), Status.active);
         verify(gymRepository, never()).save(any(Gym.class));
     }
 
