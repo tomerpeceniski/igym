@@ -59,9 +59,6 @@ public class UserService {
     public void deleteUser(UUID id) {
         logger.info("Attempting to inactivate user with id {}", id);
         User user = findById(id);
-        if (user.getStatus() == Status.inactive) {
-            throw new UserNotFoundException("User with id " + id + " not found");
-        }
         user.setStatus(Status.inactive);
         inactivateGyms(user);
         repository.save(user);
