@@ -109,12 +109,7 @@ public class GymService {
     
         List<Gym> gyms = gymRepository.findByUserIdAndStatus(userId, Status.active);
     
-        if (gyms.isEmpty()) {
-            logger.warn("No active gyms found for user with id {}", userId);
-            throw new GymNotFoundException("No active gyms found for user with id " + userId);
-        }
-    
-        logger.info("Found {} active gyms for user {}", gyms.size(), userId);
+        logger.info("Found {} active gyms for user {}", gyms.isEmpty() ? 0 : gyms.size(), userId);
         return gyms;
     }
 }

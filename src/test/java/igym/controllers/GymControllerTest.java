@@ -304,6 +304,18 @@ public class GymControllerTest {
         }
 
         @Test
+        @DisplayName("should return empty list of gyms for a given user ID")
+        void testGetGymsByUserIdEmpty() throws Exception {
+                when(gymService.findGymsByUserId(userId)).thenReturn(List.of());
+
+                mockMvc.perform(get("/api/users/{userId}/gyms", userId))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.length()").value(0));
+
+                verify(gymService).findGymsByUserId(userId);
+        }
+
+        @Test
         @DisplayName("should return 404 when user is not found")
         void testGetGymsByUserIdUserNotFound() throws Exception {
                 when(gymService.findGymsByUserId(userId))
@@ -312,20 +324,6 @@ public class GymControllerTest {
                 mockMvc.perform(get("/api/users/{userId}/gyms", userId))
                                 .andExpect(status().isNotFound())
                                 .andExpect(jsonPath("$.message").value("User with id " + userId + " not found"));
-
-                verify(gymService).findGymsByUserId(userId);
-        }
-
-        @Test
-        @DisplayName("should return 404 when user has no active gyms")
-        void testGetGymsByUserId_noGyms() throws Exception {
-                when(gymService.findGymsByUserId(userId))
-                                .thenThrow(new GymNotFoundException("No active gyms found for user with id " + userId));
-
-                mockMvc.perform(get("/api/users/{userId}/gyms", userId))
-                                .andExpect(status().isNotFound())
-                                .andExpect(jsonPath("$.message")
-                                                .value("No active gyms found for user with id " + userId));
 
                 verify(gymService).findGymsByUserId(userId);
         }

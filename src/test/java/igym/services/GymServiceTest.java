@@ -233,17 +233,17 @@ public class GymServiceTest {
     }
 
     @Test
-    @DisplayName("should throw GymNotFoundException when user has no active gyms")
-    void testFindGymsByUserId_noGyms() {
+    @DisplayName("should return empty list of gyms when user exists but has no active gyms")
+    void testFindEmptyGymsByUserId() {
         UUID userId = UUID.randomUUID();
         User user = new User("Test User");
 
         when(userService.findById(userId)).thenReturn(user);
         when(gymRepository.findByUserIdAndStatus(userId, Status.active)).thenReturn(List.of());
 
-        GymNotFoundException ex = assertThrows(GymNotFoundException.class, () -> gymService.findGymsByUserId(userId));
+        List<Gym> result = gymService.findGymsByUserId(userId);
 
-        assertEquals("No active gyms found for user with id " + userId, ex.getMessage());
+        assertThat(result).isEmpty();
         verify(userService).findById(userId);
         verify(gymRepository).findByUserIdAndStatus(userId, Status.active);
     }
