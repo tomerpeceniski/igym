@@ -67,8 +67,6 @@ public class UserService {
 
     private void inactivateGyms(User user) {
         List<Gym> gyms = user.getGyms();
-        if (gyms.stream().anyMatch(g -> g.getStatus() == Status.active))
-            logger.info("Inactivating {} gyms for user {}", gyms.size(), user.getId());
 
         gyms.forEach(gym -> {
             if (gym.getStatus() == Status.active) {
