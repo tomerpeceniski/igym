@@ -14,8 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * REST controller for managing workouts, including creation, retrieval, and
- * logical deletion.
+ * REST controller for managing workouts.
+ * Provides endpoints for creating, retrieving, updating, and deleting workouts.
  */
 @RequestMapping(value = "/api")
 @RestController
