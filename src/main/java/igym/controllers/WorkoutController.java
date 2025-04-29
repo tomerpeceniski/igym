@@ -1,6 +1,7 @@
 package igym.controllers;
 
 import igym.entities.Workout;
+import igym.exceptions.GymNotFoundException;
 import igym.exceptions.WorkoutNotFoundException;
 import igym.services.WorkoutService;
 import jakarta.validation.Valid;
@@ -13,7 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * REST controller for managing workout creation.
+ * REST controller for managing workouts, including creation, retrieval, and
+ * logical deletion.
  */
 @RequestMapping(value = "/api")
 @RestController
@@ -26,10 +28,12 @@ public class WorkoutController {
     }
 
     /**
-     * Creates a new workout via POST request.
-     * 
-     * @param workout the workout to create
-     * @return the created workout and HTTP 201 status
+     * Creates a new workout associated with a specific gym via POST request.
+     *
+     * @param gymId   the UUID of the gym where the workout will be created
+     * @param workout the workout entity to be created
+     * @return the created workout with HTTP 201 Created status
+     * @throws GymNotFoundException if no gym is found with the provided ID
      */
     @PostMapping(value = "/gyms/{gymId}/workouts", produces = "application/json")
     public ResponseEntity<Workout> createWorkout(
@@ -44,6 +48,7 @@ public class WorkoutController {
      * 
      * @param gymId the ID of the gym
      * @return a list of workouts and HTTP 200 status
+     * @throws GymNotFoundException if no gym is found with the provided ID
      */
     @GetMapping(value = "/gyms/{gymId}/workouts", produces = "application/json")
     public ResponseEntity<List<Workout>> getWorkoutsByGymId(@PathVariable UUID gymId) {
