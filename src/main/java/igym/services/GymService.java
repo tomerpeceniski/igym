@@ -104,6 +104,7 @@ public class GymService {
     public List<Gym> findGymsByUserId(UUID userId) {
         logger.info("Fetching gyms for user with id: {}", userId);
     
+        // validating existence of user with id
         userService.findById(userId);
     
         List<Gym> gyms = gymRepository.findByUserIdAndStatus(userId, Status.active);

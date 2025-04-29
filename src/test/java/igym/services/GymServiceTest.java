@@ -218,8 +218,8 @@ public class GymServiceTest {
         User user = new User("Test User");
         Gym gym1 = new Gym("Gym 1");
         Gym gym2 = new Gym("Gym 2");
-        gym1.setStatus(Status.active);
-        gym2.setStatus(Status.active);
+        Gym gym3 = new Gym("Gym 3");
+        gym3.setStatus(Status.inactive);
         List<Gym> gyms = List.of(gym1, gym2);
 
         when(userService.findById(userId)).thenReturn(user);

@@ -56,7 +56,7 @@ public class GymController {
     /**
      * Retrieves all active gyms associated with a specific user.
      *
-     * @param userId the ID of the user whose gyms should be retrieved
+     * @param userId the ID of the user whose gyms are retrieved
      * @return a list of active gyms belonging to the user
      * @throws UserNotFoundException if the user does not exist or is inactive
      * @throws GymNotFoundException  if the user has no active gyms

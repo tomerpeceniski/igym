@@ -305,7 +305,7 @@ public class GymControllerTest {
 
         @Test
         @DisplayName("should return 404 when user is not found")
-        void testGetGymsByUserId_userNotFound() throws Exception {
+        void testGetGymsByUserIdUserNotFound() throws Exception {
                 when(gymService.findGymsByUserId(userId))
                                 .thenThrow(new UserNotFoundException("User with id " + userId + " not found"));
 
