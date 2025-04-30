@@ -89,4 +89,9 @@ public class User {
     public void setGyms(List<Gym> gyms) {
         this.gyms = gyms;
     }
+
+    public Instant getUpdated_at() {
+        return updated_at;
+    }
+
 }
