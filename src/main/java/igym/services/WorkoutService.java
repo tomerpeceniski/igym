@@ -98,7 +98,6 @@ public class WorkoutService {
     /**
      * Updates workout details.
      * This method updates the workout's name and the exercise list.
-     * It does not update the gym associated with the workout.
      */
     @Transactional
     public Workout updateWorkout(UUID workoutId, Workout updatedWorkout) {
