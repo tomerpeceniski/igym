@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 
 import igym.repositories.GymRepository;
 import igym.repositories.UserRepository;
-import igym.repositories.WorkoutRepository;
 import jakarta.transaction.Transactional;
 
 import java.util.List;
@@ -21,12 +20,11 @@ public class GymService {
 
     private static final Logger logger = LoggerFactory.getLogger(GymService.class);
     private final GymRepository gymRepository;
-    private final WorkoutRepository workoutRepository;
     private final WorkoutService workoutService;
     private final UserRepository userRepository;
 
-    public GymService(GymRepository gymRepository, WorkoutRepository workoutRepository, WorkoutService workoutService, UserRepository userRepository) {
-        this.workoutRepository = workoutRepository;
+    public GymService(GymRepository gymRepository, WorkoutService workoutService,
+            UserRepository userRepository) {
         this.gymRepository = gymRepository;
         this.workoutService = workoutService;
         this.userRepository = userRepository;
@@ -54,7 +52,7 @@ public class GymService {
         logger.info("Attempting to update Gym with id: {}", id);
         Gym gym = findById(id);
 
-        if (gymRepository.existsByNameAndUserIdAndStatus(name, gym.getUser().getId() ,Status.active)) {
+        if (gymRepository.existsByNameAndUserIdAndStatus(name, gym.getUser().getId(), Status.active)) {
             throw new DuplicateGymException("A gym with the name '" + name + "' already exists for this user");
         }
 
@@ -77,21 +75,24 @@ public class GymService {
 
     @Transactional
     public void deleteGym(UUID id) {
-        logger.info("Attempting to inactivate gym with id {}", id);        
+        logger.info("Attempting to inactivate gym with id {}", id);
         Gym gym = findById(id);
 
-        inactivateWorkouts(gym);
+        deleteWorkouts(gym);
         gym.setStatus(Status.inactive);
         gymRepository.save(gym);
         logger.info("Gym with id {} inactivated", id);
     }
 
-    private void inactivateWorkouts(Gym gym) {
-        List<Workout> workouts = workoutRepository.findByGym(gym);
-        if(workouts != null) {
-            workouts.forEach(w -> workoutService.deleteWorkout(w.getId()));
+    private void deleteWorkouts(Gym gym) {
+        List<Workout> workouts = gym.getWorkouts();
+        if (workouts != null && !workouts.isEmpty()) {
+            workouts.forEach(w -> {
+                if (w.getStatus() == Status.active) {
+                    workoutService.deleteWorkout(w.getId());
+                }
+            });
         }
-        workoutRepository.saveAll(workouts);
     }
 
     public Gym findById(UUID id) {

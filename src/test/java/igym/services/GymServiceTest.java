@@ -9,7 +9,6 @@ import igym.exceptions.DuplicateGymException;
 import igym.exceptions.GymNotFoundException;
 import igym.repositories.GymRepository;
 import igym.repositories.UserRepository;
-import igym.repositories.WorkoutRepository;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,9 +35,6 @@ public class GymServiceTest {
 
     @Mock
     private UserRepository userRepository;
-
-    @Mock
-    private WorkoutRepository workoutRepository;
 
     @Mock
     private WorkoutService workoutService;
@@ -168,9 +164,9 @@ public class GymServiceTest {
         ReflectionTestUtils.setField(workout, "id", UUID.randomUUID());
         workout.setStatus(Status.active);
         workout.setExerciseList(List.of(exercise));
+        gym.setWorkouts(List.of(workout));
 
         when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
-        when(workoutRepository.findByGym(gym)).thenReturn(List.of(workout));
 
         doAnswer(invocation -> {
             workout.setStatus(Status.inactive);
@@ -185,8 +181,6 @@ public class GymServiceTest {
         assertEquals(Status.inactive, exercise.getStatus());
 
         verify(gymRepository).findById(gymId);
-        verify(workoutRepository).findByGym(gym);
-        verify(workoutRepository).saveAll(List.of(workout));
     }
 
     @Test

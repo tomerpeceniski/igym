@@ -39,14 +39,20 @@ public class UserService {
         logger.info("Attempting to inactivate user with id {}", id);
         User user = findById(id);
         user.setStatus(Status.inactive);
-        inactivateGyms(user);
+        deleteGyms(user);
         repository.save(user);
         logger.info("User with id {} inactivated", id);
     }
 
-    private void inactivateGyms(User user) {
+    private void deleteGyms(User user) {
         List<Gym> gyms = user.getGyms();
-        gyms.forEach(g -> gymService.deleteGym(g.getId()));
+        if (gyms != null && !gyms.isEmpty()) {
+            gyms.forEach(g -> {
+                if (g.getStatus() == Status.active) {
+                    gymService.deleteGym(g.getId());
+                }
+            });
+        }
     }
 
     @Transactional

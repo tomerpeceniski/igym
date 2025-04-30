@@ -69,12 +69,11 @@ public class WorkoutService {
      */
     @Transactional
     public void deleteWorkout(UUID workoutId) {
-        logger.info("Attempting to delete workout with id: {}", workoutId);
+        logger.info("Attempting to inactivate workout with id: {}", workoutId);
 
         Workout workout = findById(workoutId);
 
         workout.setStatus(Status.inactive);
-        logger.info("Workout with id {} marked as inactive", workoutId);
 
         deleteExerciesList(workout);
 
