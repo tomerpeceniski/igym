@@ -16,9 +16,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import igym.entities.*;
+import igym.exceptions.DuplicateGymException;
+import igym.exceptions.GymNotFoundException;
+import igym.exceptions.UserNotFoundException;
 import igym.services.GymService;
 import jakarta.validation.Valid;
 
+/**
+ * REST controller for managing gyms.
+ * Provides endpoints for creating, retrieving, updating, and deleting gyms.
+ */
 @RequestMapping(value = "/api")
 @RestController
 @Validated
@@ -30,6 +37,15 @@ public class GymController {
         this.service = service;
     }
 
+    /**
+     * Creates a new gym associated with a user.
+     *
+     * @param gym    the gym entity to create
+     * @param userId the UUID of the user creating the gym
+     * @return the created gym and HTTP 201 Created status
+     * @throws DuplicateGymException if a gym with the same name already exists
+     * @throws UserNotFoundException if the provided userId does not match any user
+     */
     // When authentication process is set, change the signature of this method
     @PostMapping(value = "/gyms/{userId}", produces = "application/json")
     public ResponseEntity<Gym> createGym(@RequestBody @Valid Gym gym, @PathVariable UUID userId) {
@@ -37,6 +53,15 @@ public class GymController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdGym);
     }
 
+    /**
+     * Updates the name of an existing gym.
+     *
+     * @param id  the UUID of the gym to update
+     * @param gym the gym entity containing the new name
+     * @return the updated gym with HTTP 200 OK status
+     * @throws GymNotFoundException  if no gym is found with the provided ID
+     * @throws DuplicateGymException if a gym with the same new name already exists
+     */
     @PatchMapping(value = "/gyms/{id}", produces = "application/json")
     public ResponseEntity<Gym> updateGym(@PathVariable("id") UUID id, @RequestBody @Valid Gym gym) {
         String name = gym.getName();
@@ -44,6 +69,11 @@ public class GymController {
         return ResponseEntity.ok(updatedGym);
     }
 
+    /**
+     * Retrieves all gyms.
+     *
+     * @return a list of gyms and HTTP 200 OK status
+     */
     @GetMapping(value = "/gyms", produces = "application/json")
     public ResponseEntity<List<Gym>> findAllGyms() {
         List<Gym> gyms = service.findAllGyms();
@@ -51,6 +81,13 @@ public class GymController {
         return ResponseEntity.ok(gyms);
     }
 
+    /**
+     * Deletes a gym by its ID.
+     *
+     * @param id the UUID of the gym to delete
+     * @return HTTP 204 No Content status if deletion is successful
+     * @throws GymNotFoundException if no gym is found with the provided ID
+     */
     @DeleteMapping(value = "/gyms/{id}", produces = "application/json")
     public ResponseEntity<Void> deleteGym(@PathVariable("id") UUID id) {
         service.deleteGym(id);

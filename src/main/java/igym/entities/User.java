@@ -15,6 +15,21 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.ToString;
 
+/**
+ * Represents a user of the application, who can own multiple gyms.
+ * 
+ * <p>
+ * Each user has a unique identifier, a name, a status (active or inactive),
+ * and a list of gyms associated with them. The {@code updated_at} field tracks
+ * the last time the user entity was modified.
+ * </p>
+ *
+ * <p>
+ * Field validations ensure that the user's name is non-blank and within a
+ * specified length.
+ * </p>
+ */
+
 @ToString(exclude = "gyms")
 @Table(name = "users")
 @Entity
@@ -66,7 +81,7 @@ public class User {
     public void setStatus(Status status) {
         this.status = status;
     }
-    
+
     public List<Gym> getGyms() {
         return gyms;
     }
