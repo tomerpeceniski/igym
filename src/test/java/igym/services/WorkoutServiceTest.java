@@ -208,14 +208,13 @@ class WorkoutServiceTest {
         workout.setName("Cardio Day");
         workout.setStatus(Status.inactive);
 
-        when(workoutRepository.findById(workoutId)).thenReturn(java.util.Optional.of(workout));
+        when(workoutRepository.findByIdAndStatus(workoutId, Status.inactive)).thenReturn(java.util.Optional.of(workout));
 
         WorkoutNotFoundException exception = assertThrows(WorkoutNotFoundException.class,
                 () -> workoutService.deleteWorkout(workoutId));
 
         assertEquals("Workout with id " + workoutId + " not found", exception.getMessage());
 
-        verify(workoutRepository, times(1)).findById(workoutId);
         verify(workoutRepository, never()).save(any());
         assertEquals(Status.inactive, workout.getStatus());
     }
@@ -230,7 +229,7 @@ class WorkoutServiceTest {
         workout.setStatus(Status.active);
         workout.setExerciseList(null);
 
-        when(workoutRepository.findById(workoutId)).thenReturn(java.util.Optional.of(workout));
+        when(workoutRepository.findByIdAndStatus(workoutId, Status.active)).thenReturn(java.util.Optional.of(workout));
 
         workoutService.deleteWorkout(workoutId);
 
@@ -254,7 +253,7 @@ class WorkoutServiceTest {
         existingWorkout.setExerciseList(new ArrayList<>(List.of(ex1)));
         existingWorkout.setStatus(Status.active);
 
-        when(workoutRepository.findById(workoutId)).thenReturn(java.util.Optional.of(existingWorkout));
+        when(workoutRepository.findByIdAndStatus(workoutId, Status.active)).thenReturn(java.util.Optional.of(existingWorkout));
         when(workoutRepository.save(any(Workout.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Exercise ex2 = new Exercise();
@@ -300,7 +299,7 @@ class WorkoutServiceTest {
         existingWorkout.setExerciseList(new ArrayList<>());
         existingWorkout.setStatus(Status.active);
 
-        when(workoutRepository.findById(workoutId)).thenReturn(java.util.Optional.of(existingWorkout));
+        when(workoutRepository.findByIdAndStatus(workoutId, Status.active)).thenReturn(java.util.Optional.of(existingWorkout));
         when(workoutRepository.save(any(Workout.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Workout updatedWorkout = new Workout();
@@ -336,7 +335,7 @@ class WorkoutServiceTest {
     }
 
     @Test
-    @DisplayName("Test update workout nad its exercises trying to set the status to inactive should return a workout and it's exercises with status active")
+    @DisplayName("Test update workout and its exercises trying to set the status to inactive should return a workout and it's exercises with status active")
     void testUpdateWorkoutAndItsExercisesTryingToSetStatusToInactive() {
         UUID workoutId = UUID.randomUUID();
 
@@ -351,7 +350,7 @@ class WorkoutServiceTest {
         existingWorkout.setExerciseList(new ArrayList<>(List.of(ex1)));
         existingWorkout.setStatus(Status.active);
 
-        when(workoutRepository.findById(workoutId)).thenReturn(java.util.Optional.of(existingWorkout));
+        when(workoutRepository.findByIdAndStatus(workoutId, Status.active)).thenReturn(java.util.Optional.of(existingWorkout));
         when(workoutRepository.save(any(Workout.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Exercise ex2 = new Exercise();
