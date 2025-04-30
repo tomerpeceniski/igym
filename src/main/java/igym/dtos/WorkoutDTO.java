@@ -13,4 +13,3 @@ public record WorkoutDTO(
     UUID gym_id,
     List<ExerciseDTO> exerciseList
 ) {}
-

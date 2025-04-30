@@ -78,4 +78,8 @@ public class Gym {
     public void setUser(User user) {
         this.user = user;
     }
+
+    public Instant getUpdated_at() {
+        return updated_at;
+    }
 }
