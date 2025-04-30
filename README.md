@@ -79,5 +79,12 @@ If you have any questions or need help setting up the project, feel free to reac
 
 ---
 
+## Documentation
+
+The full API documentation (generated via Javadoc) is available at: [https://tomerpeceniski.github.io/igym/](https://tomerpeceniski.github.io/igym/)
+
+
+---
+
 ## License
 This project is open-source. Feel free to use, modify, and distribute it in accordance with the applicable license.
