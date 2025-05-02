@@ -6,6 +6,8 @@ import igym.entities.Workout;
 import igym.entities.enums.Status;
 import igym.exceptions.GymNotFoundException;
 import igym.exceptions.WorkoutNotFoundException;
+import igym.exceptions.ExerciseNotFoundException;
+import igym.repositories.ExerciseRepository;
 import igym.repositories.GymRepository;
 import igym.repositories.WorkoutRepository;
 import jakarta.transaction.Transactional;
@@ -34,8 +36,10 @@ public class WorkoutService {
 
     private final WorkoutRepository workoutRepository;
     private final GymRepository gymRepository;
+    private final ExerciseRepository exerciseRepository;
 
-    public WorkoutService(WorkoutRepository workoutRepository, GymRepository gymRepository) {
+    public WorkoutService(WorkoutRepository workoutRepository, GymRepository gymRepository, ExerciseRepository exerciseRepository) {
+        this.exerciseRepository = exerciseRepository;
         this.workoutRepository = workoutRepository;
         this.gymRepository = gymRepository;
     }
@@ -118,6 +122,25 @@ public class WorkoutService {
                 }
             });
         }
+    }
+
+    /**
+     * Soft deletes an exercise by marking its status as {@code Status.inactive}.
+     *
+     * @param workoutId  the UUID of the workout containing the exercise
+     * @param exerciseId the UUID of the exercise to soft delete
+     * @throws WorkoutNotFoundException if the workout or exercise with the provided
+     *                                  IDs do not exist or are already inactive
+     */
+    @Transactional
+    public void deleteExercise(UUID exerciseId) {
+        logger.info("Attempting to inactivate exercise with id: {}", exerciseId);
+    
+        Exercise exercise = exerciseRepository.findByIdAndStatus(exerciseId, Status.active)
+                .orElseThrow(() -> new ExerciseNotFoundException("Exercise with id " + exerciseId + " not found"));
+    
+        exercise.setStatus(Status.inactive);
+        logger.info("Exercise with id {} has been inactivated", exerciseId);
     }
 
     public Workout findById(UUID id) {
