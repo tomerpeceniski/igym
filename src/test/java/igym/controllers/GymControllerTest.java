@@ -1,6 +1,7 @@
 package igym.controllers;
 
 import igym.entities.Gym;
+import igym.entities.User;
 import igym.entities.enums.Status;
 import igym.exceptions.DuplicateGymException;
 import igym.exceptions.GymNotFoundException;
@@ -22,6 +23,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -48,30 +50,40 @@ public class GymControllerTest {
         private GymService gymService;
 
         @Autowired
-        private Validator validator;
+        Validator validator;
 
         private final ObjectMapper objectMapper = new ObjectMapper();
-        UUID gymId = UUID.randomUUID();
-        UUID userId = UUID.randomUUID();
-        Gym gym = new Gym("Location 1");
-        Gym gym1 = new Gym("Location 2");
+        UUID gymId;
+        UUID userId;
+        Gym gym1;
+        Gym gym2;
 
         @BeforeEach
         void setUp() {
-                assert validator != null;
-                ReflectionTestUtils.setField(gym, "id", gymId);
+                User user = new User("Mocked User");
+                ReflectionTestUtils.setField(user, "id", UUID.randomUUID());
+                gym1 = new Gym("Location 1");
+                gym2 = new Gym("Location 2");
+                ReflectionTestUtils.setField(gym1, "id", UUID.randomUUID());
+                gym1.setUser(user);
+                ReflectionTestUtils.setField(gym1, "updated_at", Instant.now());
+                ReflectionTestUtils.setField(gym2, "id", UUID.randomUUID());
+                gym2.setUser(user);
+                ReflectionTestUtils.setField(gym2, "updated_at", Instant.now());
+                gymId = gym1.getId();
+                userId = user.getId();
         }
 
         @Test
         @DisplayName("should return a gym and status 201")
         void testCreateGymSuccess() throws Exception {
-                when(gymService.createGym(any(Gym.class), any(UUID.class))).thenReturn(gym);
+                when(gymService.createGym(any(Gym.class), any(UUID.class))).thenReturn(gym1);
 
                 mockMvc.perform(post("/api/gyms/{userId}", userId)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(gym)))
+                                .content(objectMapper.writeValueAsString(gym1.getName())))
                                 .andExpect(status().isCreated())
-                                .andExpect(jsonPath("$.name").value(gym.getName()));
+                                .andExpect(jsonPath("$.name").value(gym1.getName()));
 
                 verify(gymService, times(1)).createGym(any(Gym.class), any(UUID.class));
         }
@@ -80,11 +92,12 @@ public class GymControllerTest {
         @DisplayName("should return 409 Conflict when gym name already exists for this user")
         void testCreateGymWithDuplicateName() throws Exception {
                 when(gymService.createGym(any(Gym.class), any(UUID.class)))
-                                .thenThrow(new DuplicateGymException("A gym with the name 'Location 1' already exists for this user"));
+                                .thenThrow(new DuplicateGymException(
+                                                "A gym with the name 'Location 1' already exists for this user"));
 
                 mockMvc.perform(post("/api/gyms/{userId}", userId)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(gym)))
+                                .content(objectMapper.writeValueAsString(gym1.getName())))
                                 .andExpect(status().isConflict())
                                 .andExpect(jsonPath("$.message")
                                                 .value("A gym with the name 'Location 1' already exists for this user"))
@@ -151,7 +164,7 @@ public class GymControllerTest {
         @Test
         @DisplayName("should return all the gyms from the service and status 200")
         void testFindAllGymsSuccess() throws Exception {
-                List<Gym> gyms = Arrays.asList(gym, gym1);
+                List<Gym> gyms = Arrays.asList(gym1, gym2);
                 when(gymService.findAllGyms()).thenReturn(gyms);
 
                 mockMvc.perform(get("/api/gyms"))
@@ -176,9 +189,9 @@ public class GymControllerTest {
         @Test
         @DisplayName("should delete a gym from the repository")
         void testDeleteGymSuccess() throws Exception {
-                assertEquals(Status.active, gym.getStatus(), "Gym should initially be active");
+                assertEquals(Status.active, gym1.getStatus(), "Gym should initially be active");
                 doAnswer(invocation -> {
-                        gym.setStatus(Status.inactive);
+                        gym1.setStatus(Status.inactive);
                         return null;
                 }).when(gymService).deleteGym(gymId);
 
@@ -186,7 +199,7 @@ public class GymControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON))
                                 .andExpect(status().isNoContent());
 
-                assertEquals(Status.inactive, gym.getStatus(), "Gym should finally be inactive");
+                assertEquals(Status.inactive, gym1.getStatus(), "Gym should finally be inactive");
                 verify(gymService, times(1)).deleteGym(gymId);
                 verifyNoMoreInteractions(gymService);
         }
@@ -208,43 +221,43 @@ public class GymControllerTest {
         @Test
         @DisplayName("should update a existing gym and return status 200")
         void testUpdateGymSuccess() throws Exception {
-                when(gymService.updateGym(gymId, gym.getName())).thenReturn(gym);
+                when(gymService.updateGym(gymId, gym1.getName())).thenReturn(gym1);
                 mockMvc.perform(patch("/api/gyms/{gymId}", gymId)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(gym)))
+                                .content(objectMapper.writeValueAsString(gym1.getName())))
                                 .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.id").value(gym.getId().toString()))
-                                .andExpect(jsonPath("$.name").value(gym.getName()));
-                verify(gymService, times(1)).updateGym(gymId, gym.getName());
+                                .andExpect(jsonPath("$.id").value(gym1.getId().toString()))
+                                .andExpect(jsonPath("$.name").value(gym1.getName()));
+                verify(gymService, times(1)).updateGym(gymId, gym1.getName());
         }
 
         @Test
         @DisplayName("should return 404 when trying to update a non existing gym")
         void testUpdateGymNotFound() throws Exception {
                 doThrow(new GymNotFoundException("Gym with id " + gymId + " not found."))
-                                .when(gymService).updateGym(gymId, gym.getName());
+                                .when(gymService).updateGym(gymId, gym1.getName());
                 mockMvc.perform(patch("/api/gyms/{gymId}", gymId)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(gym)))
+                                .content(objectMapper.writeValueAsString(gym1.getName())))
                                 .andExpect(status().isNotFound())
                                 .andExpect(jsonPath("$.message").value("Gym with id " + gymId + " not found."))
                                 .andExpect(jsonPath("$.error").value("Not Found"));
-                verify(gymService, times(1)).updateGym(gymId, gym.getName());
+                verify(gymService, times(1)).updateGym(gymId, gym1.getName());
         }
 
         @Test
         @DisplayName("should return 409 when trying to update a gym with name already in use")
         void testUpdateGymNameAlreadyInUse() throws Exception {
-                doThrow(new DuplicateGymException("A gym with the name '" + gym.getName() + "' already exists."))
-                                .when(gymService).updateGym(gymId, gym.getName());
+                doThrow(new DuplicateGymException("A gym with the name '" + gym1.getName() + "' already exists."))
+                                .when(gymService).updateGym(gymId, gym1.getName());
                 mockMvc.perform(patch("/api/gyms/{gymId}", gymId)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(gym)))
+                                .content(objectMapper.writeValueAsString(gym1.getName())))
                                 .andExpect(status().isConflict())
                                 .andExpect(jsonPath("$.message")
-                                                .value("A gym with the name '" + gym.getName() + "' already exists."))
+                                                .value("A gym with the name '" + gym1.getName() + "' already exists."))
                                 .andExpect(jsonPath("$.error").value("Conflict"));
-                verify(gymService, times(1)).updateGym(gymId, gym.getName());
+                verify(gymService, times(1)).updateGym(gymId, gym1.getName());
         }
 
         @Test
@@ -268,24 +281,24 @@ public class GymControllerTest {
         @Test
         @DisplayName("shoud return 404 when trying to update inactive gym")
         void testUpdateGymInactive() throws Exception {
-                gym.setStatus(Status.inactive);
+                gym1.setStatus(Status.inactive);
                 doThrow(new GymNotFoundException("Gym with id " + gymId + " not found."))
-                                .when(gymService).updateGym(gymId, gym.getName());
+                                .when(gymService).updateGym(gymId, gym1.getName());
 
                 mockMvc.perform(patch("/api/gyms/{gymId}", gymId)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(gym)))
+                                .content(objectMapper.writeValueAsString(gym1.getName())))
                                 .andExpect(status().isNotFound())
                                 .andExpect(jsonPath("$.message").value("Gym with id " + gymId + " not found."))
                                 .andExpect(jsonPath("$.error").value("Not Found"));
 
-                verify(gymService, times(1)).updateGym(gymId, gym.getName());
+                verify(gymService, times(1)).updateGym(gymId, gym1.getName());
         }
 
         @Test
         @DisplayName("should return status 404 when deleting a inactive gym")
         void testDeleteGymAlreadyDeleted() throws Exception {
-                gym.setStatus(Status.inactive);
+                gym1.setStatus(Status.inactive);
                 doThrow(new GymNotFoundException("Gym with id " + gymId + " not found."))
                                 .when(gymService).deleteGym(gymId);
 
@@ -293,7 +306,7 @@ public class GymControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON))
                                 .andExpect(status().isNotFound());
 
-                assertEquals(Status.inactive, gym.getStatus(), "Gym should finally be inactive");
+                assertEquals(Status.inactive, gym1.getStatus(), "Gym should finally be inactive");
                 verify(gymService, times(1)).deleteGym(gymId);
                 verifyNoMoreInteractions(gymService);
         }

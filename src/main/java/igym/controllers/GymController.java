@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import igym.dtos.GymDTO;
 import igym.entities.*;
 import igym.exceptions.DuplicateGymException;
 import igym.exceptions.GymNotFoundException;
@@ -42,15 +43,15 @@ public class GymController {
      *
      * @param gym    the gym entity to create
      * @param userId the UUID of the user creating the gym
-     * @return the created gym and HTTP 201 Created status
+     * @return the created gym (as DTO) and HTTP 201 Created status
      * @throws DuplicateGymException if a gym with the same name already exists
      * @throws UserNotFoundException if the provided userId does not match any user
      */
     // When authentication process is set, change the signature of this method
     @PostMapping(value = "/gyms/{userId}", produces = "application/json")
-    public ResponseEntity<Gym> createGym(@RequestBody @Valid Gym gym, @PathVariable UUID userId) {
+    public ResponseEntity<GymDTO> createGym(@RequestBody @Valid Gym gym, @PathVariable UUID userId) {
         Gym createdGym = service.createGym(gym, userId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdGym);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new GymDTO(createdGym));
     }
 
     /**
@@ -58,26 +59,25 @@ public class GymController {
      *
      * @param id  the UUID of the gym to update
      * @param gym the gym entity containing the new name
-     * @return the updated gym with HTTP 200 OK status
+     * @return the updated gym (as DTO) with HTTP 200 OK status
      * @throws GymNotFoundException  if no gym is found with the provided ID
      * @throws DuplicateGymException if a gym with the same new name already exists
      */
     @PatchMapping(value = "/gyms/{id}", produces = "application/json")
-    public ResponseEntity<Gym> updateGym(@PathVariable("id") UUID id, @RequestBody @Valid Gym gym) {
+    public ResponseEntity<GymDTO> updateGym(@PathVariable("id") UUID id, @RequestBody @Valid Gym gym) {
         String name = gym.getName();
         Gym updatedGym = service.updateGym(id, name);
-        return ResponseEntity.ok(updatedGym);
+        return ResponseEntity.ok(new GymDTO(updatedGym));
     }
 
     /**
      * Retrieves all gyms.
      *
-     * @return a list of gyms and HTTP 200 OK status
+     * @return a list of gyms (as DTO) and HTTP 200 OK status
      */
     @GetMapping(value = "/gyms", produces = "application/json")
-    public ResponseEntity<List<Gym>> findAllGyms() {
-        List<Gym> gyms = service.findAllGyms();
-
+    public ResponseEntity<List<GymDTO>> findAllGyms() {
+        List<GymDTO> gyms = service.findAllGyms().stream().map(GymDTO::new).toList();
         return ResponseEntity.ok(gyms);
     }
 
