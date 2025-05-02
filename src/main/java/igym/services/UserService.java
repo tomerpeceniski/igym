@@ -29,9 +29,11 @@ public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserRepository repository;
+    private final GymService gymService;
 
-    public UserService(UserRepository repository) {
+    public UserService(UserRepository repository, GymService gymService) {
         this.repository = repository;
+        this.gymService = gymService;
     }
 
     /**
@@ -60,20 +62,20 @@ public class UserService {
         logger.info("Attempting to inactivate user with id {}", id);
         User user = findById(id);
         user.setStatus(Status.inactive);
-        inactivateGyms(user);
+        deleteGyms(user);
         repository.save(user);
         logger.info("User with id {} inactivated", id);
     }
 
-    private void inactivateGyms(User user) {
+    private void deleteGyms(User user) {
         List<Gym> gyms = user.getGyms();
-
-        gyms.forEach(gym -> {
-            if (gym.getStatus() == Status.active) {
-                gym.setStatus(Status.inactive);
-                logger.debug("Gym {} inactivated", gym.getId());
-            }
-        });
+        if (gyms != null && !gyms.isEmpty()) {
+            gyms.forEach(g -> {
+                if (g.getStatus() == Status.active) {
+                    gymService.deleteGym(g.getId());
+                }
+            });
+        }
     }
 
     /**
@@ -87,7 +89,7 @@ public class UserService {
     public User createUser(User user) {
         logger.info("Attempting to create a new user");
         logger.debug("User creation request with values: {}", user);
-        if (repository.existsByName(user.getName())) {
+        if (repository.existsByNameAndStatus(user.getName(), Status.active)) {
             throw new DuplicateUserException("An user with the name " + user.getName() + " already exists");
         }
         User savedUser = repository.save(user);
@@ -108,9 +110,9 @@ public class UserService {
      */
     public User updateUser(UUID id, String name) {
         logger.info("Attempting to update User with id: {}", id);
-        User user = repository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found."));
-        if (repository.existsByName(name)) {
+        User user = findById(id);
+        
+        if (repository.existsByNameAndStatus(name, Status.active)) {
             throw new DuplicateUserException("A user with the name '" + name + "' already exists.");
         }
         user.setName(name);
