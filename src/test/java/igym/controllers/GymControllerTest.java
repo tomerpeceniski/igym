@@ -268,6 +268,23 @@ public class GymControllerTest {
         }
 
         @Test
+        @DisplayName("shoud return 404 when trying to update inactive gym")
+        void testUpdateGymInactive() throws Exception {
+                gym.setStatus(Status.inactive);
+                doThrow(new GymNotFoundException("Gym with id " + gymId + " not found."))
+                                .when(gymService).updateGym(gymId, gym.getName());
+
+                mockMvc.perform(patch("/api/gyms/{gymId}", gymId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(gym)))
+                                .andExpect(status().isNotFound())
+                                .andExpect(jsonPath("$.message").value("Gym with id " + gymId + " not found."))
+                                .andExpect(jsonPath("$.error").value("Not Found"));
+
+                verify(gymService, times(1)).updateGym(gymId, gym.getName());
+        }
+
+        @Test
         @DisplayName("should return status 404 when deleting a inactive gym")
         void testDeleteGymAlreadyDeleted() throws Exception {
                 gym.setStatus(Status.inactive);
