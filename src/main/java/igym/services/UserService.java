@@ -14,6 +14,16 @@ import igym.exceptions.DuplicateUserException;
 import igym.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 
+/**
+ * Service class responsible for managing user operations,
+ * handling business logic, and interacting with the repository layer.
+ *
+ * <p>
+ * This service receives requests from the controller layer, applies necessary
+ * validations
+ * and transformations, and persists or retrieves user-related data.
+ * </p>
+ */
 @Service
 public class UserService {
 
@@ -26,6 +36,11 @@ public class UserService {
         this.gymService = gymService;
     }
 
+    /**
+     * Retrieves all users in the system.
+     *
+     * @return a list of all users
+     */
     public List<User> findAll() {
         logger.info("Fetching all users from the repository");
         List<User> users = repository.findAll();
@@ -34,6 +49,14 @@ public class UserService {
         return users;
     }
 
+    /**
+     * Performs a logical deletion (inactivation) of a user and their associated
+     * gyms.
+     *
+     * @param id the UUID of the user to inactivate
+     * @throws UserNotFoundException if the user does not exist or is already
+     *                               inactive
+     */
     @Transactional
     public void deleteUser(UUID id) {
         logger.info("Attempting to inactivate user with id {}", id);
@@ -55,6 +78,13 @@ public class UserService {
         }
     }
 
+    /**
+     * Creates a new user.
+     *
+     * @param user the user entity to be saved
+     * @return the saved user entity
+     * @throws DuplicateUserException if a user with the same name already exists
+     */
     @Transactional
     public User createUser(User user) {
         logger.info("Attempting to create a new user");
@@ -68,6 +98,16 @@ public class UserService {
         return savedUser;
     }
 
+    /**
+     * Updates the name of an existing user.
+     *
+     * @param id   the UUID of the user to update
+     * @param name the new name for the user
+     * @return the updated user entity
+     * @throws DuplicateUserException if a user with the same new name already
+     *                                exists
+     * @throws UserNotFoundException  if the user does not exist
+     */
     public User updateUser(UUID id, String name) {
         logger.info("Attempting to update User with id: {}", id);
         User user = findById(id);
@@ -82,6 +122,13 @@ public class UserService {
         return savedUser;
     }
 
+    /**
+     * Retrieves a user by their ID, ensuring they are active.
+     *
+     * @param id the UUID of the user
+     * @return the found user entity
+     * @throws UserNotFoundException if the user does not exist or is inactive
+     */
     public User findById(UUID id) {
         logger.info("Fetching user with id: {}", id);
 

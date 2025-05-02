@@ -14,6 +14,20 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.ToString;
 
+/**
+ * Represents a gym owned by a user.
+ * 
+ * <p>
+ * Each gym has a unique identifier, a name, a status (active or inactive),
+ * a timestamp of the last update, and a reference to its owner {@link User}.
+ * It also maintains a list of workouts associated with it.
+ * </p>
+ *
+ * <p>
+ * Field validations ensure that the gym's name is non-blank and within a specified length.
+ * </p>
+ */
+
 @ToString(exclude = "user")
 @Table(name = "gyms")
 @Entity
