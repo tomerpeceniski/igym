@@ -164,7 +164,9 @@ public class GymServiceTest {
         ReflectionTestUtils.setField(workout, "id", UUID.randomUUID());
         workout.setStatus(Status.active);
         workout.setExerciseList(List.of(exercise));
-        gym.setWorkouts(List.of(workout));
+        Workout workoutInactive = new Workout();
+        workoutInactive.setStatus(Status.inactive);
+        gym.setWorkouts(List.of(workout, workoutInactive));
 
         when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
 
@@ -184,6 +186,42 @@ public class GymServiceTest {
     }
 
     @Test
+    @DisplayName("should delete a gym when its workout list is empty")
+    void testDeleteGymEmptyWorkouts() {
+        UUID gymId = UUID.randomUUID();
+        Gym gym = new Gym("CrossFit Gym");
+        ReflectionTestUtils.setField(gym, "id", gymId);
+        gym.setStatus(Status.active);
+        gym.setWorkouts(List.of());
+
+        when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
+
+        gymService.deleteGym(gymId);
+
+        assertEquals(Status.inactive, gym.getStatus());
+
+        verify(gymRepository).findById(gymId);
+    }
+
+    @Test
+    @DisplayName("should delete a gym when its workout list is null")
+    void testDeleteGymNullWorkouts() {
+        UUID gymId = UUID.randomUUID();
+        Gym gym = new Gym("CrossFit Gym");
+        ReflectionTestUtils.setField(gym, "id", gymId);
+        gym.setStatus(Status.active);
+        gym.setWorkouts(null);
+
+        when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
+
+        gymService.deleteGym(gymId);
+
+        assertEquals(Status.inactive, gym.getStatus());
+
+        verify(gymRepository).findById(gymId);
+    }
+
+    @Test
     @DisplayName("should throw GymNotFoundException when attempting to delete a gym that does not exist")
     void testDeleteGymNotFound() {
         UUID gymId = UUID.randomUUID();
@@ -195,7 +233,7 @@ public class GymServiceTest {
     }
 
     @Test
-    @DisplayName("should throw GymAlreadyDeletedException when attempting to delete a inactive gym")
+    @DisplayName("should throw GymNotFoundException when attempting to delete a inactive gym")
     void testDeleteInactiveGym() {
         UUID gymId = UUID.randomUUID();
         Gym gym = new Gym("CrossFit Gym");

@@ -70,13 +70,15 @@ class UserServiceTest {
     @DisplayName("Should inactivate user and all its gyms")
     void deleteUserTest() {
         Gym gym = new Gym("Mocked Gym");
+        Gym gymInactive = new Gym("Mocked Inactive Gym");
+        gymInactive.setStatus(Status.inactive);
         Exercise exercise = new Exercise();
         exercise.setName("Mocked Exercise");
         Workout workout = new Workout();
         workout.setName("Mocked Workout");
         workout.setExerciseList(List.of(exercise));
         gym.setWorkouts(List.of(workout));
-        user1.setGyms(List.of(gym));
+        user1.setGyms(List.of(gym, gymInactive));
         when(userRepository.findById(user1.getId())).thenReturn(Optional.of(user1));
         
         doAnswer(invocation -> {
@@ -91,8 +93,29 @@ class UserServiceTest {
         userService.deleteUser(user1.getId());
         assertEquals(Status.inactive, user1.getStatus());
         assertEquals(Status.inactive, gym.getStatus());
+        assertEquals(Status.inactive, gymInactive.getStatus());
         assertEquals(Status.inactive, workout.getStatus());
         assertEquals(Status.inactive, exercise.getStatus());
+    }
+
+    @Test
+    @DisplayName("Should inactivate user when list of gyms is empty")
+    void deleteUserEmptyGyms() {
+        user1.setGyms(List.of());
+        when(userRepository.findById(user1.getId())).thenReturn(Optional.of(user1));
+        
+        userService.deleteUser(user1.getId());
+        assertEquals(Status.inactive, user1.getStatus());
+    }
+
+    @Test
+    @DisplayName("Should inactivate user when list of gyms is null")
+    void deleteUserNullGyms() {
+        user1.setGyms(null);
+        when(userRepository.findById(user1.getId())).thenReturn(Optional.of(user1));
+        
+        userService.deleteUser(user1.getId());
+        assertEquals(Status.inactive, user1.getStatus());
     }
 
     @Test

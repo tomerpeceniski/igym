@@ -163,25 +163,33 @@ class WorkoutServiceTest {
     void testDeleteWorkoutByIdSuccess() {
         UUID workoutId = UUID.randomUUID();
 
-        Exercise ex = new Exercise();
-        ex.setName("Squat");
-        ex.setWeight(60);
-        ex.setNumReps(10);
-        ex.setNumSets(4);
+        Exercise ex1 = new Exercise();
+        ex1.setName("Squat");
+        ex1.setWeight(60);
+        ex1.setNumReps(10);
+        ex1.setNumSets(4);
+
+        Exercise ex2 = new Exercise();
+        ex2.setName("Plank");
+        ex2.setWeight(60);
+        ex2.setNumReps(10);
+        ex2.setNumSets(4);
 
         Workout workout = new Workout();
         workout.setName("Leg Day");
-        workout.setExerciseList(List.of(ex));
+        workout.setExerciseList(List.of(ex1, ex2));
         workout.setStatus(Status.active);
-        ex.setStatus(Status.active);
-        ex.setWorkout(workout);
+        ex1.setStatus(Status.active);
+        ex2.setStatus(Status.inactive);
+        ex1.setWorkout(workout);
 
         when(workoutRepository.findById(workoutId)).thenReturn(java.util.Optional.of(workout));
 
         workoutService.deleteWorkout(workoutId);
 
         assertEquals(Status.inactive, workout.getStatus());
-        assertEquals(Status.inactive, ex.getStatus());
+        assertEquals(Status.inactive, ex1.getStatus());
+        assertEquals(Status.inactive, ex2.getStatus());
         verify(workoutRepository).save(workout);
     }
 
