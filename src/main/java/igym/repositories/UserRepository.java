@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.lang.NonNull;
 
 import igym.entities.User;
+import igym.entities.enums.Status;
 
 /**
  * Repository interface for managing {@link User} entities.
@@ -20,11 +21,12 @@ public interface UserRepository extends JpaRepository<User, UUID> {
      */
     public boolean existsById(@NonNull UUID id);
 
+
     /**
-     * Checks if a user with the specified name exists.
+     * Checks if a user with the specified name exists with the specified status.
      *
      * @param name the name of the user
      * @return true if a user with the given name exists, false otherwise
      */
-    public boolean existsByName(String name);
+    public boolean existsByNameAndStatus(String name, Status status);
 }

@@ -92,4 +92,13 @@ public class Gym {
     public void setUser(User user) {
         this.user = user;
     }
+
+    public List<Workout> getWorkouts() {
+        return workouts;
+    }
+
+    public void setWorkouts(List<Workout> workouts) {
+        this.workouts = workouts;
+    }
+
 }

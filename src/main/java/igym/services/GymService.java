@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import igym.repositories.GymRepository;
+import igym.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 
 import java.util.List;
@@ -29,11 +30,14 @@ public class GymService {
 
     private static final Logger logger = LoggerFactory.getLogger(GymService.class);
     private final GymRepository gymRepository;
-    private final UserService userService;
+    private final WorkoutService workoutService;
+    private final UserRepository userRepository;
 
-    public GymService(GymRepository gymRepository, UserService userService) {
+    public GymService(GymRepository gymRepository, WorkoutService workoutService,
+            UserRepository userRepository) {
         this.gymRepository = gymRepository;
-        this.userService = userService;
+        this.workoutService = workoutService;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -51,10 +55,10 @@ public class GymService {
         logger.info("Attempting to create a new gym");
         logger.debug("Gym creation request with values: {}", gym);
 
-        User user = userService.findById(userId);
+        User user = findUserById(userId);
         gym.setUser(user);
 
-        if (gymRepository.existsByNameAndUserId(gym.getName(), userId)) {
+        if (gymRepository.existsByNameAndUserIdAndStatus(gym.getName(), userId, Status.active)) {
             throw new DuplicateGymException("A gym with the name '" + gym.getName() + "' already exists for this user");
         }
 
@@ -75,14 +79,10 @@ public class GymService {
      */
     public Gym updateGym(UUID id, String name) {
         logger.info("Attempting to update Gym with id: {}", id);
-
         Gym gym = findById(id);
-        if (gymRepository.existsByName(name)) {
-            throw new DuplicateGymException("A gym with the name '" + name + "' already exists.");
-        }
-        if (gym.getStatus() == Status.inactive) {
-            logger.warn("Gym with id {} is inactive", id);
-            throw new GymNotFoundException("Gym with id " + id + " not found");
+
+        if (gymRepository.existsByNameAndUserIdAndStatus(name, gym.getUser().getId(), Status.active)) {
+            throw new DuplicateGymException("A gym with the name '" + name + "' already exists for this user");
         }
 
         gym.setName(name);
@@ -114,18 +114,26 @@ public class GymService {
      * @param id the UUID of the gym to inactivate
      * @throws GymNotFoundException if the gym does not exist or is already inactive
      */
+    @Transactional
     public void deleteGym(UUID id) {
         logger.info("Attempting to inactivate gym with id {}", id);
         Gym gym = findById(id);
 
-        if (gym.getStatus() == Status.inactive) {
-            logger.warn("Gym with id {} is inactive", id);
-            throw new GymNotFoundException("Gym with id " + id + " not found");
-        }
-
+        deleteWorkouts(gym);
         gym.setStatus(Status.inactive);
         gymRepository.save(gym);
         logger.info("Gym with id {} inactivated", id);
+    }
+
+    private void deleteWorkouts(Gym gym) {
+        List<Workout> workouts = gym.getWorkouts();
+        if (workouts != null && !workouts.isEmpty()) {
+            workouts.forEach(w -> {
+                if (w.getStatus() == Status.active) {
+                    workoutService.deleteWorkout(w.getId());
+                }
+            });
+        }
     }
 
     /**
@@ -147,6 +155,16 @@ public class GymService {
 
         logger.debug("Fetched gym: {}", gym);
         return gym;
+    }
+
+    private User findUserById(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
+        if (user.getStatus() == Status.inactive) {
+            logger.warn("User with id {} is inactive", userId);
+            throw new UserNotFoundException("User with id " + userId + " not found");
+        }
+        return user;
     }
 
 }
