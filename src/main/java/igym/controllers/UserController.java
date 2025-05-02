@@ -3,6 +3,8 @@ package igym.controllers;
 import org.springframework.web.bind.annotation.RestController;
 
 import igym.entities.User;
+import igym.exceptions.DuplicateUserException;
+import igym.exceptions.UserNotFoundException;
 import igym.services.UserService;
 import jakarta.validation.Valid;
 
@@ -21,6 +23,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
 
+/**
+ * REST controller for managing users.
+ * Provides endpoints for creating, retrieving, updating, and deleting users.
+ */
 @RestController
 @RequestMapping(value = "/users")
 @Validated
@@ -32,24 +38,52 @@ public class UserController {
         this.service = service;
     }
 
+    /**
+     * Retrieves all users.
+     *
+     * @return a list of users with HTTP 200 OK status
+     */
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<User>> findAll() {
         List<User> list = service.findAll();
         return ResponseEntity.ok().body(list);
     }
 
+    /**
+     * Deletes a user by their ID.
+     *
+     * @param id the UUID of the user to delete
+     * @return HTTP 204 No Content status if deletion is successful
+     * @throws UserNotFoundException if no user is found with the provided ID
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         service.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Creates a new user.
+     *
+     * @param user the user entity to create
+     * @return the created user and HTTP 201 Created status
+     * @throws DuplicateUserException if a user with the same name already exists
+     */
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<User> createUser(@RequestBody @Valid User user) {
         User savedUser = service.createUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
 
+    /**
+     * Updates the name of an existing user.
+     *
+     * @param id   the UUID of the user to update
+     * @param user the user entity containing the new name
+     * @return the updated user with HTTP 200 OK status
+     * @throws UserNotFoundException  if no user is found with the provided ID
+     * @throws DuplicateUserException if a user with the same new name already exists
+     */
     @PatchMapping(value = "/{id}", produces = "application/json")
     public ResponseEntity<User> updateUser(@PathVariable("id") UUID id, @RequestBody @Valid User user) {
         String name = user.getName();
