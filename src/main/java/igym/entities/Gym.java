@@ -24,7 +24,8 @@ import lombok.ToString;
  * </p>
  *
  * <p>
- * Field validations ensure that the gym's name is non-blank and within a specified length.
+ * Field validations ensure that the gym's name is non-blank and within a
+ * specified length.
  * </p>
  */
 
@@ -93,6 +94,10 @@ public class Gym {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Instant getUpdated_at() {
+        return updated_at;
     }
 
     public List<Workout> getWorkouts() {
