@@ -157,6 +157,13 @@ public class GymService {
         return gym;
     }
 
+       /**
+     * Retrieves a gym by its {@link User} ID, ensuring it is active.
+     *
+     * @param userId the UUID of the owner {@link User}
+     * @return the found gym entity
+     * @throws UserNotFoundException if the User does not exist or is inactive
+     */
     public List<Gym> findGymsByUserId(UUID userId) {
         logger.info("Fetching gyms for user with id: {}", userId);
     

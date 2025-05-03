@@ -4,15 +4,19 @@ import igym.entities.Exercise;
 import igym.entities.Gym;
 import igym.entities.Workout;
 import igym.entities.enums.Status;
+import igym.exceptions.ExerciseNotFoundException;
 import igym.exceptions.GymNotFoundException;
 import igym.exceptions.WorkoutNotFoundException;
+import igym.repositories.ExerciseRepository;
 import igym.repositories.GymRepository;
 import igym.repositories.WorkoutRepository;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +34,9 @@ class WorkoutServiceTest {
 
     @Mock
     private WorkoutRepository workoutRepository;
+
+    @Mock
+    private ExerciseRepository exerciseRepository;
 
     @Mock
     private GymRepository gymRepository;
@@ -92,7 +99,7 @@ class WorkoutServiceTest {
         workout.setExerciseList(List.of(ex));
 
         when(gymRepository.findById(gymId)).thenReturn(Optional.empty());
-    
+
         GymNotFoundException exception = assertThrows(
                 GymNotFoundException.class,
                 () -> workoutService.createWorkout(workout, gymId));
@@ -310,17 +317,31 @@ class WorkoutServiceTest {
     }
 
     @Test
-    @DisplayName("Test succesfully update workout and its exercises")
-    void testUpdateWorkout() {
-        UUID workoutId = UUID.randomUUID();
+    @DisplayName("Test soft delete of existing exercise in workout")
+    void testDeleteExerciseByIdSuccess() {
+        UUID exerciseId = UUID.randomUUID();
 
         Exercise ex1 = new Exercise();
         ex1.setName("Squat");
         ex1.setWeight(60);
         ex1.setNumReps(10);
         ex1.setNumSets(4);
+        ex1.setStatus(Status.active);
+        ReflectionTestUtils.setField(ex1, "id", exerciseId);
 
+        when(exerciseRepository.findByIdAndStatus(exerciseId, Status.active)).thenReturn(java.util.Optional.of(ex1));
+
+        workoutService.deleteExercise(exerciseId);
+
+        assertEquals(Status.inactive, ex1.getStatus());
+    }
+
+    @Test
+    @DisplayName("Test succesfully update workout and its exercises")
+    void testUpdateWorkout() {
+        UUID workoutId = UUID.randomUUID();
         Workout existingWorkout = new Workout();
+        Exercise ex1 = new Exercise();
         existingWorkout.setName("Leg Day");
         existingWorkout.setExerciseList(new ArrayList<>(List.of(ex1)));
         existingWorkout.setStatus(Status.active);
@@ -406,17 +427,56 @@ class WorkoutServiceTest {
         assertEquals(Status.inactive, existingWorkout.getStatus());
     }
 
+
     @Test
-    @DisplayName("Test update workout and its exercises trying to set the status to inactive should return a workout and it's exercises with status active")
-    void testUpdateWorkoutAndItsExercisesTryingToSetStatusToInactive() {
-        UUID workoutId = UUID.randomUUID();
+    @DisplayName("Test delete exercise when exercise not found in workout throws exception")
+    void testDeleteExerciseNotFoundInWorkout() {
+        UUID exerciseId = UUID.randomUUID();
+        UUID nonExistentExerciseId = UUID.randomUUID();
+        Exercise ex1 = new Exercise();
+        ex1.setName("Squat");
+        ex1.setWeight(60);
+        ex1.setNumReps(10);
+        ex1.setNumSets(4);
+        ex1.setStatus(Status.active);
+        ReflectionTestUtils.setField(ex1, "id", exerciseId);
+
+        when(exerciseRepository.findByIdAndStatus(nonExistentExerciseId, Status.active)).thenReturn(Optional.empty());
+
+        ExerciseNotFoundException exception = assertThrows(ExerciseNotFoundException.class,
+                () -> workoutService.deleteExercise(nonExistentExerciseId));
+
+        assertEquals("Exercise with id " + nonExistentExerciseId + " not found", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Test delete exercise when exercise already inactive throws exception")
+    void testDeleteExerciseAlreadyInactive() {
+        UUID exerciseId = UUID.randomUUID();
 
         Exercise ex1 = new Exercise();
         ex1.setName("Squat");
         ex1.setWeight(60);
         ex1.setNumReps(10);
         ex1.setNumSets(4);
+        ex1.setStatus(Status.inactive);
+        ReflectionTestUtils.setField(ex1, "id", exerciseId);
 
+        when(exerciseRepository.findByIdAndStatus(exerciseId, Status.active)).thenReturn(Optional.empty());
+
+        ExerciseNotFoundException exception = assertThrows(ExerciseNotFoundException.class,
+                () -> workoutService.deleteExercise(exerciseId));
+
+        assertEquals("Exercise with id " + exerciseId + " not found", exception.getMessage());
+        assertEquals(Status.inactive, ex1.getStatus());
+    }
+
+
+    @Test
+    @DisplayName("Test update workout and its exercises trying to set the status to inactive should return a workout and it's exercises with status active")
+    void testUpdateWorkoutAndItsExercisesTryingToSetStatusToInactive() {
+        UUID workoutId = UUID.randomUUID();
+        Exercise ex1 = new Exercise();
         Workout existingWorkout = new Workout();
         existingWorkout.setName("Leg Day");
         existingWorkout.setExerciseList(new ArrayList<>(List.of(ex1)));

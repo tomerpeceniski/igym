@@ -6,6 +6,8 @@ import igym.entities.Workout;
 import igym.entities.enums.Status;
 import igym.exceptions.GymNotFoundException;
 import igym.exceptions.WorkoutNotFoundException;
+import igym.exceptions.ExerciseNotFoundException;
+import igym.repositories.ExerciseRepository;
 import igym.repositories.GymRepository;
 import igym.repositories.WorkoutRepository;
 import jakarta.transaction.Transactional;
@@ -35,8 +37,11 @@ public class WorkoutService {
 
     private final WorkoutRepository workoutRepository;
     private final GymRepository gymRepository;
+    private final ExerciseRepository exerciseRepository;
 
-    public WorkoutService(WorkoutRepository workoutRepository, GymRepository gymRepository) {
+    public WorkoutService(WorkoutRepository workoutRepository, GymRepository gymRepository,
+            ExerciseRepository exerciseRepository) {
+        this.exerciseRepository = exerciseRepository;
         this.workoutRepository = workoutRepository;
         this.gymRepository = gymRepository;
     }
@@ -83,6 +88,7 @@ public class WorkoutService {
      *                              or is inactive
      */
     public List<Workout> getWorkoutsByGymId(UUID gymId) {
+        logger.info("Fetching Workouts for Gym with ID {}", gymId);
         Gym gym = findGymById(gymId);
         List<Workout> workouts = workoutRepository.findByGymAndStatus(gym, Status.active);
 
@@ -94,7 +100,7 @@ public class WorkoutService {
                 workout.setExerciseList(activeExercises);
             }
         });
-
+        logger.info("Found {} active workouts for gym {}", workouts.size(), gymId);
         return workouts;
     }
 
@@ -109,18 +115,16 @@ public class WorkoutService {
     @Transactional
     public void deleteWorkout(UUID workoutId) {
         logger.info("Attempting to inactivate workout with id: {}", workoutId);
-
         Workout workout = findByIdAndStatus(workoutId, Status.active);
-
         workout.setStatus(Status.inactive);
 
-        deleteExerciesList(workout);
+        deleteExercisesList(workout);
 
         workoutRepository.save(workout);
-        logger.info("Workout with id {} have been inactivated", workoutId);
+        logger.info("Workout with id {} inactivated", workoutId);
     }
 
-    private void deleteExerciesList(Workout workout) {
+    private void deleteExercisesList(Workout workout) {
         List<Exercise> exercises = workout.getExerciseList();
         if (exercises != null) {
             exercises.forEach(e -> {
@@ -132,6 +136,32 @@ public class WorkoutService {
         }
     }
 
+    /**
+     * Soft deletes an exercise by marking its status as {@code Status.inactive}.
+     *
+     * @param exerciseId the UUID of the exercise to soft delete
+     * @throws WorkoutNotFoundException if the workout or exercise with the provided
+     *                                  IDs do not exist or are already inactive
+     */
+    @Transactional
+    public void deleteExercise(UUID exerciseId) {
+        logger.info("Attempting to inactivate exercise with id: {}", exerciseId);
+
+        Exercise exercise = exerciseRepository.findByIdAndStatus(exerciseId, Status.active)
+                .orElseThrow(() -> new ExerciseNotFoundException("Exercise with id " + exerciseId + " not found"));
+
+        exercise.setStatus(Status.inactive);
+        logger.info("Exercise with id {} has been inactivated", exerciseId);
+    }
+
+    /**
+     * Fetch Workout by its ID, ensuring it is active.
+     *
+     * @param id the UUID of the workout to be fetched
+     * @return the found workout
+     * @throws WorkoutNotFoundException if the workout with the provided ID does not
+     *                                  exist or is inactive
+     */
     public Workout findById(UUID id) {
         Workout workout = workoutRepository.findById(id)
                 .orElseThrow(() -> {
@@ -165,9 +195,7 @@ public class WorkoutService {
     public Workout updateWorkout(UUID workoutId, Workout updatedWorkout) {
         logger.info("Attempting to update workout with id: {}", workoutId);
         logger.debug("Update request with values: {}", updatedWorkout);
-
         Workout existingWorkout = findByIdAndStatus(workoutId, Status.active);
-
         existingWorkout.setName(updatedWorkout.getName());
 
         List<Exercise> updatedExercises = updatedWorkout.getExerciseList() != null

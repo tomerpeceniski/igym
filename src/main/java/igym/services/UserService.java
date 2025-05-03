@@ -138,7 +138,7 @@ public class UserService {
             logger.warn("User with id {} is inactive", id);
             throw new UserNotFoundException("User with id " + id + " not found");
         }
-
+        logger.info("User with id {} fetched successfully", id);
         logger.debug("Fetched user: {}", user);
         return user;
     }

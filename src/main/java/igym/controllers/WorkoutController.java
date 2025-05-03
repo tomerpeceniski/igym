@@ -76,9 +76,29 @@ public class WorkoutController {
     }
 
     /**
+     * Soft deletes an exercise by marking its status as {@code Status.inactive}.
+     * This does not remove the exercise from the database.
+     * 
+     * <p>
+     * This operation allows for logical deletion, useful for auditing and potential
+     * recovery.
+     * </p>
+     * 
+     * @param exerciseId the UUID of the exercise to delete
+     * @return {@link ResponseEntity#noContent()} if the deletion was successful
+     * @throws ExerciseNotFoundException if no exercise is found with the given ID
+     */
+    @DeleteMapping("/exercises/{id}")
+    public ResponseEntity<Void> deleteExercise(@PathVariable("id") UUID exerciseId) {
+        workoutService.deleteExercise(exerciseId);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
      * Retrieves a updated workout by its ID.
      * 
      * @param workoutId the ID of the workout to retrieve
+     * @throws WorkoutNotFoundException if no workout is found with the given ID
      * @return the workout with the specified ID (as DTO) and HTTP 200 status
      */
     @PatchMapping(value = "/workouts/{id}", produces = "application/json")
