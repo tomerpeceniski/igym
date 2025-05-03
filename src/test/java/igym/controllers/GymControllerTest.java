@@ -315,19 +315,15 @@ public class GymControllerTest {
         @Test
         @DisplayName("should return active gyms for a given user ID")
         void testGetGymsByUserIdSuccess() throws Exception {
-                Gym gymA = new Gym("Gym A");
-                Gym gymB = new Gym("Gym B");
-                gymA.setStatus(Status.active);
-                gymB.setStatus(Status.active);
-                List<Gym> gyms = List.of(gymA, gymB);
+                List<Gym> gyms = List.of(gym1, gym2);
 
                 when(gymService.findGymsByUserId(userId)).thenReturn(gyms);
 
                 mockMvc.perform(get("/api/users/{userId}/gyms", userId))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.length()").value(2))
-                                .andExpect(jsonPath("$[0].name").value("Gym A"))
-                                .andExpect(jsonPath("$[1].name").value("Gym B"));
+                                .andExpect(jsonPath("$[0].name").value("Location 1"))
+                                .andExpect(jsonPath("$[1].name").value("Location 2"));
 
                 verify(gymService).findGymsByUserId(userId);
         }
