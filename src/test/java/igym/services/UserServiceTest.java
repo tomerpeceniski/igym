@@ -50,18 +50,19 @@ class UserServiceTest {
     @Test
     @DisplayName("Should return the list of saved users")
     void findAllTest() {
-        List<User> users = new ArrayList<>();
-        users.add(user1);
-        users.add(user2);
-        when(userRepository.findAll()).thenReturn(users);
+        List<User> users = List.of(user1, user2);
+        
+        when(userRepository.findByStatus(Status.active)).thenReturn(users);
+
         List<User> listUsers = userService.findAll();
-        assertIterableEquals(listUsers, users);
+        assertThat(listUsers).hasSize(2);
+        assertThat(listUsers).containsExactlyInAnyOrderElementsOf(users);
     }
 
     @Test
     @DisplayName("Should return an empty list if no user was saved")
     void emptyListTest() {
-        when(userRepository.findAll()).thenReturn(List.of());
+        when(userRepository.findByStatus(Status.active)).thenReturn(List.of());
         List<User> list = userService.findAll();
         assertTrue(list.isEmpty());
     }

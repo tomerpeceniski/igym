@@ -33,7 +33,7 @@ public interface GymRepository extends JpaRepository<Gym, UUID> {
     boolean existsByNameAndUserIdAndStatus(String name, UUID userId, Status status);
 
     /**
-     * finds all gyms by its status
+     * Finds all gyms by its status
      * @param status
      * @return a list of gyms with the given status
      */
