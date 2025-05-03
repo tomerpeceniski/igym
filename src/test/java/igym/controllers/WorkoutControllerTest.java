@@ -3,6 +3,7 @@ package igym.controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import igym.entities.Exercise;
+import igym.entities.Gym;
 import igym.entities.Workout;
 import igym.exceptions.WorkoutNotFoundException;
 import igym.services.WorkoutService;
@@ -47,22 +48,29 @@ public class WorkoutControllerTest {
 
         private final ObjectMapper objectMapper = new ObjectMapper();
 
-        private Workout workout;
-        UUID gymId = UUID.randomUUID();
+        Workout workout;
+        UUID gymId;
+        Gym gym;
 
         @BeforeEach
         void setUp() {
+                gym = new Gym("Mocked Gym");
+                gymId = UUID.randomUUID();
+                ReflectionTestUtils.setField(gym, "id", gymId);
+
                 Exercise ex = new Exercise();
+                ReflectionTestUtils.setField(ex, "id", UUID.randomUUID());
                 ex.setName("Squat");
                 ex.setWeight(60);
                 ex.setNumReps(10);
                 ex.setNumSets(3);
 
                 workout = new Workout();
+                ReflectionTestUtils.setField(workout, "id", UUID.randomUUID());
                 workout.setName("Leg Day");
                 workout.setExerciseList(List.of(ex));
-
-                ReflectionTestUtils.setField(workout, "id", UUID.randomUUID());
+                workout.setGym(gym);
+                ex.setWorkout(workout);
         }
 
         @Test
@@ -199,34 +207,28 @@ public class WorkoutControllerTest {
         @Test
         @DisplayName("should return all workouts for a given gym")
         void testGetWorkoutsByGymId() throws Exception {
-                Exercise ex1 = new Exercise();
-                ex1.setName("Pushup");
-                ex1.setWeight(0);
-                ex1.setNumReps(15);
-                ex1.setNumSets(3);
-
                 Exercise ex2 = new Exercise();
-                ex2.setName("Squat");
-                ex2.setWeight(40);
-                ex2.setNumReps(10);
-                ex2.setNumSets(4);
-
-                Workout workout1 = new Workout();
-                workout1.setName("Upper Body");
-                workout1.setExerciseList(List.of(ex1));
+                ReflectionTestUtils.setField(ex2, "id", UUID.randomUUID());
+                ex2.setName("Pushup");
+                ex2.setWeight(0);
+                ex2.setNumReps(15);
+                ex2.setNumSets(3);
 
                 Workout workout2 = new Workout();
-                workout2.setName("Leg Day");
+                ReflectionTestUtils.setField(workout2, "id", UUID.randomUUID());
+                workout2.setName("Upper Body");
                 workout2.setExerciseList(List.of(ex2));
+                workout2.setGym(gym);
+                ex2.setWorkout(workout2);
 
-                when(workoutService.getWorkoutsByGymId(gymId)).thenReturn(List.of(workout1, workout2));
+                when(workoutService.getWorkoutsByGymId(gymId)).thenReturn(List.of(workout, workout2));
 
                 mockMvc.perform(get("/api/gyms/{gymId}/workouts", gymId)
                                 .contentType(MediaType.APPLICATION_JSON))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.length()").value(2))
-                                .andExpect(jsonPath("$[0].name").value("Upper Body"))
-                                .andExpect(jsonPath("$[1].name").value("Leg Day"));
+                                .andExpect(jsonPath("$[0].name").value("Leg Day"))
+                                .andExpect(jsonPath("$[1].name").value("Upper Body"));
 
                 verify(workoutService, times(1)).getWorkoutsByGymId(gymId);
 
