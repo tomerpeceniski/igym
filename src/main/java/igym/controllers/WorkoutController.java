@@ -1,5 +1,6 @@
 package igym.controllers;
 
+import igym.dtos.WorkoutDTO;
 import igym.entities.Workout;
 import igym.exceptions.GymNotFoundException;
 import igym.exceptions.WorkoutNotFoundException;
@@ -32,27 +33,27 @@ public class WorkoutController {
      *
      * @param gymId   the UUID of the gym where the workout will be created
      * @param workout the workout entity to be created
-     * @return the created workout with HTTP 201 Created status
+     * @return the created workout (as DTO) with HTTP 201 Created status
      * @throws GymNotFoundException if no gym is found with the provided ID
      */
     @PostMapping(value = "/gyms/{gymId}/workouts", produces = "application/json")
-    public ResponseEntity<Workout> createWorkout(
+    public ResponseEntity<WorkoutDTO> createWorkout(
             @PathVariable UUID gymId,
             @RequestBody @Valid Workout workout) {
         Workout createdWorkout = workoutService.createWorkout(workout, gymId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdWorkout);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new WorkoutDTO(createdWorkout));
     }
 
     /**
      * Retrieves all workouts for a specific gym via GET request.
      * 
      * @param gymId the ID of the gym
-     * @return a list of workouts and HTTP 200 status
+     * @return a list of workouts (as DTO) and HTTP 200 status
      * @throws GymNotFoundException if no gym is found with the provided ID
      */
     @GetMapping(value = "/gyms/{gymId}/workouts", produces = "application/json")
-    public ResponseEntity<List<Workout>> getWorkoutsByGymId(@PathVariable UUID gymId) {
-        List<Workout> workouts = workoutService.getWorkoutsByGymId(gymId);
+    public ResponseEntity<List<WorkoutDTO>> getWorkoutsByGymId(@PathVariable UUID gymId) {
+        List<WorkoutDTO> workouts = workoutService.getWorkoutsByGymId(gymId).stream().map(WorkoutDTO::new).toList();
         return ResponseEntity.ok(workouts);
     }
 
@@ -61,10 +62,8 @@ public class WorkoutController {
      * as {@code Status.inactive}. This does not remove the workout from the
      * database.
      *
-     * <p>
      * This operation allows for logical deletion, useful for auditing and potential
      * recovery.
-     * </p>
      *
      * @param workoutId the UUID of the workout to delete
      * @return {@link ResponseEntity#noContent()} if the deletion was successful
@@ -80,13 +79,13 @@ public class WorkoutController {
      * Retrieves a updated workout by its ID.
      * 
      * @param workoutId the ID of the workout to retrieve
-     * @return the workout with the specified ID and HTTP 200 status
+     * @return the workout with the specified ID (as DTO) and HTTP 200 status
      */
     @PatchMapping(value = "/workouts/{id}", produces = "application/json")
-    public ResponseEntity<Workout> updateWorkout(@PathVariable("id") UUID workoutId,
+    public ResponseEntity<WorkoutDTO> updateWorkout(@PathVariable("id") UUID workoutId,
             @RequestBody @Valid Workout workout) {
         Workout updatedWorkout = workoutService.updateWorkout(workoutId, workout);
-        return ResponseEntity.ok(updatedWorkout);
+        return ResponseEntity.ok(new WorkoutDTO(updatedWorkout));
     }
 
 }
