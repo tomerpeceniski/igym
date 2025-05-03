@@ -127,7 +127,6 @@ public class WorkoutService {
     /**
      * Soft deletes an exercise by marking its status as {@code Status.inactive}.
      *
-     * @param workoutId  the UUID of the workout containing the exercise
      * @param exerciseId the UUID of the exercise to soft delete
      * @throws WorkoutNotFoundException if the workout or exercise with the provided
      *                                  IDs do not exist or are already inactive

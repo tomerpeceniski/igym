@@ -9,14 +9,17 @@ import java.util.UUID;
 
 /**
  * Repository interface for managing Exercise entities.
- * This interface extends JpaRepository to provide CRUD operations and custom query methods.
+ * This interface extends JpaRepository to provide CRUD operations and custom
+ * query methods.
  */
 public interface ExerciseRepository extends JpaRepository<Exercise, UUID> {
     /**
-     * Checks if an exercise with the specified name exists.
+     * Retrieves an active exercise by its ID.
      *
-     * @param name the name of the exercise
-     * @return true if an exercise with the given name exists, false otherwise
+     * @param id     the UUID of the exercise
+     * @param status the status to filter by (usually {@code Status.active})
+     * @return an {@code Optional} containing the exercise if found, or empty if not
+     *         found
      */
     Optional<Exercise> findByIdAndStatus(UUID id, Status status);
 }
