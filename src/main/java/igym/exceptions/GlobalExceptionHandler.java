@@ -149,4 +149,18 @@ public class GlobalExceptionHandler {
         Map<String, Object> body = buildResponseBody(HttpStatus.NOT_FOUND, ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
+
+    /**
+     * Handles requests for exercises that do not exist in the system or are
+     * inactive.
+     *
+     * @param ex the thrown {@link ExerciseNotFoundException}
+     * @return a {@link ResponseEntity} with status 404 Not Found and error details
+     */
+    @ExceptionHandler(ExerciseNotFoundException.class)
+    public ResponseEntity<Object> handleExerciseNotFoundException(ExerciseNotFoundException ex) {
+        logger.error(ex.getMessage());
+        Map<String, Object> body = buildResponseBody(HttpStatus.NOT_FOUND, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
 }

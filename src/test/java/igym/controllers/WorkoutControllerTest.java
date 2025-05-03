@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import igym.entities.Exercise;
 import igym.entities.Gym;
 import igym.entities.Workout;
+import igym.exceptions.ExerciseNotFoundException;
 import igym.exceptions.WorkoutNotFoundException;
 import igym.services.WorkoutService;
 import org.junit.jupiter.api.BeforeEach;
@@ -261,7 +262,33 @@ public class WorkoutControllerTest {
         }
 
         @Test
-        @DisplayName("shoudl return 200 OK when updating a workout and its exercises")
+        @DisplayName("should return 204 No Content when deleting existing exercise")
+        void testDeleteExerciseSuccess() throws Exception {
+                UUID exerciseId = UUID.randomUUID();
+
+                doNothing().when(workoutService).deleteExercise(exerciseId);
+
+                mockMvc.perform(delete("/api/exercises/{id}", exerciseId))
+                                .andExpect(status().isNoContent());
+
+                verify(workoutService, times(1)).deleteExercise(exerciseId);
+        }
+
+        @Test
+        @DisplayName("should return 404 Not Found when exercise does not exist")
+        void testDeleteExerciseNotFound() throws Exception {
+                UUID exerciseId = UUID.randomUUID();
+
+                doThrow(new ExerciseNotFoundException("Exercise not found")).when(workoutService)
+                                .deleteExercise(exerciseId);
+
+                mockMvc.perform(delete("/api/exercises/{id}", exerciseId))
+                                .andExpect(status().isNotFound());
+
+                verify(workoutService, times(1)).deleteExercise(exerciseId);
+        }
+
+        @DisplayName("should return 200 OK when updating a workout and its exercises")
         void testUpdateWorkout() throws Exception {
                 UUID workoutId = UUID.randomUUID();
 
