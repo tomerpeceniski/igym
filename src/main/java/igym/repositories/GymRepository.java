@@ -1,5 +1,6 @@
 package igym.repositories;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,4 +32,5 @@ public interface GymRepository extends JpaRepository<Gym, UUID> {
      */
     boolean existsByNameAndUserIdAndStatus(String name, UUID userId, Status status);
 
+    List<Gym> findByUserIdAndStatus(UUID userId, Status status);
 }

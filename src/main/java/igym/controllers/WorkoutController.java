@@ -77,6 +77,7 @@ public class WorkoutController {
     }
 
     /**
+     * <<<<<<< HEAD
      * Soft deletes an exercise by marking its status as {@code Status.inactive}.
      * This does not remove the exercise from the database.
      * 
@@ -93,6 +94,19 @@ public class WorkoutController {
     public ResponseEntity<Void> deleteExercise(@PathVariable("id") UUID exerciseId) {
         workoutService.deleteExercise(exerciseId);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Retrieves a updated workout by its ID.
+     * 
+     * @param workoutId the ID of the workout to retrieve
+     * @return the workout with the specified ID and HTTP 200 status
+     */
+    @PatchMapping(value = "/workouts/{id}", produces = "application/json")
+    public ResponseEntity<Workout> updateWorkout(@PathVariable("id") UUID workoutId,
+            @RequestBody @Valid Workout workout) {
+        Workout updatedWorkout = workoutService.updateWorkout(workoutId, workout);
+        return ResponseEntity.ok(updatedWorkout);
     }
 
 }

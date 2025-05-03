@@ -157,6 +157,18 @@ public class GymService {
         return gym;
     }
 
+    public List<Gym> findGymsByUserId(UUID userId) {
+        logger.info("Fetching gyms for user with id: {}", userId);
+    
+        // validating existence of user with id
+        findUserById(userId);
+    
+        List<Gym> gyms = gymRepository.findByUserIdAndStatus(userId, Status.active);
+    
+        logger.info("Found {} active gyms for user {}", gyms.isEmpty() ? 0 : gyms.size(), userId);
+        return gyms;
+    }
+    
     private User findUserById(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
