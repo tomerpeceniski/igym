@@ -2,6 +2,7 @@ package igym.controllers;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import igym.dtos.UserDTO;
 import igym.entities.User;
 import igym.exceptions.DuplicateUserException;
 import igym.exceptions.UserNotFoundException;
@@ -41,11 +42,11 @@ public class UserController {
     /**
      * Retrieves all users.
      *
-     * @return a list of users with HTTP 200 OK status
+     * @return a list of users (as DTO) with HTTP 200 OK status
      */
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<User>> findAll() {
-        List<User> list = service.findAll();
+    public ResponseEntity<List<UserDTO>> findAll() {
+        List<UserDTO> list = service.findAll().stream().map(UserDTO::new).toList();
         return ResponseEntity.ok().body(list);
     }
 
@@ -66,13 +67,13 @@ public class UserController {
      * Creates a new user.
      *
      * @param user the user entity to create
-     * @return the created user and HTTP 201 Created status
+     * @return the created user (as DTO) and HTTP 201 Created status
      * @throws DuplicateUserException if a user with the same name already exists
      */
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<User> createUser(@RequestBody @Valid User user) {
+    public ResponseEntity<UserDTO> createUser(@RequestBody @Valid User user) {
         User savedUser = service.createUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new UserDTO(savedUser));
     }
 
     /**
@@ -80,14 +81,14 @@ public class UserController {
      *
      * @param id   the UUID of the user to update
      * @param user the user entity containing the new name
-     * @return the updated user with HTTP 200 OK status
+     * @return the updated user (as DTO) with HTTP 200 OK status
      * @throws UserNotFoundException  if no user is found with the provided ID
      * @throws DuplicateUserException if a user with the same new name already exists
      */
     @PatchMapping(value = "/{id}", produces = "application/json")
-    public ResponseEntity<User> updateUser(@PathVariable("id") UUID id, @RequestBody @Valid User user) {
+    public ResponseEntity<UserDTO> updateUser(@PathVariable("id") UUID id, @RequestBody @Valid User user) {
         String name = user.getName();
         User updatedUser = service.updateUser(id, name);
-        return ResponseEntity.ok(updatedUser);
+        return ResponseEntity.ok(new UserDTO(updatedUser));
     }
 }
