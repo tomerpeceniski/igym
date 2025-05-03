@@ -1,5 +1,6 @@
 package igym.services;
 
+import igym.dtos.WorkoutDTO;
 import igym.entities.Exercise;
 import igym.entities.Gym;
 import igym.entities.Workout;
@@ -84,7 +85,9 @@ public class WorkoutService {
      */
     public List<Workout> getWorkoutsByGymId(UUID gymId) {
         Gym gym = findGymById(gymId);
-        return workoutRepository.findByGym(gym);
+        return workoutRepository.findByGym(gym).stream()
+                .filter(w -> w.getStatus() == Status.active)
+                .toList();
     }
 
     /**

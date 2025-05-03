@@ -181,7 +181,7 @@ public class GymControllerTest {
         void testFindAllGymsError() throws Exception {
                 when(gymService.findAll()).thenThrow(new RuntimeException("Internal server error"));
 
-                mockMvc.perform(get("/api/"))
+                mockMvc.perform(get("/api/gyms"))
                                 .andExpect(status().isInternalServerError());
 
                 verify(gymService, times(1)).findAll();
