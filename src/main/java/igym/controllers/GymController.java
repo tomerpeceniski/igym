@@ -89,8 +89,8 @@ public class GymController {
      * @throws GymNotFoundException  if the user has no active gyms
      */
     @GetMapping(value = "/users/{userId}/gyms", produces = "application/json")
-    public ResponseEntity<List<Gym>> getGymsByUserId(@PathVariable UUID userId) {
-        List<Gym> gyms = service.findGymsByUserId(userId);
+    public ResponseEntity<List<GymDTO>> getGymsByUserId(@PathVariable UUID userId) {
+        List<GymDTO> gyms = service.findGymsByUserId(userId).stream().map(GymDTO::new).toList();
         return ResponseEntity.ok(gyms);
     }
 

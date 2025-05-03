@@ -55,9 +55,6 @@ public class Workout {
     @Column(nullable = false)
     private Status status = Status.active;
 
-    @UpdateTimestamp
-    private Instant updated_at;
-
     @NotEmpty(message = "Workout must contain at least one exercise")
     @OneToMany(mappedBy = "workout", cascade = CascadeType.ALL)
     @Valid
