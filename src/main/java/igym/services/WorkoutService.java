@@ -107,17 +107,17 @@ public class WorkoutService {
 
         workout.setStatus(Status.inactive);
 
-        deleteExerciesList(workout);
+        deleteExercisesList(workout);
 
         workoutRepository.save(workout);
         logger.info("Workout with id {} have been inactivated", workoutId);
     }
 
-    private void deleteExerciesList(Workout workout) {
+    private void deleteExercisesList(Workout workout) {
         List<Exercise> exercises = workout.getExerciseList();
         if (exercises != null) {
             exercises.forEach(e -> {
-                if (e.getStatus() == Status.active) {
+                if (e.getStatus() == Status.active) {   
                     e.setStatus(Status.inactive);
                     logger.info("Exercise {} inactivated", e.getId());
                 }

@@ -77,7 +77,6 @@ public class WorkoutController {
     }
 
     /**
-     * <<<<<<< HEAD
      * Soft deletes an exercise by marking its status as {@code Status.inactive}.
      * This does not remove the exercise from the database.
      * 
