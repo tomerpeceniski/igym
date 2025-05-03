@@ -38,7 +38,6 @@ public record WorkoutDTO(
                 workout.getUpdated_at(),
                 workout.getGym().getId(),
                 workout.getExerciseList().stream()
-                        .filter(ex -> ex.getStatus() == Status.active)
                         .map(ExerciseDTO::new)
                         .collect(Collectors.toList()));
     }

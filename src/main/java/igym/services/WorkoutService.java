@@ -84,7 +84,18 @@ public class WorkoutService {
      */
     public List<Workout> getWorkoutsByGymId(UUID gymId) {
         Gym gym = findGymById(gymId);
-        return workoutRepository.findByGymAndStatus(gym, Status.active);
+        List<Workout> workouts = workoutRepository.findByGymAndStatus(gym, Status.active);
+
+        workouts.forEach(workout -> {
+            if (workout.getExerciseList() != null) {
+                List<Exercise> activeExercises = workout.getExerciseList().stream()
+                        .filter(e -> e.getStatus() == Status.active)
+                        .toList();
+                workout.setExerciseList(activeExercises);
+            }
+        });
+
+        return workouts;
     }
 
     /**

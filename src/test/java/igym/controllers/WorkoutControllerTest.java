@@ -234,38 +234,6 @@ public class WorkoutControllerTest {
 
         }
 
-        @Test
-        @DisplayName("should return workout with empty exercise list when exercises are inactive")
-        void testGetWorkoutWithInactiveExercises() throws Exception {
-                Exercise inactiveExercise = new Exercise();
-                ReflectionTestUtils.setField(inactiveExercise, "id", UUID.randomUUID());
-                inactiveExercise.setName("Deadlift");
-                inactiveExercise.setWeight(100);
-                inactiveExercise.setNumReps(8);
-                inactiveExercise.setNumSets(3);
-                inactiveExercise.setStatus(igym.entities.enums.Status.inactive);
-
-                Workout workoutWithInactiveExercise = new Workout();
-                ReflectionTestUtils.setField(workoutWithInactiveExercise, "id", UUID.randomUUID());
-                workoutWithInactiveExercise.setName("Back Day");
-                workoutWithInactiveExercise.setStatus(igym.entities.enums.Status.active);
-                workoutWithInactiveExercise.setExerciseList(List.of(inactiveExercise));
-                workoutWithInactiveExercise.setGym(gym);
-                inactiveExercise.setWorkout(workoutWithInactiveExercise);
-
-                when(workoutService.getWorkoutsByGymId(gymId)).thenReturn(List.of(workoutWithInactiveExercise));
-
-                mockMvc.perform(get("/api/gyms/{gymId}/workouts", gymId)
-                                .contentType(MediaType.APPLICATION_JSON))
-                                .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.length()").value(1))
-                                .andExpect(jsonPath("$[0].name").value("Back Day"))
-                                .andExpect(jsonPath("$[0].exerciseList").isArray())
-                                .andExpect(jsonPath("$[0].exerciseList").isEmpty());
-
-                verify(workoutService, times(1)).getWorkoutsByGymId(gymId);
-        }
-
         @DisplayName("should return 204 No Content when deleting existing workout")
         void testDeleteWorkoutSuccess() throws Exception {
                 UUID workoutId = UUID.randomUUID();
