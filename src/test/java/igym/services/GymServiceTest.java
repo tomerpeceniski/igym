@@ -128,23 +128,30 @@ public class GymServiceTest {
     }
 
     @Test
-    @DisplayName("should return all gyms from the repository")
+    @DisplayName("should return all active gyms from the repository")
     void testFindAllGyms() {
         List<Gym> gyms = List.of(new Gym("Gym A"), new Gym("Gym B"), new Gym("Gym C"));
 
-        when(gymRepository.findAll()).thenReturn(gyms);
+        when(gymRepository.findByStatus(Status.active)).thenReturn(gyms);
 
-        List<Gym> result = gymService.findAllGyms();
+        List<Gym> result = gymService.findAll();
 
         assertThat(result).hasSize(3);
         assertThat(result).containsExactlyInAnyOrderElementsOf(gyms);
     }
 
     @Test
-    @DisplayName("the service should return an empty list if there are no gyms in the repository")
-    void testGymsNotFound() {
-        List<Gym> gyms = gymService.findAllGyms();
-        assertThat(gyms).isEmpty();
+    @DisplayName("the service should return an empty list if there are no gyms in the repository or all are inactive")
+    void testFindAllGymsEmpty() {
+        Gym gym = new Gym("Gym A");
+        ReflectionTestUtils.setField(gym, "id", UUID.randomUUID());
+        gym.setStatus(Status.inactive);
+
+        when(gymRepository.findByStatus(Status.active)).thenReturn(List.of());
+
+        List<Gym> result = gymService.findAll();
+
+        assertThat(result).isEmpty();
     }
 
     @Test

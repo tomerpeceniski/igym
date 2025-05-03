@@ -166,25 +166,25 @@ public class GymControllerTest {
         @DisplayName("should return all the gyms from the service and status 200")
         void testFindAllGymsSuccess() throws Exception {
                 List<Gym> gyms = Arrays.asList(gym1, gym2);
-                when(gymService.findAllGyms()).thenReturn(gyms);
+                when(gymService.findAll()).thenReturn(gyms);
 
                 mockMvc.perform(get("/api/gyms"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$[0].name").value("Location 1"))
                                 .andExpect(jsonPath("$[1].name").value("Location 2"));
 
-                verify(gymService, times(1)).findAllGyms();
+                verify(gymService, times(1)).findAll();
         }
 
         @Test
         @DisplayName("should return an exception and status 500")
         void testFindAllGymsError() throws Exception {
-                when(gymService.findAllGyms()).thenThrow(new RuntimeException("Internal server error"));
+                when(gymService.findAll()).thenThrow(new RuntimeException("Internal server error"));
 
                 mockMvc.perform(get("/api/gyms"))
                                 .andExpect(status().isInternalServerError());
 
-                verify(gymService, times(1)).findAllGyms();
+                verify(gymService, times(1)).findAll();
         }
 
         @Test

@@ -21,6 +21,6 @@ public interface WorkoutRepository extends JpaRepository<Workout, UUID> {
      * @param gym the gym entity
      * @return a list of workouts belonging to the specified gym
      */
-    List<Workout> findByGym(Gym gym);
+    List<Workout> findByGymAndStatus(Gym gym, Status status);
     Optional<Workout> findByIdAndStatus(UUID id, Status status);
 }

@@ -43,7 +43,7 @@ public class UserService {
      */
     public List<User> findAll() {
         logger.info("Fetching all users from the repository");
-        List<User> users = repository.findAll();
+        List<User> users = repository.findByStatus(Status.active);
         logger.info("Found {} users", users.size());
         logger.debug("Fetched users: {}", users);
         return users;

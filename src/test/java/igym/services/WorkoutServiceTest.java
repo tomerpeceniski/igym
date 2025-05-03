@@ -138,7 +138,7 @@ class WorkoutServiceTest {
         workout2.setGym(gym);
 
         when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
-        when(workoutRepository.findByGym(gym)).thenReturn(List.of(workout1, workout2));
+        when(workoutRepository.findByGymAndStatus(gym, Status.active)).thenReturn(List.of(workout1, workout2));
 
         List<Workout> workouts = workoutService.getWorkoutsByGymId(gymId);
 
@@ -147,14 +147,77 @@ class WorkoutServiceTest {
         assertEquals("Leg Day", workouts.get(1).getName());
 
         verify(gymRepository, times(1)).findById(gymId);
-        verify(workoutRepository, times(1)).findByGym(gym);
+        verify(workoutRepository, times(1)).findByGymAndStatus(gym, Status.active);
+    }
+
+    @Test
+    @DisplayName("Should return empty list of workouts when the workouts are inactive")
+    void testGetWorkoutsByGymIdInactive() {
+        Gym gym = new Gym("My Gym");
+        UUID gymId = UUID.randomUUID();
+
+        Exercise ex1 = new Exercise();
+        ex1.setName("Pushup");
+        ex1.setWeight(0);
+        ex1.setNumReps(15);
+        ex1.setNumSets(3);
+        ex1.setStatus(Status.inactive);
+
+        Workout workout1 = new Workout();
+        workout1.setName("Upper Body");
+        workout1.setExerciseList(List.of(ex1));
+        workout1.setGym(gym);
+        workout1.setStatus(Status.inactive);
+
+        when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
+        when(workoutRepository.findByGymAndStatus(gym, Status.active)).thenReturn(List.of());
+
+        List<Workout> workouts = workoutService.getWorkoutsByGymId(gymId);
+
+        assertEquals(0, workouts.size());
+        verify(gymRepository, times(1)).findById(gymId);
+        verify(workoutRepository, times(1)).findByGymAndStatus(gym, Status.active);
+    }
+
+    @Test
+    @DisplayName("Should return not return inactive exercises when workout is active in getWorkoutsByGymId")
+    void testGetWorkoutsByGymIdInactiveExercises() {
+        Gym gym = new Gym("My Gym");
+        UUID gymId = UUID.randomUUID();
+
+        Exercise ex1 = new Exercise();
+        ex1.setName("Pushup");
+        ex1.setWeight(0);
+        ex1.setNumReps(15);
+        ex1.setNumSets(3);
+        ex1.setStatus(Status.inactive);
+
+        Workout workout1 = new Workout();
+        workout1.setName("Upper Body");
+        workout1.setExerciseList(List.of(ex1));
+        workout1.setGym(gym);
+        workout1.setStatus(Status.active);
+
+        when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
+        when(workoutRepository.findByGymAndStatus(gym, Status.active)).thenReturn(List.of(workout1));
+
+        List<Workout> workouts = workoutService.getWorkoutsByGymId(gymId);
+
+        assertEquals(1, workouts.size());
+        assertEquals("Upper Body", workouts.get(0).getName());
+        assertEquals(0, workouts.get(0).getExerciseList().size());
+
+        verify(gymRepository, times(1)).findById(gymId);
+        verify(workoutRepository, times(1)).findByGymAndStatus(gym, Status.active);
     }
 
     @Test
     @DisplayName("Should throw GymNotFoundException when gym ID does not exist in getWorkoutsByGymId")
     void testGetWorkoutsByGymIdGymNotFound() {
         UUID gymId = UUID.randomUUID();
+        Gym gym = new Gym("My Gym");
 
+        when(gymRepository.findById(gymId)).thenReturn(Optional.of(gym));
         when(gymRepository.findById(gymId)).thenReturn(Optional.empty());
 
         GymNotFoundException exception = assertThrows(
@@ -163,7 +226,7 @@ class WorkoutServiceTest {
 
         assertEquals("Gym with id " + gymId + " not found", exception.getMessage());
         verify(gymRepository, times(1)).findById(gymId);
-        verify(workoutRepository, never()).findByGym(any());
+        verify(workoutRepository, never()).findByGymAndStatus(gym, Status.active);
 
     }
 

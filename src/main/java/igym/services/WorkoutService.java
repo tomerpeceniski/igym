@@ -39,7 +39,8 @@ public class WorkoutService {
     private final GymRepository gymRepository;
     private final ExerciseRepository exerciseRepository;
 
-    public WorkoutService(WorkoutRepository workoutRepository, GymRepository gymRepository, ExerciseRepository exerciseRepository) {
+    public WorkoutService(WorkoutRepository workoutRepository, GymRepository gymRepository,
+            ExerciseRepository exerciseRepository) {
         this.exerciseRepository = exerciseRepository;
         this.workoutRepository = workoutRepository;
         this.gymRepository = gymRepository;
@@ -89,7 +90,16 @@ public class WorkoutService {
     public List<Workout> getWorkoutsByGymId(UUID gymId) {
         logger.info("Fetching Workouts for Gym with ID {}", gymId);
         Gym gym = findGymById(gymId);
-        List<Workout> workouts = workoutRepository.findByGym(gym);
+        List<Workout> workouts = workoutRepository.findByGymAndStatus(gym, Status.active);
+
+        workouts.forEach(workout -> {
+            if (workout.getExerciseList() != null) {
+                List<Exercise> activeExercises = workout.getExerciseList().stream()
+                        .filter(e -> e.getStatus() == Status.active)
+                        .toList();
+                workout.setExerciseList(activeExercises);
+            }
+        });
         logger.info("Found {} active workouts for gym {}", workouts.size(), gymId);
         return workouts;
     }
@@ -118,7 +128,7 @@ public class WorkoutService {
         List<Exercise> exercises = workout.getExerciseList();
         if (exercises != null) {
             exercises.forEach(e -> {
-                if (e.getStatus() == Status.active) {   
+                if (e.getStatus() == Status.active) {
                     e.setStatus(Status.inactive);
                     logger.info("Exercise {} inactivated", e.getId());
                 }
@@ -136,10 +146,10 @@ public class WorkoutService {
     @Transactional
     public void deleteExercise(UUID exerciseId) {
         logger.info("Attempting to inactivate exercise with id: {}", exerciseId);
-    
+
         Exercise exercise = exerciseRepository.findByIdAndStatus(exerciseId, Status.active)
                 .orElseThrow(() -> new ExerciseNotFoundException("Exercise with id " + exerciseId + " not found"));
-    
+
         exercise.setStatus(Status.inactive);
         logger.info("Exercise with id {} has been inactivated", exerciseId);
     }

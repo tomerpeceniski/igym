@@ -1,10 +1,10 @@
 package igym.repositories;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.lang.NonNull;
-
 import igym.entities.User;
 import igym.entities.enums.Status;
 
@@ -21,7 +21,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
      */
     public boolean existsById(@NonNull UUID id);
 
-
     /**
      * Checks if a user with the specified name exists with the specified status.
      *
@@ -29,4 +28,11 @@ public interface UserRepository extends JpaRepository<User, UUID> {
      * @return true if a user with the given name exists, false otherwise
      */
     public boolean existsByNameAndStatus(String name, Status status);
+
+    /**
+     * Finds all users by their status.
+     * @param status
+     * @return a list of users with the given status
+     */
+    List<User> findByStatus(Status status);
 }

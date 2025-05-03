@@ -19,27 +19,26 @@ import java.util.stream.Collectors;
  * @param name         the name of the workout
  * @param status       the current status (active/inactive) of the workout
  * @param updated_at   the timestamp of the last update
- * @param gym_id       the unique identifier of the gym associated with this workout
+ * @param gym_id       the unique identifier of the gym associated with this
+ *                     workout
  * @param exerciseList the list of exercises in this workout
  */
 public record WorkoutDTO(
-    UUID id,
-    String name,
-    Status status,
-    Instant updated_at,
-    UUID gym_id,
-    List<ExerciseDTO> exerciseList
-) {
-        public WorkoutDTO(Workout workout) {
+        UUID id,
+        String name,
+        Status status,
+        Instant updated_at,
+        UUID gym_id,
+        List<ExerciseDTO> exerciseList) {
+    public WorkoutDTO(Workout workout) {
         this(
-            workout.getId(),
-            workout.getName(),
-            workout.getStatus(),
-            workout.getUpdated_at(),
-            workout.getGym().getId(),
-            workout.getExerciseList().stream()
-                .map(ExerciseDTO::new)
-                .collect(Collectors.toList())
-        );
+                workout.getId(),
+                workout.getName(),
+                workout.getStatus(),
+                workout.getUpdated_at(),
+                workout.getGym().getId(),
+                workout.getExerciseList().stream()
+                        .map(ExerciseDTO::new)
+                        .collect(Collectors.toList()));
     }
 }
