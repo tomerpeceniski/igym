@@ -1,6 +1,7 @@
 igym
 igym.config
 igym.controllers
+igym.dtos
 igym.entities
 igym.entities.enums
 igym.exceptions

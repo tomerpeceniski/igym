@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"igym"},{"l":"igym.config"},{"l":"igym.controllers"},{"l":"igym.entities"},{"l":"igym.entities.enums"},{"l":"igym.exceptions"},{"l":"igym.repositories"},{"l":"igym.services"}];updateSearchResults();
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"igym"},{"l":"igym.config"},{"l":"igym.controllers"},{"l":"igym.dtos"},{"l":"igym.entities"},{"l":"igym.entities.enums"},{"l":"igym.exceptions"},{"l":"igym.repositories"},{"l":"igym.services"}];updateSearchResults();
