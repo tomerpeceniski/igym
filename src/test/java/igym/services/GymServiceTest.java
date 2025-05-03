@@ -7,6 +7,7 @@ import igym.entities.Workout;
 import igym.entities.enums.Status;
 import igym.exceptions.DuplicateGymException;
 import igym.exceptions.GymNotFoundException;
+import igym.exceptions.UserNotFoundException;
 import igym.repositories.GymRepository;
 import igym.repositories.UserRepository;
 
@@ -282,4 +283,56 @@ public class GymServiceTest {
                 () -> gymService.findById(gymId));
         assertEquals("Gym with id " + gymId + " not found", exception.getMessage());
     }
+
+    @Test
+    @DisplayName("should return gyms when user exists and gyms are active")
+    void testFindGymsByUserId() {
+        UUID userId = UUID.randomUUID();
+        User user = new User("Test User");
+        Gym gym1 = new Gym("Gym 1");
+        Gym gym2 = new Gym("Gym 2");
+        Gym gym3 = new Gym("Gym 3");
+        gym3.setStatus(Status.inactive);
+        List<Gym> gyms = List.of(gym1, gym2);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(gymRepository.findByUserIdAndStatus(userId, Status.active)).thenReturn(gyms);
+
+        List<Gym> result = gymService.findGymsByUserId(userId);
+
+        assertThat(result).hasSize(2).containsExactlyElementsOf(gyms);
+        verify(userRepository).findById(userId);
+        verify(gymRepository).findByUserIdAndStatus(userId, Status.active);
+    }
+
+    @Test
+    @DisplayName("should return empty list of gyms when user exists but has no active gyms")
+    void testFindEmptyGymsByUserId() {
+        UUID userId = UUID.randomUUID();
+        User user = new User("Test User");
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(gymRepository.findByUserIdAndStatus(userId, Status.active)).thenReturn(List.of());
+
+        List<Gym> result = gymService.findGymsByUserId(userId);
+
+        assertThat(result).isEmpty();
+        verify(userRepository).findById(userId);
+        verify(gymRepository).findByUserIdAndStatus(userId, Status.active);
+    }
+
+    @Test
+    @DisplayName("should throw UserNotFoundException when user is not found when trying to find gym for this user id")
+    void testFindGymsByUserId_userNotFound() {
+        UUID userId = UUID.randomUUID();
+
+        when(userRepository.findById(userId))
+                .thenThrow(new UserNotFoundException("User with id " + userId + " not found"));
+
+        assertThrows(UserNotFoundException.class, () -> gymService.findGymsByUserId(userId));
+
+        verify(userRepository).findById(userId);
+        verify(gymRepository, never()).findByUserIdAndStatus(any(), any());
+    }
+
 }

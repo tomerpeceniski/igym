@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import igym.dtos.GymDTO;
 import igym.entities.*;
-import igym.exceptions.DuplicateGymException;
 import igym.exceptions.GymNotFoundException;
 import igym.exceptions.UserNotFoundException;
 import igym.services.GymService;
@@ -78,6 +77,20 @@ public class GymController {
     @GetMapping(value = "/gyms", produces = "application/json")
     public ResponseEntity<List<GymDTO>> findAllGyms() {
         List<GymDTO> gyms = service.findAllGyms().stream().map(GymDTO::new).toList();
+        return ResponseEntity.ok(gyms);
+    }
+
+    /**
+     * Retrieves all active gyms associated with a specific user.
+     *
+     * @param userId the ID of the user whose gyms are retrieved
+     * @return a list of active gyms belonging to the user
+     * @throws UserNotFoundException if the user does not exist or is inactive
+     * @throws GymNotFoundException  if the user has no active gyms
+     */
+    @GetMapping(value = "/users/{userId}/gyms", produces = "application/json")
+    public ResponseEntity<List<Gym>> getGymsByUserId(@PathVariable UUID userId) {
+        List<Gym> gyms = service.findGymsByUserId(userId);
         return ResponseEntity.ok(gyms);
     }
 

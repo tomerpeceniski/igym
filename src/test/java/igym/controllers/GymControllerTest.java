@@ -5,6 +5,7 @@ import igym.entities.User;
 import igym.entities.enums.Status;
 import igym.exceptions.DuplicateGymException;
 import igym.exceptions.GymNotFoundException;
+import igym.exceptions.UserNotFoundException;
 import igym.services.GymService;
 import jakarta.validation.Validator;
 import static org.hamcrest.Matchers.hasSize;
@@ -309,6 +310,51 @@ public class GymControllerTest {
                 assertEquals(Status.inactive, gym1.getStatus(), "Gym should finally be inactive");
                 verify(gymService, times(1)).deleteGym(gymId);
                 verifyNoMoreInteractions(gymService);
+        }
+
+        @Test
+        @DisplayName("should return active gyms for a given user ID")
+        void testGetGymsByUserIdSuccess() throws Exception {
+                Gym gymA = new Gym("Gym A");
+                Gym gymB = new Gym("Gym B");
+                gymA.setStatus(Status.active);
+                gymB.setStatus(Status.active);
+                List<Gym> gyms = List.of(gymA, gymB);
+
+                when(gymService.findGymsByUserId(userId)).thenReturn(gyms);
+
+                mockMvc.perform(get("/api/users/{userId}/gyms", userId))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.length()").value(2))
+                                .andExpect(jsonPath("$[0].name").value("Gym A"))
+                                .andExpect(jsonPath("$[1].name").value("Gym B"));
+
+                verify(gymService).findGymsByUserId(userId);
+        }
+
+        @Test
+        @DisplayName("should return empty list of gyms for a given user ID")
+        void testGetGymsByUserIdEmpty() throws Exception {
+                when(gymService.findGymsByUserId(userId)).thenReturn(List.of());
+
+                mockMvc.perform(get("/api/users/{userId}/gyms", userId))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.length()").value(0));
+
+                verify(gymService).findGymsByUserId(userId);
+        }
+
+        @Test
+        @DisplayName("should return 404 when user is not found")
+        void testGetGymsByUserIdUserNotFound() throws Exception {
+                when(gymService.findGymsByUserId(userId))
+                                .thenThrow(new UserNotFoundException("User with id " + userId + " not found"));
+
+                mockMvc.perform(get("/api/users/{userId}/gyms", userId))
+                                .andExpect(status().isNotFound())
+                                .andExpect(jsonPath("$.message").value("User with id " + userId + " not found"));
+
+                verify(gymService).findGymsByUserId(userId);
         }
 
 }

@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -98,7 +99,7 @@ public class WorkoutService {
     public void deleteWorkout(UUID workoutId) {
         logger.info("Attempting to inactivate workout with id: {}", workoutId);
 
-        Workout workout = findById(workoutId);
+        Workout workout = findByIdAndStatus(workoutId, Status.active);
 
         workout.setStatus(Status.inactive);
 
@@ -143,5 +144,47 @@ public class WorkoutService {
             throw new GymNotFoundException("Gym with id " + gymId + " not found");
         }
         return gym;
+    }
+
+    /**
+     * Updates workout details.
+     * This method updates the workout's name and the exercise list.
+     */
+    @Transactional
+    public Workout updateWorkout(UUID workoutId, Workout updatedWorkout) {
+        logger.info("Attempting to update workout with id: {}", workoutId);
+        logger.debug("Update request with values: {}", updatedWorkout);
+
+        Workout existingWorkout = findByIdAndStatus(workoutId, Status.active);
+
+        existingWorkout.setName(updatedWorkout.getName());
+
+        List<Exercise> updatedExercises = updatedWorkout.getExerciseList() != null
+                ? updatedWorkout.getExerciseList()
+                : new ArrayList<>();
+
+        updatedExercises.forEach(ex -> {
+            ex.setWorkout(existingWorkout);
+            ex.setStatus(Status.active);
+        });
+
+        existingWorkout.setExerciseList(updatedExercises);
+        existingWorkout.setStatus(Status.active);
+
+        Workout savedWorkout = workoutRepository.save(existingWorkout);
+        logger.info("Workout with id {} updated successfully", savedWorkout.getId());
+        logger.debug("Updated workout details: {}", savedWorkout);
+        return savedWorkout;
+    }
+
+    private Workout findByIdAndStatus(UUID id, Status status) {
+        logger.info("Fetching workout with id: {} and status: {}", id, status);
+        Workout workout = workoutRepository.findByIdAndStatus(id, status)
+                .orElseThrow(() -> {
+                    logger.warn("Workout with id {} and status {} not found", id, status);
+                    return new WorkoutNotFoundException("Workout with id " + id + " not found");
+                });
+        return workout;
+
     }
 }
