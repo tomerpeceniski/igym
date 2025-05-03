@@ -87,7 +87,7 @@ public class WorkoutService {
         Gym gym = findGymById(gymId);
         List<Workout> workouts = workoutRepository.findByGym(gym);
         logger.info("Found {} active workouts for gym {}", workouts.isEmpty() ? 0 : workouts.size(), gymId);
-        return workoutRepository.findByGym(gym);
+        return workouts;
     }
 
     /**

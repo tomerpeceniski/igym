@@ -28,7 +28,7 @@ import lombok.ToString;
  * </p>
  */
 
-@ToString(exclude = "user")
+@ToString()
 @Table(name = "gyms")
 @Entity
 public class Gym {
@@ -52,10 +52,12 @@ public class Gym {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
+    @ToString.Exclude
     private User user;
 
     @OneToMany(mappedBy = "gym", cascade = CascadeType.ALL)
     @JsonManagedReference
+    @ToString.Exclude
     private List<Workout> workouts;
 
     public Gym(String name) {

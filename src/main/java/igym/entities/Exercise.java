@@ -31,6 +31,7 @@ import igym.entities.enums.Status;
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString(exclude = "workout")
 public class Exercise {
 
     @Id
