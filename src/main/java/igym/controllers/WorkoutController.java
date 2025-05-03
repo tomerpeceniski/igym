@@ -81,6 +81,7 @@ public class WorkoutController {
      * 
      * @param workoutId the ID of the workout to retrieve
      * @return the workout with the specified ID and HTTP 200 status
+     * @throws WorkoutNotFoundException if no workout is found with the given ID
      */
     @PatchMapping(value = "/workouts/{id}", produces = "application/json")
     public ResponseEntity<Workout> updateWorkout(@PathVariable("id") UUID workoutId,
