@@ -99,9 +99,9 @@ public class GymService {
      *
      * @return a list of all gyms
      */
-    public List<Gym> findAllGyms() {
+    public List<Gym> findAll() {
         logger.info("Fetching all gyms from the repository");
-        List<Gym> gyms = gymRepository.findAll();
+        List<Gym> gyms = gymRepository.findByStatus(Status.active);
         logger.info("Found {} gyms", gyms.size());
         logger.debug("Fetched gyms: {}", gyms);
         return gyms;

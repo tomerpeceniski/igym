@@ -76,7 +76,7 @@ public class GymController {
      */
     @GetMapping(value = "/gyms", produces = "application/json")
     public ResponseEntity<List<GymDTO>> findAllGyms() {
-        List<GymDTO> gyms = service.findAllGyms().stream().map(GymDTO::new).toList();
+        List<GymDTO> gyms = service.findAll().stream().map(GymDTO::new).toList();
         return ResponseEntity.ok(gyms);
     }
 
