@@ -98,6 +98,7 @@ public class WorkoutController {
      * Retrieves a updated workout by its ID.
      * 
      * @param workoutId the ID of the workout to retrieve
+     * @throws WorkoutNotFoundException if no workout is found with the given ID
      * @return the workout with the specified ID (as DTO) and HTTP 200 status
      */
     @PatchMapping(value = "/workouts/{id}", produces = "application/json")

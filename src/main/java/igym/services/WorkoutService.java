@@ -87,8 +87,11 @@ public class WorkoutService {
      *                              or is inactive
      */
     public List<Workout> getWorkoutsByGymId(UUID gymId) {
+        logger.info("Fetching Workouts for Gym with ID {}", gymId);
         Gym gym = findGymById(gymId);
-        return workoutRepository.findByGym(gym);
+        List<Workout> workouts = workoutRepository.findByGym(gym);
+        logger.info("Found {} active workouts for gym {}", workouts.size(), gymId);
+        return workouts;
     }
 
     /**
@@ -102,15 +105,13 @@ public class WorkoutService {
     @Transactional
     public void deleteWorkout(UUID workoutId) {
         logger.info("Attempting to inactivate workout with id: {}", workoutId);
-
         Workout workout = findByIdAndStatus(workoutId, Status.active);
-
         workout.setStatus(Status.inactive);
 
         deleteExercisesList(workout);
 
         workoutRepository.save(workout);
-        logger.info("Workout with id {} have been inactivated", workoutId);
+        logger.info("Workout with id {} inactivated", workoutId);
     }
 
     private void deleteExercisesList(Workout workout) {
@@ -143,6 +144,14 @@ public class WorkoutService {
         logger.info("Exercise with id {} has been inactivated", exerciseId);
     }
 
+    /**
+     * Fetch Workout by its ID, ensuring it is active.
+     *
+     * @param id the UUID of the workout to be fetched
+     * @return the found workout
+     * @throws WorkoutNotFoundException if the workout with the provided ID does not
+     *                                  exist or is inactive
+     */
     public Workout findById(UUID id) {
         Workout workout = workoutRepository.findById(id)
                 .orElseThrow(() -> {
@@ -176,9 +185,7 @@ public class WorkoutService {
     public Workout updateWorkout(UUID workoutId, Workout updatedWorkout) {
         logger.info("Attempting to update workout with id: {}", workoutId);
         logger.debug("Update request with values: {}", updatedWorkout);
-
         Workout existingWorkout = findByIdAndStatus(workoutId, Status.active);
-
         existingWorkout.setName(updatedWorkout.getName());
 
         List<Exercise> updatedExercises = updatedWorkout.getExerciseList() != null
