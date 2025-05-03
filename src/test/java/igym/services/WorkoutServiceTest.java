@@ -289,6 +289,8 @@ class WorkoutServiceTest {
         ex1.setStatus(Status.active);
         ReflectionTestUtils.setField(ex1, "id", exerciseId);
 
+        when(exerciseRepository.findByIdAndStatus(nonExistentExerciseId, Status.active)).thenReturn(Optional.empty());
+
         ExerciseNotFoundException exception = assertThrows(ExerciseNotFoundException.class,
                 () -> workoutService.deleteExercise(nonExistentExerciseId));
 
@@ -307,6 +309,8 @@ class WorkoutServiceTest {
         ex1.setNumSets(4);
         ex1.setStatus(Status.inactive);
         ReflectionTestUtils.setField(ex1, "id", exerciseId);
+
+        when(exerciseRepository.findByIdAndStatus(exerciseId, Status.active)).thenReturn(Optional.empty());
 
         ExerciseNotFoundException exception = assertThrows(ExerciseNotFoundException.class,
                 () -> workoutService.deleteExercise(exerciseId));
