@@ -11,20 +11,26 @@ export default function HomePage() {
 
   return (
     <Box>
-      <Box display="flex" justifyContent="center" mb={4}>
+      <Box
+        display="flex"
+        flexWrap="wrap"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={4}
+        sx={(theme) => ({
+          height: theme.spacing(8),
+          rowGap: theme.spacing(2),
+        })}
+      >
         <GreetingTitle />
+        <GymSelector
+          gyms={gyms}
+          selectedGym={selectedGym}
+          onChange={(e) => setSelectedGym(e.target.value)}
+        />
       </Box>
 
       <Box display="flex" gap={7.5} alignItems="flex-start">
-        
-        <Box sx={{ minWidth: 200 }}>
-          <GymSelector
-            gyms={gyms}
-            selectedGym={selectedGym}
-            onChange={(e) => setSelectedGym(e.target.value)}
-          />
-        </Box>
-
         <Box sx={{ flexGrow: 1 }}>
           <Typography variant="h5" align="center" gutterBottom>
             {selectedGym}

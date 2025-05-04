@@ -3,7 +3,7 @@ import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 
 export default function GymSelector({ gyms, selectedGym, onChange }) {
   return (
-    <FormControl fullWidth sx={{ maxWidth: 200, mb: 2 }}>
+    <FormControl fullWidth sx={{ maxWidth: 200}}>
       <InputLabel id="gym-select-label">Gyms</InputLabel>
       <Select
         labelId="gym-select-label"
