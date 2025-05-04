@@ -11,7 +11,7 @@ export default function WorkoutCard({ workout }) {
 
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h6">{workout.name}</Typography>
-          <Box>
+          <Box display="flex" gap={1}>
             <IconButton size="small">
               <EditIcon fontSize="small" />
             </IconButton>
