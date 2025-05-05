@@ -1,21 +1,25 @@
 import { createTheme } from '@mui/material/styles';
+import { blueGrey } from '@mui/material/colors';
 import '@fontsource/poppins';
 
 const theme = createTheme({
     spacing: 8,
     palette: {
         primary: {
-            main: '#1976d2',
+            main: blueGrey[500],
         },
         secondary: {
-            main: '#f50057',
+            main: '#fff',
+            contrastText: '#000',
         },
         background: {
-            default: '#f9f9f9',
+            default: blueGrey[800],
+            paper: blueGrey[300],
         },
         text: {
-            primary: '#333',
-        }
+            primary: '#000',
+            secondary: '#fff',
+        },
     },
 
     typography: {

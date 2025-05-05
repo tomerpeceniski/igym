@@ -3,7 +3,28 @@ import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 
 export default function GymSelector({ gyms, selectedGym, onChange }) {
   return (
-    <FormControl fullWidth sx={{ maxWidth: 200}}>
+    <FormControl
+      fullWidth
+      sx={{
+        maxWidth: 200,
+        color: 'text.secondary',
+        '& .MuiInputLabel-root': {
+          color: 'text.secondary',
+        },
+        '& .MuiOutlinedInput-root': {
+          color: 'text.secondary',
+          '& fieldset': {
+            borderColor: 'text.secondary',
+          },
+          '&:hover fieldset': {
+            borderColor: 'text.secondary',
+          },
+          '&.Mui-focused fieldset': {
+            borderColor: 'text.secondary',
+          },
+        },
+      }}
+    >
       <InputLabel id="gym-select-label">Gyms</InputLabel>
       <Select
         labelId="gym-select-label"

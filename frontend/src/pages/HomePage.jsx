@@ -30,7 +30,12 @@ export default function HomePage() {
       </Box>
 
       <Box>
-        <Typography variant="h5" align="center" gutterBottom>
+        <Typography
+          variant="h5"
+          align="center"
+          gutterBottom
+          sx={{ color: 'text.secondary' }}
+        >
           {selectedGym}
         </Typography>
       </Box>
