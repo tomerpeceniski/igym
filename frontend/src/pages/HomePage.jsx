@@ -14,14 +14,12 @@ export default function HomePage() {
     <Box>
       <Box
         display="flex"
-        flexWrap="wrap"
-        justifyContent="space-between"
+        flexDirection={{ xs: 'column', sm: 'row' }}
+        justifyContent={{ xs: 'center', sm: 'space-between' }}
         alignItems="center"
+        textAlign={{ xs: 'center', sm: 'left' }}
+        rowGap={2}
         mb={4}
-        sx={(theme) => ({
-          height: theme.spacing(8),
-          rowGap: theme.spacing(2),
-        })}
       >
         <GreetingTitle />
         <GymSelector
