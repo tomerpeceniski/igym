@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Grid, colors } from '@mui/material';
 import GreetingTitle from '../components/GreetingTitle.jsx';
 import GymSelector from '../components/GymSelector.jsx';
 import WorkoutCard from '../components/WorkoutCard.jsx';
 import gyms from '../data/mockedGyms';
+import { blue } from '@mui/material/colors';
 
 export default function HomePage() {
   const [selectedGym, setSelectedGym] = useState(gyms[0].name);
@@ -30,19 +31,22 @@ export default function HomePage() {
         />
       </Box>
 
-      <Box display="flex" gap={7.5} alignItems="flex-start">
-        <Box sx={{ flexGrow: 1 }}>
-          <Typography variant="h5" align="center" gutterBottom>
-            {selectedGym}
-          </Typography>
-
-          <Box display="flex" flexWrap="wrap" justifyContent="flex-start">
-            {currentGym.workouts.map((workout, index) => (
-              <WorkoutCard key={index} workout={workout} />
-            ))}
-          </Box>
-        </Box>
+      <Box>
+        <Typography variant="h5" align="center" gutterBottom>
+          {selectedGym}
+        </Typography>
       </Box>
+
+      <Box sx={{ width: '100', px: 2 }}>
+        <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
+          {currentGym.workouts.map((workout, index) => (
+            <Grid key={index} size={{ xs: 4, sm: 4, md: 4 }}>
+              <WorkoutCard workout={workout} />
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+
     </Box>
   );
 }

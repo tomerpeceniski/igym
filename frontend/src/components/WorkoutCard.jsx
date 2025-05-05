@@ -6,9 +6,19 @@ import DeleteIcon from '@mui/icons-material/Delete';
 export default function WorkoutCard({ workout }) {
   return (
     <Card
-      sx={{ flex: '1 1 300px', maxWidth: 350, minWidth: 280, m: 1.5, }}>
-      <CardContent>
-
+      sx={{
+        height: 320,
+        display: 'flex',
+        flexDirection: 'column',
+        boxSizing: 'border-box'
+      }}
+    >
+      <CardContent
+        sx={{
+          flexGrow: 1,
+          overflow: 'auto',
+        }}
+      >
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h6">{workout.name}</Typography>
           <Box display="flex" gap={1}>
@@ -28,7 +38,12 @@ export default function WorkoutCard({ workout }) {
             <strong>{ex.name}</strong> - {ex.repetitions} reps x {ex.sets} sets
             <br />
             Weight: {ex.weight} kg
-            {ex.note && (<> <br /> <em>Note: {ex.note}</em> </>)}
+            {ex.note && (
+              <>
+                <br />
+                <em>Note: {ex.note}</em>
+              </>
+            )}
           </Typography>
         ))}
       </CardContent>
