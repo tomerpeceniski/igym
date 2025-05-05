@@ -13,12 +13,8 @@ export default function WorkoutCard({ workout }) {
         boxSizing: 'border-box'
       }}
     >
-      <CardContent
-        sx={{
-          flexGrow: 1,
-          overflow: 'auto',
-        }}
-      >
+
+<Box sx={{ p: 2 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h6">{workout.name}</Typography>
           <Box display="flex" gap={1}>
@@ -30,8 +26,15 @@ export default function WorkoutCard({ workout }) {
             </IconButton>
           </Box>
         </Box>
+        <Divider sx={{ mt: 1.25 }} />
+      </Box>
+      <CardContent
+        sx={{
+          flexGrow: 1,
+          overflow: 'auto',
+        }}
+      >
 
-        <Divider sx={{ my: 1.25 }} />
 
         {workout.exercises.map((ex, idx) => (
           <Typography key={idx} variant="body2" sx={{ mb: 0.75 }}>
