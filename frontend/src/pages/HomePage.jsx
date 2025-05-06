@@ -18,6 +18,7 @@ export default function HomePage() {
         justifyContent="center"
         alignItems="center"
         textAlign="center"
+        mb={3}
       >
         <GreetingTitle />
       </Box>
@@ -41,11 +42,11 @@ export default function HomePage() {
           {selectedGym}
         </Typography>
 
-        <Box>
-          <Box sx={{ width: "100%", maxWidth: 200 }}>
-            <OutlinedButton inputText={"New Workout"}/>
+        <Box display="flex" gap={4} width="100%" maxWidth={450} alignItems="stretch" justifyContent={{ xs: 'center', sm: 'space-between' }} flexDirection={{ xs: 'column', sm: 'row' }}>
+          <Box sx={{ flex: 1 }}>
+            <OutlinedButton inputText={"New Workout"} />
           </Box>
-          <Box sx={{ width: "100%", maxWidth: 200 }}>
+          <Box sx={{ flex: 1 }}>
             <GymSelector
               gyms={gyms}
               selectedGym={selectedGym}

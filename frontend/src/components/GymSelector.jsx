@@ -6,6 +6,7 @@ export default function GymSelector({ gyms, selectedGym, onChange }) {
     <FormControl
       fullWidth
       sx={{
+        height: '100%',
         color: 'text.secondary',
         '& .MuiInputLabel-root': {
           color: 'text.secondary',
@@ -24,11 +25,11 @@ export default function GymSelector({ gyms, selectedGym, onChange }) {
         },
       }}
     >
-      <InputLabel id="gym-select-label">Gyms</InputLabel>
+      <InputLabel id="gym-select-label">Select a Gym</InputLabel>
       <Select
         labelId="gym-select-label"
         value={selectedGym}
-        label="Gyms"
+        label="Select a Gym"
         onChange={onChange}
       >
         {gyms.map((gym, index) => (
