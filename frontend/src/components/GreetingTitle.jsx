@@ -1,13 +1,17 @@
-import Typography from '@mui/material/Typography';
-import logo from '../assets/igym-logo.png'; 
+import { Box, Typography } from '@mui/material';
+import logo from '../assets/igym-logo.png';
 
 export default function GreetingTitle() {
   return (
-    <div style={{ display: 'flex'}}>
-      <img src={logo} alt="iGym Logo" style={{ height: '40px' }} />
-      <Typography variant="h4" component="h1">
+    <Box display="flex" alignItems="center" gap={2} >
+      <Box component="img" src={logo} alt="iGym Logo" maxHeight={64}  />
+      <Typography
+        variant="h1"
+        component="h2"
+        sx={{  color: 'text.secondary' }}
+      >
         Hello User!
       </Typography>
-    </div>
+    </Box>
   );
 }
