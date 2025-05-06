@@ -1,16 +1,33 @@
-import React, { useState } from 'react';
-import { Box, Typography, Grid, useTheme } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, Grid, useTheme, CircularProgress } from '@mui/material';
 import GreetingTitle from '../components/GreetingTitle.jsx';
 import GymSelector from '../components/GymSelector.jsx';
 import WorkoutSummary from '../components/WorkoutSummary.jsx';
-import gyms from '../data/mockedGyms';
 import OutlinedButton from '../components/OutlinedButton.jsx';
 import AddIcon from '@mui/icons-material/Add';
+import { useGyms } from '../hooks/UseGyms';
+import mockedUsers from '../data/mockedUsers.js';
 
 export default function HomePage() {
-  const [selectedGym, setSelectedGym] = useState(gyms[0].name);
-  const currentGym = gyms.find(g => g.name === selectedGym);
   const theme = useTheme();
+  const { gyms, loading, error } = useGyms(mockedUsers[0].id);
+  const [selectedGym, setSelectedGym] = useState(null);
+
+  useEffect(() => {
+    if (!loading && gyms.length > 0) {
+      setSelectedGym(gyms[0].name);
+    }
+  }, [loading, gyms]);
+
+  const currentGym = gyms.find(g => g.name === selectedGym);
+
+  if (loading) {
+    return <Box display="flex" justifyContent="center" mt={4}><CircularProgress /></Box>;
+  }
+
+  if (error) {
+    return <Box color="error.main" textAlign="center" mt={4}>Failed to load gyms.</Box>;
+  }
 
   return (
     <Box>
