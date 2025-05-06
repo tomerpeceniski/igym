@@ -1,9 +1,10 @@
 import { Box, TextField, Typography, useTheme, Button } from '@mui/material';
+import { useState } from 'react';
 import logo from '../assets/igym-logo-text.png';
-import OutlinedButton from '../components/OutlinedButton';
 import AddIcon from '@mui/icons-material/Add';
 
 export default function LoginPage() {
+    const [isCreatingAccount, setIsCreatingAccount] = useState(false);
     const theme = useTheme();
     const textFieldSx = {
 
@@ -37,7 +38,7 @@ export default function LoginPage() {
             flexDirection="column"
             alignItems="center"
             justifyContent="center"
-            minHeight="100vh"
+            minHeight="90vh"
         >
             <Box
                 component="img"
@@ -48,19 +49,38 @@ export default function LoginPage() {
                 mb={4}
             />
             <Typography variant="h5" color="text.secondary" mb={2}>
-                Welcome to iGym
+                {isCreatingAccount ? 'Create Your Account' : 'Welcome to iGym'}
             </Typography>
             <Box width="100%" maxWidth={400} display="flex" flexDirection="column" gap={2}>
                 <TextField label="Email" fullWidth sx={textFieldSx} />
                 <TextField label="Password" type="password" fullWidth sx={textFieldSx} />
-                <Button variant="contained" fullWidth sx={{ backgroundColor: theme.palette.background.paper, color: theme.palette.background.default }}>
-                    LOG IN
-                </Button>
-                <Button variant="contained" fullWidth
-                    sx={{ backgroundColor: theme.palette.background.paper, color: theme.palette.background.default }} startIcon={<AddIcon />} >
-                    CREATE ACCOUNT
-                </Button>
+                {isCreatingAccount && (
+                    <TextField label="Confirm Password" type="password" fullWidth sx={textFieldSx} />
+                )}
+                {!isCreatingAccount ? (
+                    <>
+                        <Button variant="contained" fullWidth sx={{ backgroundColor: theme.palette.background.paper, color: theme.palette.background.default }}>
+                            LOG IN
+                        </Button>
+                        <Button variant="contained" fullWidth
+                            sx={{ backgroundColor: theme.palette.background.paper, color: theme.palette.background.default }} startIcon={<AddIcon />} onClick={() => setIsCreatingAccount(true)} >
+                            CREATE ACCOUNT
+                        </Button>
+                    </>
+                ) : (
+                    <>
+                        <Button variant="contained" fullWidth
+                            sx={{ backgroundColor: theme.palette.background.paper, color: theme.palette.background.default }} startIcon={<AddIcon />} >
+                            CREATE ACCOUNT
+                        </Button>
+                        <Button variant="contained" fullWidth
+                            sx={{ backgroundColor: theme.palette.background.paper, color: theme.palette.background.default }} onClick={() => setIsCreatingAccount(false)} >
+                            BACK TO LOGIN
+                        </Button>
+                    </>
+                )}
             </Box>
+
         </Box>
     );
 }
