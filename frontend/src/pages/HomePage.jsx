@@ -14,30 +14,37 @@ export default function HomePage() {
     <Box>
       <Box
         display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center"
+        textAlign="center"
+      >
+        <GreetingTitle />
+      </Box>
+
+      <Box
+        display="flex"
         flexDirection={{ xs: 'column', sm: 'row' }}
         justifyContent={{ xs: 'center', sm: 'space-between' }}
         alignItems="center"
         textAlign={{ xs: 'center', sm: 'left' }}
         rowGap={2}
-        mb={4}
+        py={2}
+        px={8}
       >
-        <GreetingTitle />
-        <GymSelector
-          gyms={gyms}
-          selectedGym={selectedGym}
-          onChange={(e) => setSelectedGym(e.target.value)}
-        />
-      </Box>
-
-      <Box>
         <Typography
-          variant="h5"
+          variant="h2"
           align="center"
           gutterBottom
           sx={{ color: 'text.secondary' }}
         >
           {selectedGym}
         </Typography>
+        <GymSelector
+          gyms={gyms}
+          selectedGym={selectedGym}
+          onChange={(e) => setSelectedGym(e.target.value)}
+        />
       </Box>
 
       <Box sx={{ width: '100', px: 2 }}>

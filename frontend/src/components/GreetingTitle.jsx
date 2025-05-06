@@ -6,9 +6,9 @@ export default function GreetingTitle() {
     <Box display="flex" alignItems="center" gap={2} >
       <Box component="img" src={logo} alt="iGym Logo" maxHeight={64}  />
       <Typography
-        variant="h3"
-        component="h1"
-        sx={{ fontWeight: 500, color: 'text.secondary' }}
+        variant="h1"
+        component="h2"
+        sx={{  color: 'text.secondary' }}
       >
         Hello User!
       </Typography>

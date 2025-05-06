@@ -14,7 +14,7 @@ const theme = createTheme({
         },
         background: {
             default: blueGrey[800],
-            paper: blueGrey[300],
+            paper: blueGrey[100],
         },
         text: {
             primary: '#000',
@@ -25,11 +25,11 @@ const theme = createTheme({
     typography: {
         fontFamily: 'Poppins, Roboto, sans-serif',
         h1: {
-            fontSize: '2.2rem',
-            fontWeight: 600,
+            fontSize: '4rem',
+            fontWeight: 500,
         },
         h2: {
-            fontSize: '1.6rem',
+            fontSize: '2rem',
             fontWeight: 500,
         },
         body1: {
