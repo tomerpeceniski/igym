@@ -80,7 +80,7 @@ public class GymControllerTest {
         void testCreateGymSuccess() throws Exception {
                 when(gymService.createGym(any(Gym.class), any(UUID.class))).thenReturn(gym1);
 
-                mockMvc.perform(post("/api/gyms/{userId}", userId)
+                mockMvc.perform(post("/api/v1/gyms/{userId}", userId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(gym1.getName())))
                                 .andExpect(status().isCreated())
@@ -96,7 +96,7 @@ public class GymControllerTest {
                                 .thenThrow(new DuplicateGymException(
                                                 "A gym with the name 'Location 1' already exists for this user"));
 
-                mockMvc.perform(post("/api/gyms/{userId}", userId)
+                mockMvc.perform(post("/api/v1/gyms/{userId}", userId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(gym1.getName())))
                                 .andExpect(status().isConflict())
@@ -111,7 +111,7 @@ public class GymControllerTest {
         @Test
         @DisplayName("should return 422 Unprocessable Entity when name is null")
         void testCreateGymWithNullName() throws Exception {
-                mockMvc.perform(post("/api/gyms/{userId}", userId)
+                mockMvc.perform(post("/api/v1/gyms/{userId}", userId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new Gym(null))))
                                 .andExpect(status().isUnprocessableEntity())
@@ -124,7 +124,7 @@ public class GymControllerTest {
         @Test
         @DisplayName("should return 422 Unprocessable Entity when name an empty string")
         void testCreateGymWithEmptyStringName() throws Exception {
-                mockMvc.perform(post("/api/gyms/{userId}", userId)
+                mockMvc.perform(post("/api/v1/gyms/{userId}", userId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new Gym(""))))
                                 .andExpect(status().isUnprocessableEntity())
@@ -139,7 +139,7 @@ public class GymControllerTest {
         @Test
         @DisplayName("should return 422 Unprocessable Entity when name has more than 50 characters")
         void testCreateGymWithTooLongName() throws Exception {
-                mockMvc.perform(post("/api/gyms/{userId}", userId)
+                mockMvc.perform(post("/api/v1/gyms/{userId}", userId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new Gym("a".repeat(51)))))
                                 .andExpect(status().isUnprocessableEntity())
@@ -152,7 +152,7 @@ public class GymControllerTest {
         @Test
         @DisplayName("should return 422 Unprocessable Entity when name has less than 3 characters")
         void testCreateGymWithTooShortName() throws Exception {
-                mockMvc.perform(post("/api/gyms/{userId}", userId)
+                mockMvc.perform(post("/api/v1/gyms/{userId}", userId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new Gym("a"))))
                                 .andExpect(status().isUnprocessableEntity())
@@ -168,7 +168,7 @@ public class GymControllerTest {
                 List<Gym> gyms = Arrays.asList(gym1, gym2);
                 when(gymService.findAll()).thenReturn(gyms);
 
-                mockMvc.perform(get("/api/gyms"))
+                mockMvc.perform(get("/api/v1/gyms"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$[0].name").value("Location 1"))
                                 .andExpect(jsonPath("$[1].name").value("Location 2"));
@@ -181,7 +181,7 @@ public class GymControllerTest {
         void testFindAllGymsError() throws Exception {
                 when(gymService.findAll()).thenThrow(new RuntimeException("Internal server error"));
 
-                mockMvc.perform(get("/api/gyms"))
+                mockMvc.perform(get("/api/v1/gyms"))
                                 .andExpect(status().isInternalServerError());
 
                 verify(gymService, times(1)).findAll();
@@ -196,7 +196,7 @@ public class GymControllerTest {
                         return null;
                 }).when(gymService).deleteGym(gymId);
 
-                mockMvc.perform(delete("/api/gyms/{id}", gymId)
+                mockMvc.perform(delete("/api/v1/gyms/{id}", gymId)
                                 .contentType(MediaType.APPLICATION_JSON))
                                 .andExpect(status().isNoContent());
 
@@ -211,7 +211,7 @@ public class GymControllerTest {
                 doThrow(new GymNotFoundException("Gym with id " + gymId + " not found."))
                                 .when(gymService).deleteGym(gymId);
 
-                mockMvc.perform(delete("/api/gyms/{id}", gymId)
+                mockMvc.perform(delete("/api/v1/gyms/{id}", gymId)
                                 .contentType(MediaType.APPLICATION_JSON))
                                 .andExpect(status().isNotFound());
 
@@ -223,7 +223,7 @@ public class GymControllerTest {
         @DisplayName("should update a existing gym and return status 200")
         void testUpdateGymSuccess() throws Exception {
                 when(gymService.updateGym(gymId, gym1.getName())).thenReturn(gym1);
-                mockMvc.perform(patch("/api/gyms/{gymId}", gymId)
+                mockMvc.perform(patch("/api/v1/gyms/{gymId}", gymId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(gym1.getName())))
                                 .andExpect(status().isOk())
@@ -237,7 +237,7 @@ public class GymControllerTest {
         void testUpdateGymNotFound() throws Exception {
                 doThrow(new GymNotFoundException("Gym with id " + gymId + " not found."))
                                 .when(gymService).updateGym(gymId, gym1.getName());
-                mockMvc.perform(patch("/api/gyms/{gymId}", gymId)
+                mockMvc.perform(patch("/api/v1/gyms/{gymId}", gymId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(gym1.getName())))
                                 .andExpect(status().isNotFound())
@@ -251,7 +251,7 @@ public class GymControllerTest {
         void testUpdateGymNameAlreadyInUse() throws Exception {
                 doThrow(new DuplicateGymException("A gym with the name '" + gym1.getName() + "' already exists."))
                                 .when(gymService).updateGym(gymId, gym1.getName());
-                mockMvc.perform(patch("/api/gyms/{gymId}", gymId)
+                mockMvc.perform(patch("/api/v1/gyms/{gymId}", gymId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(gym1.getName())))
                                 .andExpect(status().isConflict())
@@ -266,7 +266,7 @@ public class GymControllerTest {
         void testUpdateGymInvalidName() throws Exception {
                 Gym invalidGym = new Gym("");
 
-                mockMvc.perform(patch("/api/gyms/{gymId}", gymId)
+                mockMvc.perform(patch("/api/v1/gyms/{gymId}", gymId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidGym)))
                                 .andExpect(status().isUnprocessableEntity())
@@ -286,7 +286,7 @@ public class GymControllerTest {
                 doThrow(new GymNotFoundException("Gym with id " + gymId + " not found."))
                                 .when(gymService).updateGym(gymId, gym1.getName());
 
-                mockMvc.perform(patch("/api/gyms/{gymId}", gymId)
+                mockMvc.perform(patch("/api/v1/gyms/{gymId}", gymId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(gym1.getName())))
                                 .andExpect(status().isNotFound())
@@ -303,7 +303,7 @@ public class GymControllerTest {
                 doThrow(new GymNotFoundException("Gym with id " + gymId + " not found."))
                                 .when(gymService).deleteGym(gymId);
 
-                mockMvc.perform(delete("/api/gyms/{id}", gymId)
+                mockMvc.perform(delete("/api/v1/gyms/{id}", gymId)
                                 .contentType(MediaType.APPLICATION_JSON))
                                 .andExpect(status().isNotFound());
 
@@ -319,7 +319,7 @@ public class GymControllerTest {
 
                 when(gymService.findGymsByUserId(userId)).thenReturn(gyms);
 
-                mockMvc.perform(get("/api/users/{userId}/gyms", userId))
+                mockMvc.perform(get("/api/v1/users/{userId}/gyms", userId))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.length()").value(2))
                                 .andExpect(jsonPath("$[0].name").value("Location 1"))
@@ -333,7 +333,7 @@ public class GymControllerTest {
         void testGetGymsByUserIdEmpty() throws Exception {
                 when(gymService.findGymsByUserId(userId)).thenReturn(List.of());
 
-                mockMvc.perform(get("/api/users/{userId}/gyms", userId))
+                mockMvc.perform(get("/api/v1/users/{userId}/gyms", userId))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.length()").value(0));
 
@@ -346,7 +346,7 @@ public class GymControllerTest {
                 when(gymService.findGymsByUserId(userId))
                                 .thenThrow(new UserNotFoundException("User with id " + userId + " not found"));
 
-                mockMvc.perform(get("/api/users/{userId}/gyms", userId))
+                mockMvc.perform(get("/api/v1/users/{userId}/gyms", userId))
                                 .andExpect(status().isNotFound())
                                 .andExpect(jsonPath("$.message").value("User with id " + userId + " not found"));
 

@@ -68,7 +68,7 @@ public class UserControllerTest {
 
                 when(userService.findAll()).thenReturn(users);
 
-                mockMvc.perform(get("/users"))
+                mockMvc.perform(get("/api/v1/users"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$[0].name").value(user1.getName()))
                                 .andExpect(jsonPath("$[1].name").value(user2.getName()));
@@ -79,7 +79,7 @@ public class UserControllerTest {
         public void findEmptyTest() throws Exception {
                 when(userService.findAll()).thenReturn(new ArrayList<User>());
 
-                mockMvc.perform(get("/users"))
+                mockMvc.perform(get("/api/v1/users"))
                                 .andExpect(status().isOk())
                                 .andExpect(content().json("[]"));
         }
@@ -89,7 +89,7 @@ public class UserControllerTest {
         public void errorGettingUsersTest() throws Exception {
                 when(userService.findAll()).thenThrow(new RuntimeException("Internal server error"));
 
-                mockMvc.perform(get("/users"))
+                mockMvc.perform(get("/api/v1/users"))
                                 .andExpect(status().isInternalServerError())
                                 .andExpect(jsonPath("$.message").value("Internal server error"));
         }
@@ -100,7 +100,7 @@ public class UserControllerTest {
                 UUID randomUuid = UUID.randomUUID();
                 doNothing().when(userService).deleteUser(randomUuid);
 
-                mockMvc.perform(delete("/users/" + randomUuid))
+                mockMvc.perform(delete("/api/v1/users/" + randomUuid))
                                 .andExpect(status().isNoContent());
 
                 verify(userService, times(1)).deleteUser(randomUuid);
@@ -113,7 +113,7 @@ public class UserControllerTest {
                 doThrow(new UserNotFoundException("User with id " + randomUuid + " not found."))
                                 .when(userService).deleteUser(randomUuid);
 
-                mockMvc.perform(delete("/users/" + randomUuid))
+                mockMvc.perform(delete("/api/v1/users/" + randomUuid))
                                 .andExpect(status().isNotFound());
 
                 verify(userService, times(1)).deleteUser(randomUuid);
@@ -123,7 +123,7 @@ public class UserControllerTest {
         void createUserTest() throws Exception {
                 when(userService.createUser(any(User.class))).thenReturn(user1);
 
-                mockMvc.perform(post("/users")
+                mockMvc.perform(post("/api/v1/users")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(user1)))
                                 .andExpect(status().isCreated())
@@ -135,7 +135,7 @@ public class UserControllerTest {
         @Test
         @DisplayName("Should return status 422 Unprocessable Entity when creating user with null name")
         void createNullNameUserTest() throws Exception {
-                mockMvc.perform(post("/users")
+                mockMvc.perform(post("/api/v1/users")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new User())))
                                 .andExpect(status().isUnprocessableEntity())
@@ -148,7 +148,7 @@ public class UserControllerTest {
         @Test
         @DisplayName("Should return status 422 Unprocessable Entity when creating user with blank name")
         void createBlankNameUserTest() throws Exception {
-                mockMvc.perform(post("/users")
+                mockMvc.perform(post("/api/v1/users")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new User("     "))))
                                 .andExpect(status().isUnprocessableEntity())
@@ -161,7 +161,7 @@ public class UserControllerTest {
         @Test
         @DisplayName("Should return status 422 Unprocessable Entity when creating user with empty name")
         void createEmptyNameUserTest() throws Exception {
-                mockMvc.perform(post("/users")
+                mockMvc.perform(post("/api/v1/users")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new User(""))))
                                 .andExpect(status().isUnprocessableEntity())
@@ -176,7 +176,7 @@ public class UserControllerTest {
         @Test
         @DisplayName("Should return status 422 Unprocessable Entity when creating user with name with more than 50 characters")
         void createBigNameUserTest() throws Exception {
-                mockMvc.perform(post("/users")
+                mockMvc.perform(post("/api/v1/users")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new User("a".repeat(51)))))
                                 .andExpect(status().isUnprocessableEntity())
@@ -189,7 +189,7 @@ public class UserControllerTest {
         @Test
         @DisplayName("Should return status 422 Unprocessable Entity when creating user with name with less than 3 characters")
         void createSmallNameUserTest() throws Exception {
-                mockMvc.perform(post("/users")
+                mockMvc.perform(post("/api/v1/users")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new User("a"))))
                                 .andExpect(status().isUnprocessableEntity())
@@ -206,7 +206,7 @@ public class UserControllerTest {
                                 new DuplicateUserException("An user with the name " + user1.getName()
                                                 + " already exists."));
 
-                mockMvc.perform(post("/users")
+                mockMvc.perform(post("/api/v1/users")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(user1)))
                                 .andExpect(status().isConflict())
@@ -222,7 +222,7 @@ public class UserControllerTest {
         @DisplayName("should update a existing user and return status 200")
         void testUpdateUserSuccess() throws Exception {
                 when(userService.updateUser(userId, user1.getName())).thenReturn(user1);
-                mockMvc.perform(patch("/users/{id}", userId)
+                mockMvc.perform(patch("/api/v1/users/{id}", userId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(user1)))
                                 .andExpect(status().isOk())
@@ -236,7 +236,7 @@ public class UserControllerTest {
         void testUpdateUserNotFound() throws Exception {
                 doThrow(new UserNotFoundException("User with id " + userId + " not found."))
                                 .when(userService).updateUser(userId, user1.getName());
-                mockMvc.perform(patch("/users/{id}", userId)
+                mockMvc.perform(patch("/api/v1/users/{id}", userId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(user1)))
                                 .andExpect(status().isNotFound())
@@ -250,7 +250,7 @@ public class UserControllerTest {
         void testUpdateUserNameAlreadyInUse() throws Exception {
                 doThrow(new DuplicateUserException("A user with the name '" + user1.getName() + "' already exists."))
                                 .when(userService).updateUser(userId, user1.getName());
-                mockMvc.perform(patch("/users/{id}", userId)
+                mockMvc.perform(patch("/api/v1/users/{id}", userId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(user1)))
                                 .andExpect(status().isConflict())
@@ -266,7 +266,7 @@ public class UserControllerTest {
         void testUpdateUserInvalidName() throws Exception {
                 User invalidUser = new User("");
 
-                mockMvc.perform(patch("/users/{id}", userId)
+                mockMvc.perform(patch("/api/v1/users/{id}", userId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidUser)))
                                 .andExpect(status().isUnprocessableEntity())

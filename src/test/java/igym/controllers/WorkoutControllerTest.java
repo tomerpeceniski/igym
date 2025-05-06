@@ -79,7 +79,7 @@ public class WorkoutControllerTest {
         void testCreateWorkoutSuccess() throws Exception {
                 when(workoutService.createWorkout(any(Workout.class), eq(gymId))).thenReturn(workout);
 
-                mockMvc.perform(post("/api/gyms/{gymId}/workouts", gymId, gymId)
+                mockMvc.perform(post("/api/v1/gyms/{gymId}/workouts", gymId, gymId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(workout)))
                                 .andExpect(status().isCreated())
@@ -103,7 +103,7 @@ public class WorkoutControllerTest {
                 invalidWorkout.setName(invalidName);
                 invalidWorkout.setExerciseList(List.of(ex));
 
-                MvcResult result = mockMvc.perform(post("/api/gyms/{gymId}/workouts", gymId)
+                MvcResult result = mockMvc.perform(post("/api/v1/gyms/{gymId}/workouts", gymId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidWorkout)))
                                 .andExpect(status().isUnprocessableEntity())
@@ -132,7 +132,7 @@ public class WorkoutControllerTest {
         void testCreateWorkoutWithEmptyExerciseList() throws Exception {
                 workout.setExerciseList(List.of());
 
-                mockMvc.perform(post("/api/gyms/{gymId}/workouts", gymId)
+                mockMvc.perform(post("/api/v1/gyms/{gymId}/workouts", gymId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(workout)))
                                 .andExpect(status().isUnprocessableEntity());
@@ -149,7 +149,7 @@ public class WorkoutControllerTest {
                 workout.setName("Valid Workout");
                 workout.setExerciseList(List.of(invalidExercise));
 
-                MvcResult result = mockMvc.perform(post("/api/gyms/{gymId}/workouts", gymId)
+                MvcResult result = mockMvc.perform(post("/api/v1/gyms/{gymId}/workouts", gymId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(workout)))
                                 .andExpect(status().isUnprocessableEntity())
@@ -197,7 +197,7 @@ public class WorkoutControllerTest {
                 when(workoutService.createWorkout(any(Workout.class), eq(gymId)))
                                 .thenThrow(new RuntimeException("Unexpected failure"));
 
-                mockMvc.perform(post("/api/gyms/{gymId}/workouts", gymId)
+                mockMvc.perform(post("/api/v1/gyms/{gymId}/workouts", gymId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(workout)))
                                 .andExpect(status().isInternalServerError());
@@ -224,7 +224,7 @@ public class WorkoutControllerTest {
 
                 when(workoutService.getWorkoutsByGymId(gymId)).thenReturn(List.of(workout, workout2));
 
-                mockMvc.perform(get("/api/gyms/{gymId}/workouts", gymId)
+                mockMvc.perform(get("/api/v1/gyms/{gymId}/workouts", gymId)
                                 .contentType(MediaType.APPLICATION_JSON))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.length()").value(2))
@@ -241,7 +241,7 @@ public class WorkoutControllerTest {
 
                 doNothing().when(workoutService).deleteWorkout(workoutId);
 
-                mockMvc.perform(delete("/api/workouts/{id}", workoutId))
+                mockMvc.perform(delete("/api/v1/workouts/{id}", workoutId))
                                 .andExpect(status().isNoContent());
 
                 verify(workoutService, times(1)).deleteWorkout(workoutId);
@@ -255,7 +255,7 @@ public class WorkoutControllerTest {
                 doThrow(new WorkoutNotFoundException("Workout not found")).when(workoutService)
                                 .deleteWorkout(workoutId);
 
-                mockMvc.perform(delete("/api/workouts/{id}", workoutId))
+                mockMvc.perform(delete("/api/v1/workouts/{id}", workoutId))
                                 .andExpect(status().isNotFound());
 
                 verify(workoutService, times(1)).deleteWorkout(workoutId);
@@ -268,7 +268,7 @@ public class WorkoutControllerTest {
 
                 doNothing().when(workoutService).deleteExercise(exerciseId);
 
-                mockMvc.perform(delete("/api/exercises/{id}", exerciseId))
+                mockMvc.perform(delete("/api/v1/exercises/{id}", exerciseId))
                                 .andExpect(status().isNoContent());
 
                 verify(workoutService, times(1)).deleteExercise(exerciseId);
@@ -282,7 +282,7 @@ public class WorkoutControllerTest {
                 doThrow(new ExerciseNotFoundException("Exercise not found")).when(workoutService)
                                 .deleteExercise(exerciseId);
 
-                mockMvc.perform(delete("/api/exercises/{id}", exerciseId))
+                mockMvc.perform(delete("/api/v1/exercises/{id}", exerciseId))
                                 .andExpect(status().isNotFound());
 
                 verify(workoutService, times(1)).deleteExercise(exerciseId);
@@ -294,7 +294,7 @@ public class WorkoutControllerTest {
 
                 when(workoutService.updateWorkout(eq(workoutId), any(Workout.class))).thenReturn(workout);
 
-                mockMvc.perform(patch("/api/workouts/{id}", workoutId)
+                mockMvc.perform(patch("/api/v1/workouts/{id}", workoutId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(workout)))
                                 .andExpect(status().isOk())
