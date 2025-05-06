@@ -3,7 +3,10 @@ package igym.controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import igym.entities.Exercise;
+import igym.entities.Gym;
 import igym.entities.Workout;
+import igym.exceptions.ExerciseNotFoundException;
+import igym.exceptions.WorkoutNotFoundException;
 import igym.services.WorkoutService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(WorkoutController.class)
@@ -46,22 +49,29 @@ public class WorkoutControllerTest {
 
         private final ObjectMapper objectMapper = new ObjectMapper();
 
-        private Workout workout;
-        UUID gymId = UUID.randomUUID();
+        Workout workout;
+        UUID gymId;
+        Gym gym;
 
         @BeforeEach
         void setUp() {
+                gym = new Gym("Mocked Gym");
+                gymId = UUID.randomUUID();
+                ReflectionTestUtils.setField(gym, "id", gymId);
+
                 Exercise ex = new Exercise();
+                ReflectionTestUtils.setField(ex, "id", UUID.randomUUID());
                 ex.setName("Squat");
                 ex.setWeight(60);
                 ex.setNumReps(10);
                 ex.setNumSets(3);
 
                 workout = new Workout();
+                ReflectionTestUtils.setField(workout, "id", UUID.randomUUID());
                 workout.setName("Leg Day");
                 workout.setExerciseList(List.of(ex));
-
-                ReflectionTestUtils.setField(workout, "id", UUID.randomUUID());
+                workout.setGym(gym);
+                ex.setWorkout(workout);
         }
 
         @Test
@@ -193,6 +203,105 @@ public class WorkoutControllerTest {
                                 .andExpect(status().isInternalServerError());
 
                 verify(workoutService, times(1)).createWorkout(any(Workout.class), eq(gymId));
+        }
+
+        @Test
+        @DisplayName("should return all workouts for a given gym")
+        void testGetWorkoutsByGymId() throws Exception {
+                Exercise ex2 = new Exercise();
+                ReflectionTestUtils.setField(ex2, "id", UUID.randomUUID());
+                ex2.setName("Pushup");
+                ex2.setWeight(0);
+                ex2.setNumReps(15);
+                ex2.setNumSets(3);
+
+                Workout workout2 = new Workout();
+                ReflectionTestUtils.setField(workout2, "id", UUID.randomUUID());
+                workout2.setName("Upper Body");
+                workout2.setExerciseList(List.of(ex2));
+                workout2.setGym(gym);
+                ex2.setWorkout(workout2);
+
+                when(workoutService.getWorkoutsByGymId(gymId)).thenReturn(List.of(workout, workout2));
+
+                mockMvc.perform(get("/api/gyms/{gymId}/workouts", gymId)
+                                .contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.length()").value(2))
+                                .andExpect(jsonPath("$[0].name").value("Leg Day"))
+                                .andExpect(jsonPath("$[1].name").value("Upper Body"));
+
+                verify(workoutService, times(1)).getWorkoutsByGymId(gymId);
+
+        }
+
+        @DisplayName("should return 204 No Content when deleting existing workout")
+        void testDeleteWorkoutSuccess() throws Exception {
+                UUID workoutId = UUID.randomUUID();
+
+                doNothing().when(workoutService).deleteWorkout(workoutId);
+
+                mockMvc.perform(delete("/api/workouts/{id}", workoutId))
+                                .andExpect(status().isNoContent());
+
+                verify(workoutService, times(1)).deleteWorkout(workoutId);
+        }
+
+        @Test
+        @DisplayName("should return 404 Not Found when workout does not exist")
+        void testDeleteWorkoutNotFound() throws Exception {
+                UUID workoutId = UUID.randomUUID();
+
+                doThrow(new WorkoutNotFoundException("Workout not found")).when(workoutService)
+                                .deleteWorkout(workoutId);
+
+                mockMvc.perform(delete("/api/workouts/{id}", workoutId))
+                                .andExpect(status().isNotFound());
+
+                verify(workoutService, times(1)).deleteWorkout(workoutId);
+        }
+
+        @Test
+        @DisplayName("should return 204 No Content when deleting existing exercise")
+        void testDeleteExerciseSuccess() throws Exception {
+                UUID exerciseId = UUID.randomUUID();
+
+                doNothing().when(workoutService).deleteExercise(exerciseId);
+
+                mockMvc.perform(delete("/api/exercises/{id}", exerciseId))
+                                .andExpect(status().isNoContent());
+
+                verify(workoutService, times(1)).deleteExercise(exerciseId);
+        }
+
+        @Test
+        @DisplayName("should return 404 Not Found when exercise does not exist")
+        void testDeleteExerciseNotFound() throws Exception {
+                UUID exerciseId = UUID.randomUUID();
+
+                doThrow(new ExerciseNotFoundException("Exercise not found")).when(workoutService)
+                                .deleteExercise(exerciseId);
+
+                mockMvc.perform(delete("/api/exercises/{id}", exerciseId))
+                                .andExpect(status().isNotFound());
+
+                verify(workoutService, times(1)).deleteExercise(exerciseId);
+        }
+
+        @DisplayName("should return 200 OK when updating a workout and its exercises")
+        void testUpdateWorkout() throws Exception {
+                UUID workoutId = UUID.randomUUID();
+
+                when(workoutService.updateWorkout(eq(workoutId), any(Workout.class))).thenReturn(workout);
+
+                mockMvc.perform(patch("/api/workouts/{id}", workoutId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(workout)))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.name").value(workout.getName()))
+                                .andExpect(jsonPath("$.exerciseList[0].name").value("Squat"));
+
+                verify(workoutService, times(1)).updateWorkout(eq(workoutId), any(Workout.class));
         }
 
 }
