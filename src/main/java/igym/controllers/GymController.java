@@ -26,7 +26,7 @@ import jakarta.validation.Valid;
  * REST controller for managing gyms.
  * Provides endpoints for creating, retrieving, updating, and deleting gyms.
  */
-@RequestMapping(value = "/api")
+@RequestMapping(value = "/api/v1", produces = "application/json")
 @RestController
 @Validated
 public class GymController {
@@ -47,7 +47,7 @@ public class GymController {
      * @throws UserNotFoundException if the provided userId does not match any user
      */
     // When authentication process is set, change the signature of this method
-    @PostMapping(value = "/gyms/{userId}", produces = "application/json")
+    @PostMapping(value = "/gyms/{userId}")
     public ResponseEntity<GymDTO> createGym(@RequestBody @Valid Gym gym, @PathVariable UUID userId) {
         Gym createdGym = service.createGym(gym, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(new GymDTO(createdGym));
@@ -62,7 +62,7 @@ public class GymController {
      * @throws GymNotFoundException  if no gym is found with the provided ID
      * @throws DuplicateGymException if a gym with the same new name already exists
      */
-    @PatchMapping(value = "/gyms/{id}", produces = "application/json")
+    @PatchMapping(value = "/gyms/{id}")
     public ResponseEntity<GymDTO> updateGym(@PathVariable("id") UUID id, @RequestBody @Valid Gym gym) {
         String name = gym.getName();
         Gym updatedGym = service.updateGym(id, name);
@@ -74,7 +74,7 @@ public class GymController {
      *
      * @return a list of gyms (as DTO) and HTTP 200 OK status
      */
-    @GetMapping(value = "/gyms", produces = "application/json")
+    @GetMapping(value = "/gyms")
     public ResponseEntity<List<GymDTO>> findAllGyms() {
         List<GymDTO> gyms = service.findAll().stream().map(GymDTO::new).toList();
         return ResponseEntity.ok(gyms);
@@ -88,7 +88,7 @@ public class GymController {
      * @throws UserNotFoundException if the user does not exist or is inactive
      * @throws GymNotFoundException  if the user has no active gyms
      */
-    @GetMapping(value = "/users/{userId}/gyms", produces = "application/json")
+    @GetMapping(value = "/users/{userId}/gyms")
     public ResponseEntity<List<GymDTO>> getGymsByUserId(@PathVariable UUID userId) {
         List<GymDTO> gyms = service.findGymsByUserId(userId).stream().map(GymDTO::new).toList();
         return ResponseEntity.ok(gyms);
@@ -101,7 +101,7 @@ public class GymController {
      * @return HTTP 204 No Content status if deletion is successful
      * @throws GymNotFoundException if no gym is found with the provided ID
      */
-    @DeleteMapping(value = "/gyms/{id}", produces = "application/json")
+    @DeleteMapping(value = "/gyms/{id}")
     public ResponseEntity<Void> deleteGym(@PathVariable("id") UUID id) {
         service.deleteGym(id);
         return ResponseEntity.noContent().build();
