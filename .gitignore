@@ -35,3 +35,5 @@ build/
 package-lock.json
 node_modules
 .vite
+node_modules/
+package-lock.json

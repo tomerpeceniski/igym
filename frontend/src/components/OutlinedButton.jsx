@@ -1,6 +1,6 @@
 import { Button } from "@mui/material";
 
-export default function OutlinedButton({ inputText, color, startIcon, ...rest }) {
+export default function OutlinedButton({ inputText, color, startIcon }) {
   return (
     <Button
       variant="outlined"
@@ -12,7 +12,6 @@ export default function OutlinedButton({ inputText, color, startIcon, ...rest })
         color: color,
         borderColor: color
       }}
-      {...rest}
     >
       {inputText}
     </Button>

@@ -14,7 +14,22 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.ToString;
 
-@ToString(exclude = "user")
+/**
+ * Represents a gym owned by a user.
+ * 
+ * <p>
+ * Each gym has a unique identifier, a name, a status (active or inactive),
+ * a timestamp of the last update, and a reference to its owner {@link User}.
+ * It also maintains a list of workouts associated with it.
+ * </p>
+ *
+ * <p>
+ * Field validations ensure that the gym's name is non-blank and within a
+ * specified length.
+ * </p>
+ */
+
+@ToString()
 @Table(name = "gyms")
 @Entity
 public class Gym {
@@ -38,10 +53,12 @@ public class Gym {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
+    @ToString.Exclude
     private User user;
 
     @OneToMany(mappedBy = "gym", cascade = CascadeType.ALL)
     @JsonManagedReference
+    @ToString.Exclude
     private List<Workout> workouts;
 
     public Gym(String name) {
@@ -78,4 +95,17 @@ public class Gym {
     public void setUser(User user) {
         this.user = user;
     }
+
+    public Instant getUpdated_at() {
+        return updated_at;
+    }
+
+    public List<Workout> getWorkouts() {
+        return workouts;
+    }
+
+    public void setWorkouts(List<Workout> workouts) {
+        this.workouts = workouts;
+    }
+
 }
