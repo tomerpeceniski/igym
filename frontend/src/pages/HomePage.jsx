@@ -22,7 +22,7 @@ export default function HomePage() {
         textAlign="center"
         mb={3}
       >
-        <GreetingTitle />
+        <GreetingTitle name={"User"}/>
       </Box>
 
       <Box
