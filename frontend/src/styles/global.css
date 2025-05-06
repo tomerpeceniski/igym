@@ -1,0 +1,11 @@
+body {
+  padding: 30px;
+  font-family: 'Poppins', 'Roboto', sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #386070 transparent;
+}
