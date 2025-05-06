@@ -4,6 +4,7 @@ import GreetingTitle from '../components/GreetingTitle.jsx';
 import GymSelector from '../components/GymSelector.jsx';
 import WorkoutSummary from '../components/WorkoutSummary.jsx';
 import gyms from '../data/mockedGyms';
+import OutlinedButton from '../components/OutlinedButton.jsx';
 
 export default function HomePage() {
   const [selectedGym, setSelectedGym] = useState(gyms[0].name);
@@ -39,11 +40,19 @@ export default function HomePage() {
         >
           {selectedGym}
         </Typography>
-        <GymSelector
-          gyms={gyms}
-          selectedGym={selectedGym}
-          onChange={(e) => setSelectedGym(e.target.value)}
-        />
+
+        <Box>
+          <Box sx={{ width: "100%", maxWidth: 200 }}>
+            <OutlinedButton inputText={"New Workout"}/>
+          </Box>
+          <Box sx={{ width: "100%", maxWidth: 200 }}>
+            <GymSelector
+              gyms={gyms}
+              selectedGym={selectedGym}
+              onChange={(e) => setSelectedGym(e.target.value)}
+            />
+          </Box>
+        </Box>
       </Box>
 
       <Box sx={{ width: '100', px: 2 }}>

@@ -6,7 +6,6 @@ export default function GymSelector({ gyms, selectedGym, onChange }) {
     <FormControl
       fullWidth
       sx={{
-        maxWidth: 200,
         color: 'text.secondary',
         '& .MuiInputLabel-root': {
           color: 'text.secondary',

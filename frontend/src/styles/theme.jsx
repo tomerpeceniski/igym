@@ -12,6 +12,10 @@ const theme = createTheme({
             main: '#fff',
             contrastText: '#000',
         },
+        white: {
+            main: '#fff',
+            contrastText: '#000',
+        },
         background: {
             default: blueGrey[800],
             paper: blueGrey[100],
