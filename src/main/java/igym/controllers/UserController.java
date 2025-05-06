@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,7 +28,7 @@ import org.springframework.web.bind.annotation.PostMapping;
  * Provides endpoints for creating, retrieving, updating, and deleting users.
  */
 @RestController
-@RequestMapping(value = "/users")
+@RequestMapping(value = "/api/v1", produces = "application/json")
 @Validated
 public class UserController {
 
@@ -44,7 +43,7 @@ public class UserController {
      *
      * @return a list of users (as DTO) with HTTP 200 OK status
      */
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/users")
     public ResponseEntity<List<UserDTO>> findAll() {
         List<UserDTO> list = service.findAll().stream().map(UserDTO::new).toList();
         return ResponseEntity.ok().body(list);
@@ -57,7 +56,7 @@ public class UserController {
      * @return HTTP 204 No Content status if deletion is successful
      * @throws UserNotFoundException if no user is found with the provided ID
      */
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/users/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         service.deleteUser(id);
         return ResponseEntity.noContent().build();
@@ -70,7 +69,7 @@ public class UserController {
      * @return the created user (as DTO) and HTTP 201 Created status
      * @throws DuplicateUserException if a user with the same name already exists
      */
-    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/users")
     public ResponseEntity<UserDTO> createUser(@RequestBody @Valid User user) {
         User savedUser = service.createUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(new UserDTO(savedUser));
@@ -85,7 +84,7 @@ public class UserController {
      * @throws UserNotFoundException  if no user is found with the provided ID
      * @throws DuplicateUserException if a user with the same new name already exists
      */
-    @PatchMapping(value = "/{id}", produces = "application/json")
+    @PatchMapping(value = "/users/{id}")
     public ResponseEntity<UserDTO> updateUser(@PathVariable("id") UUID id, @RequestBody @Valid User user) {
         String name = user.getName();
         User updatedUser = service.updateUser(id, name);
