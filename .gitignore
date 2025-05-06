@@ -3,6 +3,9 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+env.bat
+env.sh
+env.ps1
 
 ### STS ###
 .apt_generated

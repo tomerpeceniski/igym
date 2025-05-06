@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
  * REST controller for managing workouts.
  * Provides endpoints for creating, retrieving, updating, and deleting workouts.
  */
-@RequestMapping(value = "/api")
+@RequestMapping(value = "/api/v1", produces = "application/json")
 @RestController
 public class WorkoutController {
 
@@ -36,7 +36,7 @@ public class WorkoutController {
      * @return the created workout (as DTO) with HTTP 201 Created status
      * @throws GymNotFoundException if no gym is found with the provided ID
      */
-    @PostMapping(value = "/gyms/{gymId}/workouts", produces = "application/json")
+    @PostMapping(value = "/gyms/{gymId}/workouts")
     public ResponseEntity<WorkoutDTO> createWorkout(
             @PathVariable UUID gymId,
             @RequestBody @Valid Workout workout) {
@@ -51,7 +51,7 @@ public class WorkoutController {
      * @return a list of workouts (as DTO) and HTTP 200 status
      * @throws GymNotFoundException if no gym is found with the provided ID
      */
-    @GetMapping(value = "/gyms/{gymId}/workouts", produces = "application/json")
+    @GetMapping(value = "/gyms/{gymId}/workouts")
     public ResponseEntity<List<WorkoutDTO>> getWorkoutsByGymId(@PathVariable UUID gymId) {
         List<WorkoutDTO> workouts = workoutService.getWorkoutsByGymId(gymId).stream().map(WorkoutDTO::new).toList();
         return ResponseEntity.ok(workouts);
@@ -101,7 +101,7 @@ public class WorkoutController {
      * @throws WorkoutNotFoundException if no workout is found with the given ID
      * @return the workout with the specified ID (as DTO) and HTTP 200 status
      */
-    @PatchMapping(value = "/workouts/{id}", produces = "application/json")
+    @PatchMapping(value = "/workouts/{id}")
     public ResponseEntity<WorkoutDTO> updateWorkout(@PathVariable("id") UUID workoutId,
             @RequestBody @Valid Workout workout) {
         Workout updatedWorkout = workoutService.updateWorkout(workoutId, workout);
