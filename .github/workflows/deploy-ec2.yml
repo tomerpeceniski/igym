@@ -1,0 +1,57 @@
+name: Deploy Backend to EC2
+
+on:
+    push:
+        branches: [ "main" ]
+    pull_request:
+        branches: [ "main" ]
+
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up SSH key
+      run: |
+        echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
+        chmod 600 private_key.pem
+
+    - name: Set up Java and Build Project
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: Build JAR
+      run: mvn clean package -DskipTests
+
+    - name: Copy Files to EC2
+      run: |
+        scp -i private_key.pem -o StrictHostKeyChecking=no \
+        target/igym-0.0.1-SNAPSHOT.jar \
+        Dockerfile \
+        ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/
+
+    - name: Deploy via SSH and Docker
+      run: |
+        ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
+          cd /home/${{ secrets.EC2_USER }}
+
+          # Stop and remove old container if running
+          docker stop igym || true
+          docker rm igym || true
+
+          # Build Docker image using Dockerfile
+          docker build -t igym-backend .
+
+          # Run the container with secrets as env vars
+          docker run -d -p 8081:8081 --name igym \
+            -e DB_URL="${{ secrets.DB_URL }}" \
+            -e DB_USERNAME="${{ secrets.DB_USER }}" \
+            -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+            igym-backend
+        EOF
