@@ -3,7 +3,7 @@ import { Card, CardContent, Typography, IconButton, Divider, Box } from '@mui/ma
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-export default function WorkoutCard({ workout }) {
+export default function WorkoutSummary({ workout }) {
   return (
     <Card sx={{ height: 320, display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
 
