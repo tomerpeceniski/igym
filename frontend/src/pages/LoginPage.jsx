@@ -42,13 +42,12 @@ export default function LoginPage() {
             flexDirection="column"
             alignItems="center"
             justifyContent="center"
-            minHeight="90vh"
+            mt={10}
         >
             <Box
                 component="img"
                 src={logo}
                 alt="iGym logo"
-                maxWidth="80%"
                 width={{ xs: '200px', sm: '250px', md: '300px' }}
                 mb={4}
             />
