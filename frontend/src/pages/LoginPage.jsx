@@ -1,36 +1,40 @@
-import { Box, TextField, Typography, useTheme, Button } from '@mui/material';
+import { Box, TextField, Typography, Button, styled } from '@mui/material';
 import { useState } from 'react';
 import logo from '../assets/igym-logo-text.png';
 import AddIcon from '@mui/icons-material/Add';
 
+const CustomTextField = styled(TextField)(({ theme }) => ({
+    '& .MuiOutlinedInput-root': {
+        '& fieldset': {
+            borderColor: theme.palette.secondary.main,
+        },
+        '&:hover fieldset': {
+            borderColor: theme.palette.secondary.main,
+        },
+        '&.Mui-focused fieldset': {
+            borderColor: theme.palette.secondary.main,
+        },
+    },
+
+    '& .MuiInputLabel-root': {
+        color: theme.palette.secondary.main,
+    },
+    '& label.Mui-focused': {
+        color: theme.palette.secondary.main,
+    },
+
+    input: {
+        color: theme.palette.secondary.main,
+    },
+}))
+
+const CustomButton = styled(Button)(({ theme }) => ({
+    backgroundColor: theme.palette.background.paper,
+    color: theme.palette.background.default
+}))
+
 export default function LoginPage() {
     const [isCreatingAccount, setIsCreatingAccount] = useState(false);
-    const theme = useTheme();
-    const textFieldSx = {
-
-        '& .MuiOutlinedInput-root': {
-            '& fieldset': {
-                borderColor: theme.palette.secondary.main,
-            },
-            '&:hover fieldset': {
-                borderColor: theme.palette.secondary.main,
-            },
-            '&.Mui-focused fieldset': {
-                borderColor: theme.palette.secondary.main,
-            },
-        },
-
-        '& .MuiInputLabel-root': {
-            color: theme.palette.secondary.main,
-        },
-        '& label.Mui-focused': {
-            color: theme.palette.secondary.main,
-        },
-
-        input: {
-            color: theme.palette.secondary.main,
-        },
-    }
 
     return (
         <Box
@@ -52,31 +56,28 @@ export default function LoginPage() {
                 {isCreatingAccount ? 'Create Your Account' : 'Welcome to iGym'}
             </Typography>
             <Box width="100%" maxWidth={400} display="flex" flexDirection="column" gap={2}>
-                <TextField label="Email" fullWidth sx={textFieldSx} />
-                <TextField label="Password" type="password" fullWidth sx={textFieldSx} />
+                <CustomTextField label="Name" fullWidth />
+                <CustomTextField label="Password" type="password" fullWidth />
                 {isCreatingAccount && (
-                    <TextField label="Confirm Password" type="password" fullWidth sx={textFieldSx} />
+                    <CustomTextField label="Confirm Password" type="password" fullWidth />
                 )}
                 {!isCreatingAccount ? (
                     <>
-                        <Button variant="contained" fullWidth sx={{ backgroundColor: theme.palette.background.paper, color: theme.palette.background.default }}>
+                        <CustomButton variant="contained" fullWidth >
                             LOG IN
-                        </Button>
-                        <Button variant="contained" fullWidth
-                            sx={{ backgroundColor: theme.palette.background.paper, color: theme.palette.background.default }} startIcon={<AddIcon />} onClick={() => setIsCreatingAccount(true)} >
+                        </CustomButton>
+                        <CustomButton variant="contained" fullWidth startIcon={<AddIcon />} onClick={() => setIsCreatingAccount(true)} >
                             CREATE ACCOUNT
-                        </Button>
+                        </CustomButton>
                     </>
                 ) : (
                     <>
-                        <Button variant="contained" fullWidth
-                            sx={{ backgroundColor: theme.palette.background.paper, color: theme.palette.background.default }} startIcon={<AddIcon />} >
+                        <CustomButton variant="contained" fullWidth startIcon={<AddIcon />} >
                             CREATE ACCOUNT
-                        </Button>
-                        <Button variant="contained" fullWidth
-                            sx={{ backgroundColor: theme.palette.background.paper, color: theme.palette.background.default }} onClick={() => setIsCreatingAccount(false)} >
+                        </CustomButton>
+                        <CustomButton variant="contained" fullWidth onClick={() => setIsCreatingAccount(false)} >
                             BACK TO LOGIN
-                        </Button>
+                        </CustomButton>
                     </>
                 )}
             </Box>
