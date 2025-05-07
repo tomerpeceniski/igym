@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
-import { Box, Typography, Grid, useTheme } from '@mui/material';
+import { Box, Typography, Grid, styled, Button} from '@mui/material';
 import GreetingTitle from '../components/GreetingTitle.jsx';
 import GymSelector from '../components/GymSelector.jsx';
 import WorkoutSummary from '../components/WorkoutSummary.jsx';
 import gyms from '../data/mockedGyms';
-import OutlinedButton from '../components/OutlinedButton.jsx';
 import AddIcon from '@mui/icons-material/Add';
+
+const CustomButton = styled(Button)(({ theme }) => ({
+  width: '100%',
+  height: '100%',
+  color: theme.palette.secondary.main,
+  borderColor: theme.palette.secondary.main
+}))
 
 export default function HomePage() {
   const [selectedGym, setSelectedGym] = useState(gyms[0].name);
   const currentGym = gyms.find(g => g.name === selectedGym);
-  const theme = useTheme();
 
   return (
     <Box>
@@ -22,7 +27,7 @@ export default function HomePage() {
         textAlign="center"
         mb={3}
       >
-        <GreetingTitle name={"User"}/>
+        <GreetingTitle name={"User"} />
       </Box>
 
       <Box
@@ -46,7 +51,10 @@ export default function HomePage() {
 
         <Box display="flex" gap={4} width="100%" maxWidth={450} alignItems="stretch" justifyContent={{ xs: 'center', sm: 'space-between' }} flexDirection={{ xs: 'column', sm: 'row' }}>
           <Box sx={{ flex: 1 }}>
-          <OutlinedButton inputText="New Workout" color={theme.palette.secondary.main} startIcon={<AddIcon />}/>
+            <CustomButton variant="outlined" startIcon={<AddIcon />}>
+              New Workout
+            </CustomButton>
+
           </Box>
           <Box sx={{ flex: 1 }}>
             <GymSelector
