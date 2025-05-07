@@ -10,6 +10,9 @@ export default function GymSelector({ gyms, selectedGym, onChange }) {
         color: 'text.secondary',
         '& .MuiInputLabel-root': {
           color: 'text.secondary',
+          '&.Mui-focused': {
+            color: 'text.secondary',
+          },
         },
         '& .MuiOutlinedInput-root': {
           color: 'text.secondary',
