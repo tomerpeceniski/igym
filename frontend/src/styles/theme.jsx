@@ -2,6 +2,9 @@ import { createTheme } from '@mui/material/styles';
 import { blueGrey } from '@mui/material/colors';
 import '@fontsource/poppins';
 
+const white = '#fff';
+const black = '#000';
+
 const theme = createTheme({
     spacing: 8,
     palette: {
@@ -9,16 +12,16 @@ const theme = createTheme({
             main: blueGrey[500],
         },
         secondary: {
-            main: '#fff',
-            contrastText: '#000',
+            main: white,
+            contrastText: black,
         },
         background: {
             default: blueGrey[800],
-            paper: '#fff',
+            paper: white,
         },
         text: {
-            primary: '#000',
-            secondary: '#fff',
+            primary: black,
+            secondary: white,
         },
     },
 
