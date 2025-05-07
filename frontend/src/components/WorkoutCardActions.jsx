@@ -7,28 +7,29 @@ import CloseIcon from '@mui/icons-material/Close';
 
 const WorkoutCardActions = ({ isEditing, onEdit, onSave, onCancel, onDelete, onClose }) => {
   const theme = useTheme();
+  const color = theme.palette.background.paper;
 
-  return (
+  return ( 
     <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 1 }}>
       {!isEditing ? (
         <>
           <IconButton aria-label="edit workout" size="small" onClick={onEdit}>
-            <EditIcon sx={{ color: theme.palette.background.paper }} />
+            <EditIcon sx={{ color }} />
           </IconButton>
           <IconButton aria-label="delete workout" size="small" onClick={onDelete}>
-            <DeleteIcon sx={{ color: theme.palette.background.paper }} />
+            <DeleteIcon sx={{ color }} />
           </IconButton>
           <IconButton aria-label="close workout" size="small" onClick={onClose}>
-            <CloseIcon sx={{ color: theme.palette.background.paper }} />
+            <CloseIcon sx={{ color }} />
           </IconButton>
         </>
       ) : (
         <>
           <IconButton aria-label="save workout" size="small" onClick={onSave}>
-            <SaveIcon sx={{ color: theme.palette.background.paper }} />
+            <SaveIcon sx={{ color }} />
           </IconButton>
           <IconButton aria-label="discard changes" size="small" onClick={onCancel}>
-            <ClearIcon sx={{ color: theme.palette.background.paper }} />
+            <ClearIcon sx={{ color }} />
           </IconButton>
         </>
       )}
