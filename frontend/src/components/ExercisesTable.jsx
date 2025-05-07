@@ -1,12 +1,9 @@
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Box, useTheme } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Box, styled , useTheme} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import OutlinedButton from './OutlinedButton';
 
-const ExercisesTable = ({ exercises, isEditing }) => {
-    const theme = useTheme();
-
-    const inputSx = {
-        '& .MuiInput-underline:before': {
+const CustomTextField = styled(TextField)(({ theme }) => ({
+    '& .MuiInput-underline:before': {
             borderBottomColor: theme.palette.background.default,
         },
         '& .MuiInput-underline:hover:before': {
@@ -14,9 +11,12 @@ const ExercisesTable = ({ exercises, isEditing }) => {
         },
         '& .MuiInput-underline:after': {
             borderBottomColor: theme.palette.background.default,
-        },
-    };
+        }
+}))
 
+const ExercisesTable = ({ exercises, isEditing }) => {
+    const theme = useTheme();
+    
     return (
         <>
             <TableContainer sx={{ overflowX: 'auto' }}>
@@ -35,13 +35,12 @@ const ExercisesTable = ({ exercises, isEditing }) => {
                             <TableRow key={index}>
                                 <TableCell>
                                     {isEditing ? (
-                                        <TextField
+                                        <CustomTextField
                                             variant="standard"
                                             defaultValue={exercise.name}
                                             fullWidth
                                             multiline
                                             maxRows={2}
-                                            sx={inputSx}
                                         />
                                     ) : (
                                         exercise.name
@@ -49,11 +48,10 @@ const ExercisesTable = ({ exercises, isEditing }) => {
                                 </TableCell>
                                 <TableCell align="right">
                                     {isEditing ? (
-                                        <TextField
+                                        <CustomTextField
                                             variant="standard"
                                             defaultValue={exercise.weight}
                                             fullWidth
-                                            sx={inputSx}
                                         />
                                     ) : (
                                         exercise.weight
@@ -61,11 +59,10 @@ const ExercisesTable = ({ exercises, isEditing }) => {
                                 </TableCell>
                                 <TableCell align="right">
                                     {isEditing ? (
-                                        <TextField
+                                        <CustomTextField
                                             variant="standard"
                                             defaultValue={exercise.repetitions}
                                             fullWidth
-                                            sx={inputSx}
                                         />
                                     ) : (
                                         exercise.repetitions
@@ -73,11 +70,10 @@ const ExercisesTable = ({ exercises, isEditing }) => {
                                 </TableCell>
                                 <TableCell align="right">
                                     {isEditing ? (
-                                        <TextField
+                                        <CustomTextField
                                             variant="standard"
                                             defaultValue={exercise.sets}
                                             fullWidth
-                                            sx={inputSx}
                                         />
                                     ) : (
                                         exercise.sets
@@ -85,13 +81,12 @@ const ExercisesTable = ({ exercises, isEditing }) => {
                                 </TableCell>
                                 <TableCell>
                                     {isEditing ? (
-                                        <TextField
+                                        <CustomTextField
                                             variant="standard"
                                             defaultValue={exercise.note || ''}
                                             fullWidth
                                             multiline
                                             maxRows={4}
-                                            sx={inputSx}
                                         />
                                     ) : (
                                         exercise.note || '-'
