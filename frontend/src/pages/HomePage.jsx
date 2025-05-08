@@ -102,7 +102,7 @@ export default function HomePage() {
         ) : (
           <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
             {workouts.map((workout, index) => (
-              <Grid key={index} item xs={4} sm={4} md={4}>
+              <Grid key={index} size={{ xs: 4, sm: 4, md: 4 }}>
                 <WorkoutSummary workout={workout} />
               </Grid>
             ))}
