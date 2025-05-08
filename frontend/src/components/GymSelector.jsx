@@ -1,33 +1,32 @@
 import * as React from 'react';
-import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { FormControl, InputLabel, MenuItem, Select, styled } from '@mui/material';
+
+const CustomFormControl = styled(FormControl)(({ theme }) => ({
+  height: '100%',
+  color: theme.palette.text.secondary,
+  '& .MuiInputLabel-root': {
+    color: theme.palette.text.secondary,
+    '&.Mui-focused': {
+      color: theme.palette.text.secondary,
+    },
+  },
+  '& .MuiOutlinedInput-root': {
+    color: theme.palette.text.secondary,
+    '& fieldset': {
+      borderColor: theme.palette.text.secondary,
+    },
+    '&:hover fieldset': {
+      borderColor: theme.palette.text.secondary,
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: theme.palette.text.secondary,
+    },
+  },
+}))
 
 export default function GymSelector({ gyms, selectedGym, onChange }) {
   return (
-    <FormControl
-      fullWidth
-      sx={{
-        height: '100%',
-        color: 'text.secondary',
-        '& .MuiInputLabel-root': {
-          color: 'text.secondary',
-          '&.Mui-focused': {
-            color: 'text.secondary',
-          },
-        },
-        '& .MuiOutlinedInput-root': {
-          color: 'text.secondary',
-          '& fieldset': {
-            borderColor: 'text.secondary',
-          },
-          '&:hover fieldset': {
-            borderColor: 'text.secondary',
-          },
-          '&.Mui-focused fieldset': {
-            borderColor: 'text.secondary',
-          },
-        },
-      }}
-    >
+    <CustomFormControl fullWidth>
       <InputLabel id="gym-select-label">Select a Gym</InputLabel>
       <Select
         labelId="gym-select-label"
@@ -41,6 +40,6 @@ export default function GymSelector({ gyms, selectedGym, onChange }) {
           </MenuItem>
         ))}
       </Select>
-    </FormControl>
+    </CustomFormControl>
   );
 }
