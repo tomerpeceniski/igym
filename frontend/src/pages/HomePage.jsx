@@ -8,7 +8,7 @@ import { useGyms } from '../hooks/useGyms.jsx';
 import { useWorkouts } from '../hooks/useWorkouts.jsx';
 import mockedUsers from '../data/mockedUsers.js';
 
-const user = mockedUsers[1];
+const user = mockedUsers[0];
 
 const CustomButton = styled(Button)(({ theme }) => ({
   width: '100%',
@@ -25,17 +25,9 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!gymsLoading && gyms.length > 0) {
-      setSelectedGym(gyms[0]);
+      setSelectedGym(gyms[1]);
     }
   }, [gymsLoading, gyms]);
-
-  if (gymsLoading) {
-    return <Box display="flex" justifyContent="center" mt={4}><CircularProgress /></Box>;
-  }
-
-  if (gymsError) {
-    return <Box color="error.main" textAlign="center" mt={4}>Failed to load gyms.</Box>;
-  }
 
   return (
     <Box>
@@ -60,12 +52,7 @@ export default function HomePage() {
         py={2}
         px={8}
       >
-        <Typography
-          variant="h2"
-          align="center"
-          gutterBottom
-          sx={{ color: 'text.secondary' }}
-        >
+        <Typography variant="h2" align="center" gutterBottom sx={{ color: 'text.secondary' }}>
           {selectedGym?.name}
         </Typography>
 
@@ -78,27 +65,44 @@ export default function HomePage() {
           </Box>
           <Box sx={{ flex: 1 }}>
             <GymSelector
-              gyms={gyms}
-              selectedGym={selectedGym ? selectedGym.id : undefined} // avoids passing ""
+              gyms={gyms || []}
+              selectedGym={selectedGym ? selectedGym.id : undefined}
               onChange={(e) => {
                 const gymId = e.target.value;
-                const gym = gyms.find(g => g.id === gymId);
+                const gym = gyms?.find(g => g.id === gymId);
                 setSelectedGym(gym);
               }}
             />
+
           </Box>
         </Box>
       </Box>
 
       <Box sx={{ width: '100%', px: 2 }}>
-        {gyms.length === 0 ? (
+        {gymsLoading ? (
+          <Box display="flex" justifyContent="center" mt={2}>
+            <CircularProgress />
+          </Box>
+        ) : gymsError ? (
+          <Typography variant="h6" align="center" color="error.main" mt={4}>
+            Failed to load gyms.
+          </Typography>
+        ) : gyms.length === 0 ? (
           <Typography variant="h6" align="center" color="text.secondary" mt={4}>
             You have no gyms to show. Please create your first gym.
+          </Typography>
+        ) : workoutsError ? (
+          <Typography variant="h6" align="center" color="error.main" mt={4}>
+            Failed to load workouts.
           </Typography>
         ) : workoutsLoading ? (
           <Box display="flex" justifyContent="center" mt={2}>
             <CircularProgress />
           </Box>
+        ) : workouts.length === 0 ? (
+          <Typography variant="h6" align="center" color="text.secondary" mt={4}>
+            You have no workouts for this gym.
+          </Typography>
         ) : (
           <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
             {workouts.map((workout, index) => (
@@ -109,8 +113,6 @@ export default function HomePage() {
           </Grid>
         )}
       </Box>
-
-
     </Box>
-  );
+  )
 }

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { getGymsByUserId } from '../api/GymApi';
 
 export const useGyms = (userId) => {
-  const [gyms, setGyms] = useState([]);
+  const [gyms, setGyms] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
