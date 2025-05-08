@@ -8,7 +8,7 @@ import { useGyms } from '../hooks/useGyms.jsx';
 import { useWorkouts } from '../hooks/useWorkouts.jsx';
 import mockedUsers from '../data/mockedUsers.js';
 
-const user = mockedUsers[0];
+const user = mockedUsers[1];
 
 const CustomButton = styled(Button)(({ theme }) => ({
   width: '100%',
