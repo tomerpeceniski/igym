@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import igym.entities.Exercise;
 import igym.entities.Gym;
@@ -32,6 +33,8 @@ class UserServiceTest {
     private UserRepository userRepository;
     @Mock
     private GymService gymService;
+    @Mock
+    private PasswordEncoder passwordEncoder;
     @InjectMocks
     private UserService userService;
 
@@ -50,7 +53,6 @@ class UserServiceTest {
     @DisplayName("Should return the list of saved users")
     void findAllTest() {
         List<User> users = List.of(user1, user2);
-        
         when(userRepository.findByStatus(Status.active)).thenReturn(users);
 
         List<User> listUsers = userService.findAll();
@@ -67,6 +69,53 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Should authenticate user with valid credentials")
+    void authenticateValidCredentials() {
+        String name = "validUser";
+        String rawPassword = "plainPass";
+        String encodedPassword = "encodedPass";
+
+        user1.setName(name);
+        user1.setPassword(encodedPassword);
+        user1.setStatus(Status.active);
+
+        when(userRepository.findByNameAndStatus(name, Status.active)).thenReturn(Optional.of(user1));
+        when(passwordEncoder.matches(rawPassword, encodedPassword)).thenReturn(true);
+
+        User result = userService.authenticate(name, rawPassword);
+
+        assertNotNull(result);
+        assertEquals(user1, result);
+    }
+
+    @Test
+    @DisplayName("Should throw UserNotFoundException when user is not found")
+    void authenticateUserNotFound() {
+        String name = "ghost";
+        String password = "irrelevant";
+        when(userRepository.findByNameAndStatus(name, Status.active)).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> userService.authenticate(name, password));
+    }
+
+    @Test
+    @DisplayName("Should throw UserNotFoundException when password does not match")
+    void authenticateWrongPassword() {
+        String name = "user";
+        String rawPassword = "wrongPass";
+        String encodedPassword = "correctEncodedPass";
+
+        user1.setName(name);
+        user1.setPassword(encodedPassword);
+        user1.setStatus(Status.active);
+
+        when(userRepository.findByNameAndStatus(name, Status.active)).thenReturn(Optional.of(user1));
+        when(passwordEncoder.matches(rawPassword, encodedPassword)).thenReturn(false);
+
+        assertThrows(UserNotFoundException.class, () -> userService.authenticate(name, rawPassword));
+    }
+
+    @Test
     @DisplayName("Should inactivate user and all its gyms")
     void deleteUserTest() {
         Gym gym = new Gym("Mocked Gym");
@@ -80,16 +129,16 @@ class UserServiceTest {
         gym.setWorkouts(List.of(workout));
         user1.setGyms(List.of(gym, gymInactive));
         when(userRepository.findById(user1.getId())).thenReturn(Optional.of(user1));
-        
+
         doAnswer(invocation -> {
             gym.setStatus(Status.inactive);
             gym.getWorkouts().forEach(w -> {
                 w.setStatus(Status.inactive);
                 w.getExerciseList().forEach(e -> e.setStatus(Status.inactive));
             });
-        return null;
-    }).when(gymService).deleteGym(gym.getId());
-        
+            return null;
+        }).when(gymService).deleteGym(gym.getId());
+
         userService.deleteUser(user1.getId());
         assertEquals(Status.inactive, user1.getStatus());
         assertEquals(Status.inactive, gym.getStatus());
@@ -103,7 +152,7 @@ class UserServiceTest {
     void deleteUserEmptyGyms() {
         user1.setGyms(List.of());
         when(userRepository.findById(user1.getId())).thenReturn(Optional.of(user1));
-        
+
         userService.deleteUser(user1.getId());
         assertEquals(Status.inactive, user1.getStatus());
     }
@@ -113,7 +162,7 @@ class UserServiceTest {
     void deleteUserNullGyms() {
         user1.setGyms(null);
         when(userRepository.findById(user1.getId())).thenReturn(Optional.of(user1));
-        
+
         userService.deleteUser(user1.getId());
         assertEquals(Status.inactive, user1.getStatus());
     }
@@ -218,7 +267,8 @@ class UserServiceTest {
     @Test
     @DisplayName("Should return UserNotFoundException when a non existent user is passed")
     void testFindNonExistentById() {
-        when(userRepository.findById(userId)).thenThrow(new UserNotFoundException("User with id " + userId + " not found"));
+        when(userRepository.findById(userId))
+                .thenThrow(new UserNotFoundException("User with id " + userId + " not found"));
         assertThrows(UserNotFoundException.class, () -> userService.findById(userId));
         verify(userRepository, times(1)).findById(userId);
     }

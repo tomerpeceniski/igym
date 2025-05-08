@@ -1,6 +1,7 @@
 package igym.repositories;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,4 +36,13 @@ public interface UserRepository extends JpaRepository<User, UUID> {
      * @return a list of users with the given status
      */
     List<User> findByStatus(Status status);
+
+    /**
+     * Finds a user by their name and status.
+     *
+     * @param name the name of the user
+     * @param status the status of the user
+     * @return the user with the given name and status, or null if not found
+     */
+    Optional<User> findByNameAndStatus(String name, Status status);
 }
