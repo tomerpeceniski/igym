@@ -4,8 +4,8 @@ import GreetingTitle from '../components/GreetingTitle.jsx';
 import GymSelector from '../components/GymSelector.jsx';
 import WorkoutSummary from '../components/WorkoutSummary.jsx';
 import AddIcon from '@mui/icons-material/Add';
-import { useGyms } from '../hooks/useGyms.jsx';
-import { useWorkouts } from '../hooks/useWorkouts.jsx';
+import { useGymsByUserId } from '../hooks/useGymsByUserId.jsx';
+import { useWorkoutsByGymId } from '../hooks/useWorkoutsByGymId.jsx';
 import mockedUsers from '../data/mockedUsers.js';
 
 const user = mockedUsers[0];
@@ -18,14 +18,14 @@ const CustomButton = styled(Button)(({ theme }) => ({
 }))
 
 export default function HomePage() {
-  const { gyms, loading: gymsLoading, error: gymsError } = useGyms(user.id);
+  const { gyms, loading: gymsLoading, error: gymsError } = useGymsByUserId(user.id);
   const [selectedGym, setSelectedGym] = useState(null);
-  const { workouts, loading: workoutsLoading, error: workoutsError } = useWorkouts(selectedGym?.id);
+  const { workouts, loading: workoutsLoading, error: workoutsError } = useWorkoutsByGymId(selectedGym?.id);
 
 
   useEffect(() => {
     if (!gymsLoading && gyms.length > 0) {
-      setSelectedGym(gyms[1]);
+      setSelectedGym(gyms[0]);
     }
   }, [gymsLoading, gyms]);
 

@@ -31,7 +31,7 @@ const WorkoutCard = ({ workout }) => {
                 </Box>
 
                 <CardContent>
-                    <ExercisesTable exercises={workout.exercises} isEditing={isEditing} />
+                    <ExercisesTable exercises={workout.exerciseList} isEditing={isEditing} />
                 </CardContent>
             </Card>
         </Box>

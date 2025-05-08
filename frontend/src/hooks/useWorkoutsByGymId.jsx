@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { getWorkoutsByGymId } from '../api/WorkoutApi';
 
-export const useWorkouts = (gymId) => {
-  const [workouts, setWorkouts] = useState([]);
+export const useWorkoutsByGymId = (gymId) => {
+  const [workouts, setWorkouts] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 

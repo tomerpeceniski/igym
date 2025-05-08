@@ -66,22 +66,22 @@ const ExercisesTable = ({ exercises, isEditing }) => {
                                     {isEditing ? (
                                         <CustomTextField
                                             variant="standard"
-                                            defaultValue={exercise.repetitions}
+                                            defaultValue={exercise.numReps}
                                             fullWidth
                                         />
                                     ) : (
-                                        exercise.repetitions
+                                        exercise.numReps
                                     )}
                                 </TableCell>
                                 <TableCell align="right">
                                     {isEditing ? (
                                         <CustomTextField
                                             variant="standard"
-                                            defaultValue={exercise.sets}
+                                            defaultValue={exercise.numSets}
                                             fullWidth
                                         />
                                     ) : (
-                                        exercise.sets
+                                        exercise.numSets
                                     )}
                                 </TableCell>
                                 <TableCell>

@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Card, CardContent, Typography, IconButton, Divider, Box, styled } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useNavigate } from 'react-router-dom';
 
 const CustomCardContent = styled(CardContent)(({ theme }) => ({
   flexGrow: 1,
@@ -14,6 +15,11 @@ const CustomCardContent = styled(CardContent)(({ theme }) => ({
 }))
 
 export default function WorkoutSummary({ workout }) {
+  const navigate = useNavigate();
+  const handleEditClick = () => {
+    navigate(`/workout/${workout.id}`);
+  };
+
   return (
     <Card sx={{ height: 320, display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
 
@@ -21,7 +27,7 @@ export default function WorkoutSummary({ workout }) {
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h6">{workout.name}</Typography>
           <Box display="flex" gap={1}>
-            <IconButton size="small">
+            <IconButton size="small" onClick={handleEditClick}>
               <EditIcon fontSize="small" />
             </IconButton>
             <IconButton size="small">

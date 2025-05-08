@@ -1,143 +1,78 @@
 const gyms = [
     {
       name: 'Gym A',
-      workouts: [
+      workouts : [
         {
-          name: 'Workout Alpha',
-          exercises: [
-            { name: 'Flat Bench Press', weight: 60, repetitions: 10, sets: 4, note: 'Watch your posture' },
-            { name: 'Incline Bench Press', weight: 50, repetitions: 12, sets: 3, note: null },
-            { name: 'Chest Fly', weight: 30, repetitions: 15, sets: 3, note: 'Focus on the stretch' },
-            { name: 'Pec Deck Machine', weight: 40, repetitions: 10, sets: 4, note: null },
-            { name: 'Push-ups', weight: 0, repetitions: 20, sets: 3, note: 'Go slow and controlled' },
-          ]
+            "id": "2f224c4c-8c7a-44e0-918c-bddce9d6c4d6",
+            "name": "treino dois exercicios",
+            "status": "active",
+            "updated_at": "2025-05-08T10:53:00.458647Z",
+            "gym_id": "f1dd41bd-4012-43df-9b93-866120c0dfae",
+            "exerciseList": [
+                {
+                    "id": "79838115-efc4-4978-a8b9-b86a03978812",
+                    "name": "aaa",
+                    "weight": 1.0,
+                    "numReps": 1,
+                    "numSets": 2,
+                    "note": null,
+                    "status": "active",
+                    "workout_id": "2f224c4c-8c7a-44e0-918c-bddce9d6c4d6",
+                    "updated_at": "2025-05-08T10:53:00.462711Z"
+                },
+                {
+                    "id": "5142ea78-b513-4250-9a4e-ae9607f14684",
+                    "name": "bbb",
+                    "weight": 1.0,
+                    "numReps": 1,
+                    "numSets": 2,
+                    "note": null,
+                    "status": "active",
+                    "workout_id": "2f224c4c-8c7a-44e0-918c-bddce9d6c4d6",
+                    "updated_at": "2025-05-08T10:53:00.463872Z"
+                }
+            ]
         },
         {
-          name: 'Workout Beta',
-          exercises: [
-            { name: 'Barbell Squat', weight: 80, repetitions: 8, sets: 4, note: 'Reach parallel depth' },
-            { name: 'Leg Press', weight: 120, repetitions: 10, sets: 4, note: null },
-            { name: 'Leg Extension', weight: 45, repetitions: 12, sets: 3, note: null },
-            { name: 'Leg Curl', weight: 40, repetitions: 12, sets: 3, note: null },
-            { name: 'Lunges', weight: 20, repetitions: 10, sets: 3, note: 'Alternate legs' },
-          ]
+            "id": "a9c39103-a0a6-467f-b833-8da3a64982a8",
+            "name": "Two Exercises",
+            "status": "active",
+            "updated_at": "2025-05-08T10:54:26.147164Z",
+            "gym_id": "f1dd41bd-4012-43df-9b93-866120c0dfae",
+            "exerciseList": [
+                {
+                    "id": "1bd2ebe4-bbd9-4b71-b2f3-d07611981869",
+                    "name": "ccc",
+                    "weight": 1.0,
+                    "numReps": 1,
+                    "numSets": 2,
+                    "note": "Do it every Wednesday",
+                    "status": "active",
+                    "workout_id": "a9c39103-a0a6-467f-b833-8da3a64982a8",
+                    "updated_at": "2025-05-08T10:54:26.187381Z"
+                },
+                {
+                    "id": "64628c61-e939-4ef2-99dc-e5ffcd8fd84b",
+                    "name": "ddd",
+                    "weight": 1.0,
+                    "numReps": 1,
+                    "numSets": 2,
+                    "note": "Never skip",
+                    "status": "active",
+                    "workout_id": "a9c39103-a0a6-467f-b833-8da3a64982a8",
+                    "updated_at": "2025-05-08T10:54:26.191381Z"
+                }
+            ]
+        },
+        {
+            "id": "adbc0065-a02f-4da4-bb31-652e55ffa0da",
+            "name": "Workout With No exercises",
+            "status": "active",
+            "updated_at": "2025-05-08T10:58:20.469363Z",
+            "gym_id": "f1dd41bd-4012-43df-9b93-866120c0dfae",
+            "exerciseList": []
         }
-      ]
-    },
-    {
-      name: 'Gym B',
-      workouts: [
-        {
-          name: 'Workout Gamma',
-          exercises: [
-            { name: 'Bent Over Row', weight: 50, repetitions: 10, sets: 4, note: null },
-            { name: 'Lat Pulldown', weight: 45, repetitions: 12, sets: 3, note: 'Hold 1s at the top' },
-            { name: 'Single Arm Row', weight: 30, repetitions: 10, sets: 3, note: null },
-            { name: 'Pull-ups', weight: 0, repetitions: 8, sets: 3, note: 'Use resistance band if needed' },
-          ]
-        },
-        {
-          name: 'Workout Delta',
-          exercises: [
-            { name: 'Barbell Curl', weight: 20, repetitions: 12, sets: 3, note: null },
-            { name: 'Alternating Dumbbell Curl', weight: 18, repetitions: 10, sets: 3, note: null },
-            { name: 'Hammer Curl', weight: 16, repetitions: 10, sets: 3, note: null },
-            { name: 'Triceps Pushdown', weight: 30, repetitions: 12, sets: 3, note: null },
-          ]
-        },
-        {
-          name: 'Workout Epsilon',
-          exercises: [
-            { name: 'Overhead Triceps Extension', weight: 20, repetitions: 10, sets: 3, note: null },
-            { name: 'Dips', weight: 0, repetitions: 15, sets: 3, note: 'Control the descent' },
-            { name: 'Bench Triceps Dips', weight: 0, repetitions: 15, sets: 3, note: null },
-          ]
-        }
-      ]
-    },
-    {
-      name: 'Gym C',
-      workouts: [
-        {
-          name: 'Workout Zeta',
-          exercises: [
-            { name: 'Standing Calf Raise', weight: 50, repetitions: 20, sets: 3, note: null },
-            { name: 'Seated Calf Raise', weight: 40, repetitions: 15, sets: 3, note: 'Full range of motion' },
-            { name: 'Machine Calf Raise', weight: 45, repetitions: 15, sets: 3, note: null },
-          ]
-        },
-        {
-          name: 'Workout Theta',
-          exercises: [
-            { name: 'Crunches', weight: 0, repetitions: 25, sets: 3, note: null },
-            { name: 'Reverse Crunches', weight: 0, repetitions: 20, sets: 3, note: null },
-            { name: 'Plank', weight: 0, repetitions: 1, sets: 3, note: 'Hold for 30 seconds' },
-            { name: 'Leg Raises', weight: 0, repetitions: 20, sets: 3, note: null },
-          ]
-        }
-      ]
-    },
-    {
-      name: 'Gym D',
-      workouts: [
-        {
-          name: 'Workout Gamma',
-          exercises: [
-            { name: 'Bent Over Row', weight: 50, repetitions: 10, sets: 4, note: null },
-            { name: 'Lat Pulldown', weight: 45, repetitions: 12, sets: 3, note: 'Hold 1s at the top' },
-            { name: 'Single Arm Row', weight: 30, repetitions: 10, sets: 3, note: null },
-            { name: 'Pull-ups', weight: 0, repetitions: 8, sets: 3, note: 'Use resistance band if needed' },
-          ]
-        },
-        {
-          name: 'Workout Delta',
-          exercises: [
-            { name: 'Barbell Curl', weight: 20, repetitions: 12, sets: 3, note: null },
-            { name: 'Alternating Dumbbell Curl', weight: 18, repetitions: 10, sets: 3, note: null },
-            { name: 'Hammer Curl', weight: 16, repetitions: 10, sets: 3, note: null },
-            { name: 'Triceps Pushdown', weight: 30, repetitions: 12, sets: 3, note: null },
-          ]
-        },
-        {
-          name: 'Workout Epsilon',
-          exercises: [
-            { name: 'Overhead Triceps Extension', weight: 20, repetitions: 10, sets: 3, note: null },
-            { name: 'Dips', weight: 0, repetitions: 15, sets: 3, note: 'Control the descent' },
-            { name: 'Bench Triceps Dips', weight: 0, repetitions: 15, sets: 3, note: null },
-          ]
-        },
-        {
-          name: 'Workout Alfa',
-          exercises: [
-            { name: 'Overhead Triceps Extension', weight: 20, repetitions: 10, sets: 3, note: null },
-            { name: 'Dips', weight: 0, repetitions: 15, sets: 3, note: 'Control the descent' },
-            { name: 'Bench Triceps Dips', weight: 0, repetitions: 15, sets: 3, note: null },
-          ]
-        },
-        
-        {
-          name: 'Workout Beta',
-          exercises: [
-            { name: 'Overhead Triceps Extension', weight: 20, repetitions: 10, sets: 3, note: null },
-            { name: 'Dips', weight: 0, repetitions: 15, sets: 3, note: 'Control the descent' },
-            { name: 'Bench Triceps Dips', weight: 0, repetitions: 15, sets: 3, note: null },
-          ]
-        }
-      ]
-    },
-    {
-      name: 'Gym E',
-      workouts: [
-        {
-          name: 'Workout Gamma',
-          exercises: [
-            { name: 'Bent Over Row', weight: 50, repetitions: 10, sets: 4, note: null },
-            { name: 'Lat Pulldown', weight: 45, repetitions: 12, sets: 3, note: 'Hold 1s at the top' },
-            { name: 'Single Arm Row', weight: 30, repetitions: 10, sets: 3, note: null },
-            { name: 'Pull-ups', weight: 0, repetitions: 8, sets: 3, note: 'Use resistance band if needed' },
-          ]
-        }
-      ]
+    ]
     }
   ];
   
