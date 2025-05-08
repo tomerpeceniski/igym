@@ -8,6 +8,8 @@ import { useGyms } from '../hooks/useGyms.jsx';
 import { useWorkouts } from '../hooks/useWorkouts.jsx';
 import mockedUsers from '../data/mockedUsers.js';
 
+const user = mockedUsers[0];
+
 const CustomButton = styled(Button)(({ theme }) => ({
   width: '100%',
   height: '100%',
@@ -16,7 +18,7 @@ const CustomButton = styled(Button)(({ theme }) => ({
 }))
 
 export default function HomePage() {
-  const { gyms, loading: gymsLoading, error: gymsError } = useGyms(mockedUsers[0].id);
+  const { gyms, loading: gymsLoading, error: gymsError } = useGyms(user.id);
   const [selectedGym, setSelectedGym] = useState(null);
   const { workouts, loading: workoutsLoading, error: workoutsError } = useWorkouts(selectedGym?.id);
 
@@ -46,7 +48,7 @@ export default function HomePage() {
         textAlign="center"
         mb={3}
       >
-        <GreetingTitle name={mockedUsers[0].name} />
+        <GreetingTitle name={user.name} />
       </Box>
 
       <Box
@@ -76,25 +78,28 @@ export default function HomePage() {
 
           </Box>
           <Box sx={{ flex: 1 }}>
-            {selectedGym && (
-              <GymSelector
-                gyms={gyms}
-                selectedGym={selectedGym.id}
-                onChange={(e) => {
-                  const gymId = e.target.value;
-                  const gym = gyms.find(g => g.id === gymId);
-                  setSelectedGym(gym);
-                }}
-              />
-            )}
-
+          <GymSelector
+  gyms={gyms}
+  selectedGym={selectedGym ? selectedGym.id : undefined} // avoids passing ""
+  onChange={(e) => {
+    const gymId = e.target.value;
+    const gym = gyms.find(g => g.id === gymId);
+    setSelectedGym(gym);
+  }}
+/>
           </Box>
         </Box>
       </Box>
 
-      <Box sx={{ width: '100', px: 2 }}>
-        {workoutsLoading ? (
-          <Box display="flex" justifyContent="center" mt={2}><CircularProgress /></Box>
+      <Box sx={{ width: '100%', px: 2 }}>
+        {gyms.length === 0 ? (
+          <Typography variant="h6" align="center" color="text.secondary" mt={4}>
+            You have no gyms to show. Please create your first gym.
+          </Typography>
+        ) : workoutsLoading ? (
+          <Box display="flex" justifyContent="center" mt={2}>
+            <CircularProgress />
+          </Box>
         ) : (
           <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
             {workouts.map((workout, index) => (
@@ -105,6 +110,7 @@ export default function HomePage() {
           </Grid>
         )}
       </Box>
+
 
     </Box>
   );
