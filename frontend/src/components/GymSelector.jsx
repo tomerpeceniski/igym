@@ -35,7 +35,7 @@ export default function GymSelector({ gyms, selectedGym, onChange }) {
         onChange={onChange}
       >
         {gyms.map((gym, index) => (
-          <MenuItem key={index} value={gym.name}>
+          <MenuItem key={gym.id} value={gym.id}>
             {gym.name}
           </MenuItem>
         ))}

@@ -35,6 +35,7 @@ export default function HomePage() {
     return <Box color="error.main" textAlign="center" mt={4}>Failed to load gyms.</Box>;
   }
 
+  console.log("Selected Gym ID:", selectedGym?.id);
   return (
     <Box>
       <Box
@@ -45,7 +46,7 @@ export default function HomePage() {
         textAlign="center"
         mb={3}
       >
-        <GreetingTitle name={"User"} />
+        <GreetingTitle name={mockedUsers[0].name} />
       </Box>
 
       <Box
@@ -75,11 +76,18 @@ export default function HomePage() {
 
           </Box>
           <Box sx={{ flex: 1 }}>
-            <GymSelector
-              gyms={gyms}
-              selectedGym={selectedGym}
-              onChange={(e) => setSelectedGym(e.target.value)}
-            />
+            {selectedGym && (
+              <GymSelector
+                gyms={gyms}
+                selectedGym={selectedGym.id}
+                onChange={(e) => {
+                  const gymId = e.target.value;
+                  const gym = gyms.find(g => g.id === gymId);
+                  setSelectedGym(gym);
+                }}
+              />
+            )}
+
           </Box>
         </Box>
       </Box>
