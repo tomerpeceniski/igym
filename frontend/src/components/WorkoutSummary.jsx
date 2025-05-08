@@ -33,9 +33,9 @@ export default function WorkoutSummary({ workout }) {
       </Box>
 
       <CustomCardContent>
-        {workout.exercises.map((ex, idx) => (
+        {workout.exerciseList.map((ex, idx) => (
           <Typography key={idx} variant="body2" sx={{ mb: 0.75 }}>
-            <strong>{ex.name}</strong> - {ex.repetitions} reps x {ex.sets} sets
+            <strong>{ex.name}</strong> - {ex.numReps} reps x {ex.numSets} sets
             <br />
             Weight: {ex.weight} kg
             {ex.note && (
