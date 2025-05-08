@@ -1,7 +1,17 @@
 import * as React from 'react';
-import { Card, CardContent, Typography, IconButton, Divider, Box } from '@mui/material';
+import { Card, CardContent, Typography, IconButton, Divider, Box, styled } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+
+const CustomCardContent = styled(CardContent)(({ theme }) => ({
+  flexGrow: 1,
+  overflow: 'auto',
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: theme.palette.background.default,
+  },
+  scrollbarWidth: 'thin',
+  scrollbarColor: `${theme.palette.background.default} transparent`,
+}))
 
 export default function WorkoutSummary({ workout }) {
   return (
@@ -22,7 +32,7 @@ export default function WorkoutSummary({ workout }) {
         <Divider sx={{ mt: 1.25 }} />
       </Box>
 
-      <CardContent sx={{ flexGrow: 1, overflow: 'auto' }}>
+      <CustomCardContent>
         {workout.exercises.map((ex, idx) => (
           <Typography key={idx} variant="body2" sx={{ mb: 0.75 }}>
             <strong>{ex.name}</strong> - {ex.repetitions} reps x {ex.sets} sets
@@ -33,7 +43,7 @@ export default function WorkoutSummary({ workout }) {
             )}
           </Typography>
         ))}
-      </CardContent>
+      </CustomCardContent>
     </Card>
   );
 }
