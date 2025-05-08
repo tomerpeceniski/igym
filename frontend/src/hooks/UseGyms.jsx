@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getGymsByUserId } from '../api/gymApi';
+import { getGymsByUserId } from '../api/GymApi';
 
 export const useGyms = (userId) => {
   const [gyms, setGyms] = useState([]);

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Grid, styled, Button, useTheme, CircularProgress } from '@mui/material';
+import { Box, Typography, Grid, styled, Button, CircularProgress } from '@mui/material';
 import GreetingTitle from '../components/GreetingTitle.jsx';
 import GymSelector from '../components/GymSelector.jsx';
 import WorkoutSummary from '../components/WorkoutSummary.jsx';
 import AddIcon from '@mui/icons-material/Add';
-import { useGyms } from '../hooks/UseGyms';
+import { useGyms } from '../hooks/useGyms.jsx';
+import { useWorkouts } from '../hooks/useWorkouts.jsx';
 import mockedUsers from '../data/mockedUsers.js';
 
 const CustomButton = styled(Button)(({ theme }) => ({
@@ -15,23 +16,22 @@ const CustomButton = styled(Button)(({ theme }) => ({
 }))
 
 export default function HomePage() {
-  const theme = useTheme();
-  const { gyms, loading, error } = useGyms(mockedUsers[0].id);
+  const { gyms, loading: gymsLoading, error: gymsError } = useGyms(mockedUsers[0].id);
   const [selectedGym, setSelectedGym] = useState(null);
+  const { workouts, loading: workoutsLoading, error: workoutsError } = useWorkouts(selectedGym?.id);
+
 
   useEffect(() => {
-    if (!loading && gyms.length > 0) {
-      setSelectedGym(gyms[0].name);
+    if (!gymsLoading && gyms.length > 0) {
+      setSelectedGym(gyms[0]);
     }
-  }, [loading, gyms]);
+  }, [gymsLoading, gyms]);
 
-  const currentGym = gyms.find(g => g.name === selectedGym);
-
-  if (loading) {
+  if (gymsLoading) {
     return <Box display="flex" justifyContent="center" mt={4}><CircularProgress /></Box>;
   }
 
-  if (error) {
+  if (gymsError) {
     return <Box color="error.main" textAlign="center" mt={4}>Failed to load gyms.</Box>;
   }
 
@@ -64,7 +64,7 @@ export default function HomePage() {
           gutterBottom
           sx={{ color: 'text.secondary' }}
         >
-          {selectedGym}
+          {selectedGym?.name}
         </Typography>
 
         <Box display="flex" gap={4} width="100%" maxWidth={450} alignItems="stretch" justifyContent={{ xs: 'center', sm: 'space-between' }} flexDirection={{ xs: 'column', sm: 'row' }}>
@@ -85,13 +85,17 @@ export default function HomePage() {
       </Box>
 
       <Box sx={{ width: '100', px: 2 }}>
-        <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
-          {currentGym.workouts.map((workout, index) => (
-            <Grid key={index} size={{ xs: 4, sm: 4, md: 4 }}>
-              <WorkoutSummary workout={workout} />
-            </Grid>
-          ))}
-        </Grid>
+        {workoutsLoading ? (
+          <Box display="flex" justifyContent="center" mt={2}><CircularProgress /></Box>
+        ) : (
+          <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
+            {workouts.map((workout, index) => (
+              <Grid key={index} item xs={4} sm={4} md={4}>
+                <WorkoutSummary workout={workout} />
+              </Grid>
+            ))}
+          </Grid>
+        )}
       </Box>
 
     </Box>
