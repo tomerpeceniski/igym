@@ -22,3 +22,20 @@ export const updateGym = async (gymId, gymData) => {
   }
   return json;
 };
+
+export const createGym = async (userId, gymData) => {
+  const response = await fetch(`${API_BASE_URL}/gyms/${userId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(gymData),
+  });
+  const json = await response.json();
+  if (!response.ok) {
+    const error = new Error(json.message || 'Failed to create gym');
+    error.backend = json;
+    throw error;
+  }
+  return json;
+};

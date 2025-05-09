@@ -3,13 +3,14 @@ import { Box, Typography, Grid, styled, Button, CircularProgress, TextField, Ico
 import EditIcon from '@mui/icons-material/Edit';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
+import AddIcon from '@mui/icons-material/Add';
 import GreetingTitle from '../components/GreetingTitle.jsx';
 import GymSelector from '../components/GymSelector.jsx';
 import WorkoutSummary from '../components/WorkoutSummary.jsx';
-import AddIcon from '@mui/icons-material/Add';
 import { useGymsByUserId } from '../hooks/useGymsByUserId.jsx';
 import { useWorkoutsByGymId } from '../hooks/useWorkoutsByGymId.jsx';
 import { useUpdateGym } from '../hooks/useUpdateGym.jsx';
+import { useCreateGym } from '../hooks/useCreateGym.jsx';
 import mockedUsers from '../data/mockedUsers.js';
 
 const user = mockedUsers[0];
@@ -27,7 +28,9 @@ export default function HomePage() {
   const [selectedGym, setSelectedGym] = useState(null);
   const { workouts, loading: workoutsLoading, error: workoutsError } = useWorkoutsByGymId(selectedGym?.id);
   const { updateGymDetails, loading: updateLoading } = useUpdateGym();
+  const { createNewGym, loading: createLoading } = useCreateGym();
   const [isEditing, setIsEditing] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
   const [editedName, setEditedName] = useState('');
 
   useEffect(() => {
@@ -44,11 +47,38 @@ export default function HomePage() {
 
   const handleCancelEdit = () => {
     setIsEditing(false);
+    setIsCreating(false);
     setEditedName('');
   };
 
+  const handleCreateClick = () => {
+    setIsCreating(true);
+    setEditedName('Name your new gym');
+    setIsEditing(true);
+  };
+
   const handleSaveEdit = async () => {
-    if (selectedGym) {
+    if (isCreating) {
+      try {
+        const newGym = await createNewGym(user.id, { name: editedName });
+        setGyms(prevGyms => [...prevGyms, newGym]);
+        setSelectedGym(newGym);
+        setIsEditing(false);
+        setIsCreating(false);
+        alert('Gym was successfully created');
+      } catch (error) {
+        let errorMsg = 'There was an error trying to create the gym.';
+        if (error.backend && error.backend.errors && error.backend.errors[0]) {
+          errorMsg = `There was an error trying to create the gym: ${error.backend.errors[0]}`;
+        } else if (error.message) {
+          errorMsg = error.message;
+        }
+        alert(errorMsg);
+        setIsEditing(false);
+        setIsCreating(false);
+        setEditedName('');
+      }
+    } else if (selectedGym) {
       try {
         const updatedGym = await updateGymDetails(selectedGym.id, { name: editedName });
         setSelectedGym(updatedGym);
@@ -64,7 +94,7 @@ export default function HomePage() {
         }
         alert(errorMsg);
         setIsEditing(false);
-        setEditedName(''); // restore previous name
+        setEditedName('');
       }
     } else {
       setIsEditing(false);
@@ -134,12 +164,16 @@ export default function HomePage() {
           )}
         </Box>
 
-        <Box display="flex" gap={4} width="100%" maxWidth={450} alignItems="stretch" justifyContent={{ xs: 'center', sm: 'space-between' }} flexDirection={{ xs: 'column', sm: 'row' }}>
+        <Box display="flex" gap={4} width="100%" maxWidth={600} alignItems="stretch" justifyContent={{ xs: 'center', sm: 'space-between' }} flexDirection={{ xs: 'column', sm: 'row' }}>
+          <Box sx={{ flex: 1 }}>
+            <CustomButton variant="outlined" startIcon={<AddIcon />} onClick={handleCreateClick}>
+              New Gym
+            </CustomButton>
+          </Box>
           <Box sx={{ flex: 1 }}>
             <CustomButton variant="outlined" startIcon={<AddIcon />}>
               New Workout
             </CustomButton>
-
           </Box>
           <Box sx={{ flex: 1 }}>
             <GymSelector
@@ -151,7 +185,6 @@ export default function HomePage() {
                 setSelectedGym(gym);
               }}
             />
-
           </Box>
         </Box>
       </Box>
