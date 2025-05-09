@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Grid, styled, Button, CircularProgress } from '@mui/material';
+import { Box, Typography, Grid, styled, Button, CircularProgress, TextField, IconButton } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 import GreetingTitle from '../components/GreetingTitle.jsx';
 import GymSelector from '../components/GymSelector.jsx';
 import WorkoutSummary from '../components/WorkoutSummary.jsx';
 import AddIcon from '@mui/icons-material/Add';
 import { useGymsByUserId } from '../hooks/useGymsByUserId.jsx';
 import { useWorkoutsByGymId } from '../hooks/useWorkoutsByGymId.jsx';
+import { useUpdateGym } from '../hooks/useUpdateGym.jsx';
 import mockedUsers from '../data/mockedUsers.js';
 
 const user = mockedUsers[0];
@@ -18,16 +22,54 @@ const CustomButton = styled(Button)(({ theme }) => ({
 }))
 
 export default function HomePage() {
-  const { gyms, loading: gymsLoading, error: gymsError } = useGymsByUserId(user.id);
+  const { gyms: gymsData, loading: gymsLoading, error: gymsError } = useGymsByUserId(user.id);
+  const [gyms, setGyms] = useState([]);
   const [selectedGym, setSelectedGym] = useState(null);
   const { workouts, loading: workoutsLoading, error: workoutsError } = useWorkoutsByGymId(selectedGym?.id);
-
+  const { updateGymDetails, loading: updateLoading } = useUpdateGym();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedName, setEditedName] = useState('');
 
   useEffect(() => {
-    if (!gymsLoading && gyms.length > 0) {
-      setSelectedGym(gyms[0]);
+    if (!gymsLoading && gymsData && gymsData.length > 0) {
+      setGyms(gymsData);
+      setSelectedGym(gymsData[0]);
     }
-  }, [gymsLoading, gyms]);
+  }, [gymsLoading, gymsData]);
+
+  const handleEditClick = () => {
+    setEditedName(selectedGym?.name || '');
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditedName('');
+  };
+
+  const handleSaveEdit = async () => {
+    if (selectedGym) {
+      try {
+        const updatedGym = await updateGymDetails(selectedGym.id, { name: editedName });
+        setSelectedGym(updatedGym);
+        setGyms((prevGyms) => prevGyms.map(g => g.id === updatedGym.id ? { ...g, name: updatedGym.name } : g));
+        setIsEditing(false);
+        alert('Gym name was successfully updated');
+      } catch (error) {
+        let errorMsg = 'There was an error trying to update the name of the gym.';
+        if (error.backend && error.backend.errors && error.backend.errors[0]) {
+          errorMsg = `There was an error trying to update the name of the gym: ${error.backend.errors[0]}`;
+        } else if (error.message) {
+          errorMsg = error.message;
+        }
+        alert(errorMsg);
+        setIsEditing(false);
+        setEditedName(''); // restore previous name
+      }
+    } else {
+      setIsEditing(false);
+    }
+  };
 
   return (
     <Box>
@@ -52,9 +94,45 @@ export default function HomePage() {
         py={2}
         px={8}
       >
-        <Typography variant="h2" align="center" gutterBottom sx={{ color: 'text.secondary' }}>
-          {selectedGym?.name}
-        </Typography>
+        <Box display="flex" alignItems="center" gap={1}>
+          {isEditing ? (
+            <>
+              <TextField
+                value={editedName}
+                onChange={(e) => setEditedName(e.target.value)}
+                autoFocus
+                variant="standard"
+                sx={{
+                  '& .MuiInputBase-input': {
+                    fontSize: '2.5rem',
+                    fontWeight: 'bold',
+                    color: 'text.secondary',
+                    textAlign: 'center',
+                  },
+                }}
+              />
+              <IconButton aria-label="save" color="secondary" onClick={handleSaveEdit} disabled={updateLoading}>
+                <CheckIcon />
+              </IconButton>
+              <IconButton aria-label="cancel" color="secondary" onClick={handleCancelEdit} disabled={updateLoading}>
+                <CloseIcon />
+              </IconButton>
+            </>
+          ) : (
+            <>
+              <Typography
+                variant="h2"
+                align="center"
+                sx={{ color: 'text.secondary' }}
+              >
+                {selectedGym?.name}
+              </Typography>
+              <IconButton aria-label="edit" color="secondary" onClick={handleEditClick}>
+                <EditIcon />
+              </IconButton>
+            </>
+          )}
+        </Box>
 
         <Box display="flex" gap={4} width="100%" maxWidth={450} alignItems="stretch" justifyContent={{ xs: 'center', sm: 'space-between' }} flexDirection={{ xs: 'column', sm: 'row' }}>
           <Box sx={{ flex: 1 }}>
