@@ -14,7 +14,8 @@ export default function WorkoutDialog({
   onCancel,
   onDelete,
   onWorkoutChange,
-  onExerciseDelete
+  onExerciseDelete,
+  openWorkout
 }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -53,14 +54,6 @@ export default function WorkoutDialog({
         <Box sx={{ 
           width: '100%', 
           px: 2, 
-          pt: 2, 
-          pb: 1, 
-          position: 'sticky', 
-          top: 0, 
-          zIndex: 2, 
-          background: 'background.paper', 
-          borderTopLeftRadius: 16, 
-          borderTopRightRadius: 16 
         }}>
           <WorkoutCardActions
             isEditing={isEditingWorkout}
@@ -81,9 +74,9 @@ export default function WorkoutDialog({
           alignItems: 'flex-start', 
           maxHeight: 'calc(100vh - 120px)' 
         }}>
-          {editedWorkout && (
+          {(editedWorkout || openWorkout) && (
             <WorkoutCard 
-              workout={editedWorkout} 
+              workout={isEditingWorkout ? editedWorkout : openWorkout}
               isEditing={isEditingWorkout}
               onWorkoutChange={onWorkoutChange}
               onExerciseDelete={onExerciseDelete}

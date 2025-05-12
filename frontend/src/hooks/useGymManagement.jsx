@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useGymsByUserId } from './useGymsByUserId';
-import { getGymsByUserId, updateGym, createGym, deleteGym } from '../api/GymApi.jsx';
+import { updateGym, createGym, deleteGym } from '../api/GymApi.jsx';
 
 export function useGymManagement(userId) {
   const { gyms: gymsData, loading: gymsLoading, error: gymsError } = useGymsByUserId(userId);

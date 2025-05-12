@@ -114,6 +114,7 @@ export default function HomePage() {
         onDelete={handleDeleteWorkout}
         onWorkoutChange={handleWorkoutChange}
         onExerciseDelete={handleExerciseDelete}
+        openWorkout={openWorkout}
       />
     </Box>
   );

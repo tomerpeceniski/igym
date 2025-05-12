@@ -23,9 +23,10 @@ export const useWorkoutManagement = (gymId, onWorkoutChange) => {
 
   const handleOpenWorkout = (workout, editMode = false) => {
     setOpenWorkout(workout);
-    setEditedWorkout(workout);
+    if (editMode) {
+      setEditedWorkout(workout);
+    }
     setIsEditingWorkout(editMode);
-    setIsCreatingWorkout(false);
   };
 
   const handleCloseWorkout = () => {
@@ -74,7 +75,7 @@ export const useWorkoutManagement = (gymId, onWorkoutChange) => {
   };
 
   const handleCancelWorkout = () => {
-    setEditedWorkout(openWorkout);
+    setEditedWorkout(null);
     setIsEditingWorkout(false);
   };
 
