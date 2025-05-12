@@ -23,7 +23,8 @@ export default function GymHeader({
   onCreateClick,
   onGymSelect,
   gyms,
-  updateLoading
+  updateLoading,
+  onCreateWorkoutClick
 }) {
   return (
     <Box
@@ -83,7 +84,7 @@ export default function GymHeader({
           </CustomButton>
         </Box>
         <Box sx={{ flex: 1 }}>
-          <CustomButton variant="outlined" startIcon={<AddIcon />}>
+          <CustomButton variant="outlined" startIcon={<AddIcon />} onClick={onCreateWorkoutClick}>
             New Workout
           </CustomButton>
         </Box>

@@ -13,3 +13,7 @@ export const deleteWorkout = (workoutId) => {
 export const updateWorkout = (workoutId, workoutData) => {
   return axios.patch(`${API_BASE_URL}/workouts/${workoutId}`, workoutData);
 };
+
+export const createWorkout = (gymId, workoutData) => {
+  return axios.post(`${API_BASE_URL}/gyms/${gymId}/workouts`, workoutData);
+};

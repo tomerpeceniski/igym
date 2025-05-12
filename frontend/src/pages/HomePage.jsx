@@ -7,7 +7,7 @@ import WorkoutCard from '../components/WorkoutCard';
 import WorkoutCardActions from '../components/WorkoutCardActions';
 import { useGymManagement } from '../hooks/useGymManagement';
 import { useWorkoutsByGymId } from '../hooks/useWorkoutsByGymId';
-import { deleteWorkout, updateWorkout } from '../api/WorkoutApi';
+import { deleteWorkout, updateWorkout, createWorkout } from '../api/WorkoutApi';
 import mockedUsers from '../data/mockedUsers';
 
 const user = mockedUsers[0];
@@ -39,17 +39,30 @@ export default function HomePage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [editedWorkout, setEditedWorkout] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isCreatingWorkout, setIsCreatingWorkout] = useState(false);
+
+  const handleCreateWorkoutClick = () => {
+    setIsCreatingWorkout(true);
+    setOpenWorkout(null);
+    setEditedWorkout({
+      name: 'Name your new workout',
+      exerciseList: [{ name: '', weight: 0, numReps: 0, numSets: 0, note: '' }]
+    });
+    setIsEditingWorkout(true);
+  };
 
   const handleOpenWorkout = (workout) => {
     setOpenWorkout(workout);
     setEditedWorkout(workout);
     setIsEditingWorkout(true);
+    setIsCreatingWorkout(false);
   };
 
   const handleCloseWorkout = () => {
     setOpenWorkout(null);
     setEditedWorkout(null);
     setIsEditingWorkout(false);
+    setIsCreatingWorkout(false);
   };
 
   const handleEditWorkout = () => {
@@ -63,17 +76,25 @@ export default function HomePage() {
 
   const handleSaveWorkout = async () => {
     if (!editedWorkout) return;
-
     try {
       setIsUpdating(true);
-      await updateWorkout(editedWorkout.id, {
-        name: editedWorkout.name,
-        exerciseList: editedWorkout.exerciseList
-      });
+      if (isCreatingWorkout) {
+        await createWorkout(selectedGym.id, {
+          name: editedWorkout.name,
+          exerciseList: editedWorkout.exerciseList
+        });
+      } else {
+        await updateWorkout(editedWorkout.id, {
+          name: editedWorkout.name,
+          exerciseList: editedWorkout.exerciseList
+        });
+      }
       setIsEditingWorkout(false);
+      setIsCreatingWorkout(false);
+      handleCloseWorkout();
       refreshWorkouts();
     } catch (error) {
-      const errorMsg = error.response?.data?.errors[0] || 'Failed to update workout';
+      const errorMsg = error.response?.data?.errors?.[0] || error.response?.data?.message || 'Failed to save workout';
       alert(errorMsg);
     } finally {
       setIsUpdating(false);
@@ -127,6 +148,7 @@ export default function HomePage() {
         onGymSelect={handleGymSelect}
         gyms={gyms}
         updateLoading={updateLoading}
+        onCreateWorkoutClick={handleCreateWorkoutClick}
       />
 
       <Box sx={{ width: '100%', px: 2 }}>
@@ -154,7 +176,7 @@ export default function HomePage() {
       </Box>
 
       <Dialog
-        open={!!openWorkout}
+        open={!!openWorkout || isCreatingWorkout}
         onClose={handleCloseWorkout}
         fullScreen={fullScreen}
         maxWidth="md"
@@ -187,7 +209,7 @@ export default function HomePage() {
             />
           </Box>
           <Box sx={{ width: '100%', flex: 1, overflow: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', maxHeight: 'calc(100vh - 120px)' }}>
-            {openWorkout && editedWorkout && (
+            {editedWorkout && (
               <WorkoutCard 
                 workout={editedWorkout} 
                 isEditing={isEditingWorkout}
