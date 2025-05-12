@@ -68,10 +68,8 @@ const ExercisesTable = ({ exercises, isEditing, onExercisesChange, onExerciseDel
         if (!confirmed) return;
 
         if (exerciseId) {
-            // If the exercise has an ID, it exists in the database
             onExerciseDelete(exerciseId);
         } else {
-            // If no ID, it's a new exercise that hasn't been saved yet
             const updatedExercises = exercises.filter((_, i) => i !== index);
             onExercisesChange?.(updatedExercises);
         }

@@ -35,7 +35,6 @@ export default function HomePage() {
     isEditingWorkout,
     isCreatingWorkout,
     editedWorkout,
-    isUpdating,
     handleCreateWorkoutClick,
     handleOpenWorkout,
     handleCloseWorkout,
@@ -108,7 +107,6 @@ export default function HomePage() {
         onClose={handleCloseWorkout}
         editedWorkout={editedWorkout}
         isEditingWorkout={isEditingWorkout}
-        isUpdating={isUpdating}
         onEdit={handleEditWorkout}
         onSave={handleSaveWorkout}
         onCancel={handleCancelWorkout}

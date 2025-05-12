@@ -1,6 +1,5 @@
 import React from 'react';
 import { Card, CardContent, Typography, Box, TextField, Button } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
 import ExercisesTable from './ExercisesTable';
 
 const WorkoutCard = ({ workout, isEditing, onWorkoutChange, onExerciseDelete }) => {
@@ -18,22 +17,6 @@ const WorkoutCard = ({ workout, isEditing, onWorkoutChange, onExerciseDelete }) 
             onWorkoutChange({
                 ...workout,
                 exerciseList: updatedExercises
-            });
-        }
-    };
-
-    const handleAddExercise = () => {
-        const newExercise = {
-            name: '',
-            weight: 0,
-            numReps: 0,
-            numSets: 0,
-            note: ''
-        };
-        if (onWorkoutChange) {
-            onWorkoutChange({
-                ...workout,
-                exerciseList: [...workout.exerciseList, newExercise]
             });
         }
     };
