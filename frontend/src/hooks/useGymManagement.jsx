@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useGymsByUserId } from './useGymsByUserId';
-import { useUpdateGym } from './useUpdateGym';
-import { useCreateGym } from './useCreateGym';
 import { getGymsByUserId, updateGym, createGym, deleteGym } from '../api/GymApi.jsx';
 
 export function useGymManagement(userId) {
@@ -12,8 +10,13 @@ export function useGymManagement(userId) {
   const [isCreating, setIsCreating] = useState(false);
   const [editedName, setEditedName] = useState('');
 
-  const { updateGymDetails, loading: updateLoading } = useUpdateGym();
-  const { createNewGym, loading: createLoading } = useCreateGym();
+  const createNewGym = async (userId, gymData) => {
+    return createGym(userId, gymData);
+  };
+
+  const updateGymDetails = async (gymId, gymData) => {
+    return updateGym(gymId, gymData);
+  };
 
   useEffect(() => {
     if (!gymsLoading && gymsData && gymsData.length > 0) {
@@ -53,7 +56,7 @@ export function useGymManagement(userId) {
         const errorMsg = error.response?.data?.errors?.[0] || error.response?.data?.message || 'Failed to create gym';
         handleError(errorMsg, 'create');
       }
-    } else if (selectedGym) {
+    } else {
       try {
         const response = await updateGymDetails(selectedGym.id, { name: editedName });
         const updatedGym = response.data;
@@ -65,8 +68,6 @@ export function useGymManagement(userId) {
         const errorMsg = error.response?.data?.errors?.[0] || error.response?.data?.message || 'Failed to update gym';
         handleError(errorMsg, 'update');
       }
-    } else {
-      setIsEditing(false);
     }
   };
 
@@ -106,11 +107,8 @@ export function useGymManagement(userId) {
     isEditing,
     isCreating,
     editedName,
-    setEditedName,
     gymsLoading,
     gymsError,
-    updateLoading,
-    createLoading,
     handleEditClick,
     handleCancelEdit,
     handleCreateClick,
