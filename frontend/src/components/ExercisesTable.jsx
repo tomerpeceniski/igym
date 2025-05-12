@@ -35,6 +35,17 @@ const ExercisesTable = ({ exercises, isEditing, onExercisesChange }) => {
         onExercisesChange?.(updatedExercises);
     };
 
+    const handleAddExercise = () => {
+        const newExercise = {
+            name: '',
+            weight: 0,
+            numReps: 0,
+            numSets: 0,
+            note: ''
+        };
+        onExercisesChange?.([...exercises, newExercise]);
+    };
+
     return (
         <>
             <TableContainer sx={{ overflowX: 'auto' }}>
@@ -126,7 +137,7 @@ const ExercisesTable = ({ exercises, isEditing, onExercisesChange }) => {
 
             {isEditing && (
                 <Box display="flex" justifyContent="center" mt={2}>
-                    <CustomButton variant="contained" startIcon={<AddIcon />}>
+                    <CustomButton variant="contained" startIcon={<AddIcon />} onClick={handleAddExercise}>
                         New Exercise
                     </CustomButton>
                 </Box>
