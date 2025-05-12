@@ -21,10 +21,10 @@ export const useWorkoutManagement = (gymId, onWorkoutChange) => {
     setIsEditingWorkout(true);
   };
 
-  const handleOpenWorkout = (workout) => {
+  const handleOpenWorkout = (workout, editMode = false) => {
     setOpenWorkout(workout);
     setEditedWorkout(workout);
-    setIsEditingWorkout(true);
+    setIsEditingWorkout(editMode);
     setIsCreatingWorkout(false);
   };
 
@@ -48,20 +48,22 @@ export const useWorkoutManagement = (gymId, onWorkoutChange) => {
     if (!editedWorkout) return;
     try {
       setIsUpdating(true);
+      let savedWorkout;
       if (isCreatingWorkout) {
-        await createWorkout(gymId, {
+        savedWorkout = await createWorkout(gymId, {
           name: editedWorkout.name,
           exerciseList: editedWorkout.exerciseList
         });
       } else {
-        await updateWorkout(editedWorkout.id, {
+        savedWorkout = await updateWorkout(editedWorkout.id, {
           name: editedWorkout.name,
           exerciseList: editedWorkout.exerciseList
         });
       }
       setIsEditingWorkout(false);
       setIsCreatingWorkout(false);
-      handleCloseWorkout();
+      setOpenWorkout(savedWorkout.data);
+      setEditedWorkout(savedWorkout.data);
       onWorkoutChange?.();
     } catch (error) {
       const errorMsg = error.response?.data?.errors?.[0] || error.response?.data?.message || 'Failed to save workout';

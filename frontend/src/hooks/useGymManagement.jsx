@@ -69,12 +69,7 @@ export function useGymManagement(userId) {
   };
 
   const handleError = (error, operation) => {
-    let errorMsg = `There was an error trying to ${operation} the gym.`;
-    if (error.backend?.errors?.[0]) {
-      errorMsg = `There was an error trying to ${operation} the gym: ${error.backend.errors[0]}`;
-    } else if (error.message) {
-      errorMsg = error.message;
-    }
+    let errorMsg = `There was an error trying to ${operation} the gym: ${error}`;
     alert(errorMsg);
     setIsEditing(false);
     setIsCreating(false);

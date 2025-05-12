@@ -3,7 +3,7 @@ import { Box, Typography, Grid, CircularProgress, Alert, Snackbar } from '@mui/m
 import WorkoutSummary from './WorkoutSummary';
 import { deleteWorkout } from '../api/WorkoutApi';
 
-export default function WorkoutsList({ workouts, loading, error, onWorkoutClick, onWorkoutDeleted }) {
+export default function WorkoutsList({ workouts, loading, error, onWorkoutView, onWorkoutEdit, onWorkoutDeleted }) {
   const [deleteError, setDeleteError] = useState(null);
   const [deletingWorkoutId, setDeletingWorkoutId] = useState(null);
 
@@ -56,7 +56,8 @@ export default function WorkoutsList({ workouts, loading, error, onWorkoutClick,
           <Grid key={workout.id} item size={{ xs: 4, sm: 4, md: 4 }}>
             <WorkoutSummary 
               workout={workout} 
-              onClick={() => onWorkoutClick(workout)}
+              onView={onWorkoutView}
+              onEdit={onWorkoutEdit}
               onDelete={handleDelete}
               isDeleting={deletingWorkoutId === workout.id}
             />

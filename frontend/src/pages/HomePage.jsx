@@ -97,7 +97,12 @@ export default function HomePage() {
             workouts={workouts}
             loading={workoutsLoading}
             error={workoutsError}
-            onWorkoutClick={handleOpenWorkout}
+            onWorkoutView={(workout) => {
+              handleOpenWorkout(workout, false);
+            }}
+            onWorkoutEdit={(workout) => {
+              handleOpenWorkout(workout, true);
+            }}
             onWorkoutDeleted={refreshWorkouts}
           />
         )}

@@ -16,9 +16,7 @@ export const updateGym = async (gymId, gymData) => {
   });
   const json = await response.json();
   if (!response.ok) {
-    const error = new Error(json.message || 'Failed to update gym');
-    error.backend = json;
-    throw error;
+    throw json.errors?.[0] || json.message;
   }
   return json;
 };
@@ -33,9 +31,7 @@ export const createGym = async (userId, gymData) => {
   });
   const json = await response.json();
   if (!response.ok) {
-    const error = new Error(json.message || 'Failed to create gym');
-    error.backend = json;
-    throw error;
+    throw json.errors?.[0] || json.message;
   }
   return json;
 };

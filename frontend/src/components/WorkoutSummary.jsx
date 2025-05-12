@@ -13,7 +13,7 @@ const CustomCardContent = styled(CardContent)(({ theme }) => ({
   scrollbarColor: `${theme.palette.background.default} transparent`,
 }))
 
-export default function WorkoutSummary({ workout, onClick, onDelete, isDeleting }) {
+export default function WorkoutSummary({ workout, onView, onEdit, onDelete, isDeleting }) {
   const handleDeleteClick = (e) => {
     e.stopPropagation();
     const confirmed = window.confirm('Are you sure you want to delete this workout?');
@@ -25,13 +25,13 @@ export default function WorkoutSummary({ workout, onClick, onDelete, isDeleting 
   return (
     <Card
       sx={{ height: 320, display: 'flex', flexDirection: 'column', boxSizing: 'border-box', cursor: 'pointer' }}
-      onClick={onClick}
+      onClick={() => onView && onView(workout)}
     >
       <Box sx={{ p: 2 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h6">{workout.name}</Typography>
           <Box display="flex" gap={1}>
-            <IconButton size="small" onClick={e => { e.stopPropagation(); onClick && onClick(); }}>
+            <IconButton size="small" onClick={e => { e.stopPropagation(); onEdit && onEdit(workout); }}>
               <EditIcon fontSize="small" />
             </IconButton>
             <IconButton 
