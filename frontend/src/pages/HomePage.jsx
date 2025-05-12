@@ -46,7 +46,8 @@ export default function HomePage() {
     handleWorkoutChange,
     handleSaveWorkout,
     handleCancelWorkout,
-    handleDeleteWorkout
+    handleDeleteWorkout,
+    handleExerciseDelete
   } = useWorkoutManagement(selectedGym?.id, refreshWorkouts);
 
   return (
@@ -114,6 +115,7 @@ export default function HomePage() {
         onCancel={handleCancelWorkout}
         onDelete={handleDeleteWorkout}
         onWorkoutChange={handleWorkoutChange}
+        onExerciseDelete={handleExerciseDelete}
       />
     </Box>
   );

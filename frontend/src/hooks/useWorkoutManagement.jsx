@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { deleteWorkout, updateWorkout, createWorkout } from '../api/WorkoutApi';
+import { deleteExercise } from '../api/ExerciseApi.jsx';
 
 export const useWorkoutManagement = (gymId, onWorkoutChange) => {
   const [openWorkout, setOpenWorkout] = useState(null);
@@ -93,6 +94,35 @@ export const useWorkoutManagement = (gymId, onWorkoutChange) => {
     }
   };
 
+  const handleExerciseDelete = async (exerciseId) => {
+    try {
+      await deleteExercise(exerciseId);
+      
+      if (editedWorkout) {
+        const updatedExerciseList = editedWorkout.exerciseList.filter(
+          exercise => exercise.id !== exerciseId
+        );
+        setEditedWorkout({
+          ...editedWorkout,
+          exerciseList: updatedExerciseList
+        });
+      }
+      
+      if (openWorkout) {
+        const updatedExerciseList = openWorkout.exerciseList.filter(
+          exercise => exercise.id !== exerciseId
+        );
+        setOpenWorkout({
+          ...openWorkout,
+          exerciseList: updatedExerciseList
+        });
+      }
+    } catch (error) {
+      const errorMsg = error.response?.data?.errors[0] || 'Failed to delete exercise';
+      alert(errorMsg);
+    }
+  };
+
   return {
     openWorkout,
     isEditingWorkout,
@@ -108,6 +138,7 @@ export const useWorkoutManagement = (gymId, onWorkoutChange) => {
     handleWorkoutChange,
     handleSaveWorkout,
     handleCancelWorkout,
-    handleDeleteWorkout
+    handleDeleteWorkout,
+    handleExerciseDelete
   };
 }; 

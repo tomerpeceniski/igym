@@ -1,5 +1,22 @@
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Box, styled, useTheme, Button } from '@mui/material';
+import React from 'react';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    IconButton,
+    TextField,
+    Tooltip,
+    Box,
+    styled,
+    useTheme,
+    Button
+} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const CustomTextField = styled(TextField)(({ theme }) => ({
     '& .MuiInput-underline:before': {
@@ -19,7 +36,7 @@ const CustomButton = styled(Button)(({ theme }) => ({
     width: '100%',
 }))
 
-const ExercisesTable = ({ exercises, isEditing, onExercisesChange }) => {
+const ExercisesTable = ({ exercises, isEditing, onExercisesChange, onExerciseDelete }) => {
     const theme = useTheme();
 
     const handleExerciseChange = (index, field, value) => {
@@ -46,9 +63,23 @@ const ExercisesTable = ({ exercises, isEditing, onExercisesChange }) => {
         onExercisesChange?.([...exercises, newExercise]);
     };
 
+    const handleDeleteExercise = (index, exerciseId) => {
+        const confirmed = window.confirm('Are you sure you want to delete this exercise?');
+        if (!confirmed) return;
+
+        if (exerciseId) {
+            // If the exercise has an ID, it exists in the database
+            onExerciseDelete(exerciseId);
+        } else {
+            // If no ID, it's a new exercise that hasn't been saved yet
+            const updatedExercises = exercises.filter((_, i) => i !== index);
+            onExercisesChange?.(updatedExercises);
+        }
+    };
+
     return (
         <>
-            <TableContainer sx={{ overflowX: 'auto' }}>
+            <TableContainer component={Paper} sx={{ mt: 2 }}>
                 <Table>
                     <TableHead>
                         <TableRow>
@@ -57,11 +88,12 @@ const ExercisesTable = ({ exercises, isEditing, onExercisesChange }) => {
                             <TableCell align="right">Repetitions</TableCell>
                             <TableCell align="right">Sets</TableCell>
                             <TableCell>Note</TableCell>
+                            {isEditing && <TableCell align="center">Actions</TableCell>}
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {exercises.map((exercise, index) => (
-                            <TableRow key={exercise.id}>
+                            <TableRow key={exercise.id || index}>
                                 <TableCell>
                                     {isEditing ? (
                                         <CustomTextField
@@ -129,6 +161,19 @@ const ExercisesTable = ({ exercises, isEditing, onExercisesChange }) => {
                                         exercise.note || '-'
                                     )}
                                 </TableCell>
+                                {isEditing && (
+                                    <TableCell align="center">
+                                        <Tooltip title="Delete exercise">
+                                            <IconButton
+                                                onClick={() => handleDeleteExercise(index, exercise.id)}
+                                                color="error"
+                                                size="small"
+                                            >
+                                                <DeleteIcon />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </TableCell>
+                                )}
                             </TableRow>
                         ))}
                     </TableBody>

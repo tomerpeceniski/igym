@@ -1,7 +1,9 @@
-import { Card, CardContent, Typography, Box, TextField } from '@mui/material';
+import React from 'react';
+import { Card, CardContent, Typography, Box, TextField, Button } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 import ExercisesTable from './ExercisesTable';
 
-const WorkoutCard = ({ workout, isEditing, onWorkoutChange }) => {
+const WorkoutCard = ({ workout, isEditing, onWorkoutChange, onExerciseDelete }) => {
     const handleNameChange = (e) => {
         if (onWorkoutChange) {
             onWorkoutChange({
@@ -20,6 +22,22 @@ const WorkoutCard = ({ workout, isEditing, onWorkoutChange }) => {
         }
     };
 
+    const handleAddExercise = () => {
+        const newExercise = {
+            name: '',
+            weight: 0,
+            numReps: 0,
+            numSets: 0,
+            note: ''
+        };
+        if (onWorkoutChange) {
+            onWorkoutChange({
+                ...workout,
+                exerciseList: [...workout.exerciseList, newExercise]
+            });
+        }
+    };
+
     return (
         <Box sx={{ width: '100%', maxWidth: { xs: '100%', md: 800 }, mx: 'auto', px: 2 }}>
             <Card sx={{ minWidth: 275, borderRadius: 2, boxShadow: 3, p: 2 }}>
@@ -31,7 +49,7 @@ const WorkoutCard = ({ workout, isEditing, onWorkoutChange }) => {
                             variant="standard"
                             fullWidth
                             inputProps={{
-                                style: { 
+                                style: {
                                     fontSize: '1.5rem',
                                     textAlign: 'center',
                                     fontWeight: 'bold'
@@ -45,10 +63,11 @@ const WorkoutCard = ({ workout, isEditing, onWorkoutChange }) => {
                     )}
                 </Box>
                 <CardContent>
-                    <ExercisesTable 
-                        exercises={workout.exerciseList} 
+                    <ExercisesTable
+                        exercises={workout.exerciseList}
                         isEditing={isEditing}
                         onExercisesChange={handleExerciseChange}
+                        onExerciseDelete={onExerciseDelete}
                     />
                 </CardContent>
             </Card>

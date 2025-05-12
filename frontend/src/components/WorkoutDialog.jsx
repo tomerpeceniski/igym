@@ -14,7 +14,8 @@ export default function WorkoutDialog({
   onSave,
   onCancel,
   onDelete,
-  onWorkoutChange
+  onWorkoutChange,
+  onExerciseDelete
 }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -87,6 +88,7 @@ export default function WorkoutDialog({
               workout={editedWorkout} 
               isEditing={isEditingWorkout}
               onWorkoutChange={onWorkoutChange}
+              onExerciseDelete={onExerciseDelete}
             />
           )}
         </Box>
