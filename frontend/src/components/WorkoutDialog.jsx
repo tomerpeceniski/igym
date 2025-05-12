@@ -8,7 +8,6 @@ export default function WorkoutDialog({
   onClose,
   editedWorkout,
   isEditingWorkout,
-  isDeleting,
   isUpdating,
   onEdit,
   onSave,
@@ -70,7 +69,6 @@ export default function WorkoutDialog({
             onCancel={onCancel}
             onDelete={onDelete}
             onClose={onClose}
-            isDeleting={isDeleting}
             isUpdating={isUpdating}
           />
         </Box>

@@ -21,8 +21,6 @@ export default function HomePage() {
     gymsLoading,
     gymsError,
     updateLoading,
-    isDeleting,
-    deleteError,
     handleEditClick,
     handleCancelEdit,
     handleCreateClick,
@@ -75,7 +73,6 @@ export default function HomePage() {
         onDeleteGym={handleDeleteGym}
         gyms={gyms}
         updateLoading={updateLoading}
-        isDeleting={isDeleting}
         onCreateWorkoutClick={handleCreateWorkoutClick}
       />
 
@@ -113,7 +110,6 @@ export default function HomePage() {
         onClose={handleCloseWorkout}
         editedWorkout={editedWorkout}
         isEditingWorkout={isEditingWorkout}
-        isDeleting={isDeleting}
         isUpdating={isUpdating}
         onEdit={handleEditWorkout}
         onSave={handleSaveWorkout}

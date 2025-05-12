@@ -5,28 +5,23 @@ import ClearIcon from '@mui/icons-material/Clear';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from '@mui/icons-material/Close';
 
-const WorkoutCardActions = ({ isEditing, onEdit, onSave, onCancel, onDelete, onClose, isDeleting, isUpdating }) => {
+const WorkoutCardActions = ({ isEditing, onEdit, onSave, onCancel, onDelete, onClose, isUpdating }) => {
   const theme = useTheme();
   const color = theme.palette.background.paper;
 
-  return ( 
+  return (
     <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 1 }}>
       {!isEditing ? (
         <>
           <IconButton aria-label="edit workout" size="small" onClick={onEdit}>
             <EditIcon sx={{ color }} />
           </IconButton>
-          <IconButton 
-            aria-label="delete workout" 
-            size="small" 
+          <IconButton
+            aria-label="delete workout"
+            size="small"
             onClick={onDelete}
-            disabled={isDeleting}
           >
-            {isDeleting ? (
-              <CircularProgress size={20} sx={{ color }} />
-            ) : (
-              <DeleteIcon sx={{ color }} />
-            )}
+            <DeleteIcon sx={{ color }} />
           </IconButton>
           <IconButton aria-label="close workout" size="small" onClick={onClose}>
             <CloseIcon sx={{ color }} />
@@ -34,9 +29,9 @@ const WorkoutCardActions = ({ isEditing, onEdit, onSave, onCancel, onDelete, onC
         </>
       ) : (
         <>
-          <IconButton 
-            aria-label="save workout" 
-            size="small" 
+          <IconButton
+            aria-label="save workout"
+            size="small"
             onClick={onSave}
             disabled={isUpdating}
           >
@@ -46,9 +41,9 @@ const WorkoutCardActions = ({ isEditing, onEdit, onSave, onCancel, onDelete, onC
               <SaveIcon sx={{ color }} />
             )}
           </IconButton>
-          <IconButton 
-            aria-label="discard changes" 
-            size="small" 
+          <IconButton
+            aria-label="discard changes"
+            size="small"
             onClick={onCancel}
             disabled={isUpdating}
           >

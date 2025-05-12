@@ -26,7 +26,6 @@ export default function GymHeader({
   onDeleteGym,
   gyms,
   updateLoading,
-  isDeleting,
   onCreateWorkoutClick
 }) {
   return (
@@ -88,7 +87,7 @@ export default function GymHeader({
                     aria-label="edit"
                     color="secondary"
                     onClick={() => onEditClick(selectedGym?.name)}
-                    disabled={updateLoading || isDeleting}
+                    disabled={updateLoading}
                   >
                     <EditIcon />
                   </IconButton>
@@ -96,7 +95,7 @@ export default function GymHeader({
                 <Tooltip title="Delete gym">
                   <IconButton
                     onClick={() => onDeleteGym(selectedGym.id)}
-                    disabled={updateLoading || isDeleting}
+                    disabled={updateLoading}
                     color="secondary"
                   >
                     <DeleteIcon />
