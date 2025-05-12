@@ -38,7 +38,6 @@ export default function HomePage() {
   const [deleteError, setDeleteError] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [editedWorkout, setEditedWorkout] = useState(null);
-  const [updateError, setUpdateError] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
   const handleOpenWorkout = (workout) => {
@@ -74,7 +73,8 @@ export default function HomePage() {
       setIsEditingWorkout(false);
       refreshWorkouts();
     } catch (error) {
-      setUpdateError(error.response?.data?.message || 'Failed to update workout');
+      const errorMsg = error.response?.data?.errors[0] || 'Failed to update workout';
+      alert(errorMsg);
     } finally {
       setIsUpdating(false);
     }
@@ -205,18 +205,6 @@ export default function HomePage() {
           </Box>
         </Box>
       </Dialog>
-
-      <Snackbar open={!!deleteError} autoHideDuration={6000} onClose={handleCloseError}>
-        <Alert onClose={handleCloseError} severity="error" sx={{ width: '100%' }}>
-          {deleteError}
-        </Alert>
-      </Snackbar>
-
-      <Snackbar open={!!updateError} autoHideDuration={6000} onClose={handleCloseUpdateError}>
-        <Alert onClose={handleCloseUpdateError} severity="error" sx={{ width: '100%' }}>
-          {updateError}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 }
