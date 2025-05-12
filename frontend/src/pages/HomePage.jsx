@@ -5,7 +5,6 @@ import GymHeader from '../components/GymHeader';
 import WorkoutsList from '../components/WorkoutsList';
 import WorkoutDialog from '../components/WorkoutDialog';
 import { useGymManagement } from '../hooks/useGymManagement';
-import { useWorkoutsByGymId } from '../hooks/useWorkoutsByGymId';
 import { useWorkoutManagement } from '../hooks/useWorkoutManagement';
 import mockedUsers from '../data/mockedUsers';
 
@@ -27,9 +26,11 @@ export default function HomePage() {
     handleDeleteGym
   } = useGymManagement(user.id);
 
-  const { workouts, loading: workoutsLoading, error: workoutsError, refresh: refreshWorkouts } = useWorkoutsByGymId(selectedGym?.id);
-
   const {
+    workouts,
+    workoutsLoading,
+    workoutsError,
+    refreshWorkouts,
     openWorkout,
     isEditingWorkout,
     isCreatingWorkout,
@@ -44,7 +45,7 @@ export default function HomePage() {
     handleCancelWorkout,
     handleDeleteWorkout,
     handleExerciseDelete
-  } = useWorkoutManagement(selectedGym?.id, refreshWorkouts);
+  } = useWorkoutManagement(selectedGym?.id);
 
   return (
     <Box>

@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { deleteWorkout, updateWorkout, createWorkout } from '../api/WorkoutApi';
 import { deleteExercise } from '../api/ExerciseApi.jsx';
+import { useWorkoutsByGymId } from './useWorkoutsByGymId';
 
 export const useWorkoutManagement = (gymId, onWorkoutChange) => {
+  const { workouts, loading: workoutsLoading, error: workoutsError, refresh: refreshWorkouts } = useWorkoutsByGymId(gymId);
   const [openWorkout, setOpenWorkout] = useState(null);
   const [isEditingWorkout, setIsEditingWorkout] = useState(false);
   const [isCreatingWorkout, setIsCreatingWorkout] = useState(false);
@@ -65,7 +67,7 @@ export const useWorkoutManagement = (gymId, onWorkoutChange) => {
       setIsCreatingWorkout(false);
       setOpenWorkout(savedWorkout.data);
       setEditedWorkout(savedWorkout.data);
-      onWorkoutChange?.();
+      refreshWorkouts();
     } catch (error) {
       const errorMsg = error.response?.data?.errors?.[0] || error.response?.data?.message || 'Failed to save workout';
       alert(errorMsg);
@@ -89,7 +91,7 @@ export const useWorkoutManagement = (gymId, onWorkoutChange) => {
       setIsDeleting(true);
       await deleteWorkout(openWorkout.id);
       handleCloseWorkout();
-      onWorkoutChange?.();
+      refreshWorkouts();
     } catch (error) {
       setDeleteError(error.response?.data?.message || 'Failed to delete workout');
     } finally {
@@ -127,6 +129,10 @@ export const useWorkoutManagement = (gymId, onWorkoutChange) => {
   };
 
   return {
+    workouts,
+    workoutsLoading,
+    workoutsError,
+    refreshWorkouts,
     openWorkout,
     isEditingWorkout,
     isCreatingWorkout,
