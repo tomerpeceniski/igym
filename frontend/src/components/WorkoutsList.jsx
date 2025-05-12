@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Typography, Grid, CircularProgress } from '@mui/material';
 import WorkoutSummary from './WorkoutSummary';
 
-export default function WorkoutsList({ workouts, loading, error }) {
+export default function WorkoutsList({ workouts, loading, error, onWorkoutClick }) {
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" mt={2}>
@@ -31,7 +31,7 @@ export default function WorkoutsList({ workouts, loading, error }) {
     <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
       {workouts.map((workout, index) => (
         <Grid key={index} size={{ xs: 4, sm: 4, md: 4 }}>
-          <WorkoutSummary workout={workout} />
+          <WorkoutSummary workout={workout} onClick={() => onWorkoutClick(workout)} />
         </Grid>
       ))}
     </Grid>
