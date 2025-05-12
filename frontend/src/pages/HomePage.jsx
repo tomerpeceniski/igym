@@ -43,7 +43,7 @@ export default function HomePage() {
   const handleOpenWorkout = (workout) => {
     setOpenWorkout(workout);
     setEditedWorkout(workout);
-    setIsEditingWorkout(false);
+    setIsEditingWorkout(true);
   };
 
   const handleCloseWorkout = () => {
@@ -101,14 +101,6 @@ export default function HomePage() {
     } finally {
       setIsDeleting(false);
     }
-  };
-
-  const handleCloseError = () => {
-    setDeleteError(null);
-  };
-
-  const handleCloseUpdateError = () => {
-    setUpdateError(null);
   };
 
   return (
