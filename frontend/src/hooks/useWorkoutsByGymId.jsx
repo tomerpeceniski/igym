@@ -1,25 +1,34 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getWorkoutsByGymId } from '../api/WorkoutApi';
 
 export const useWorkoutsByGymId = (gymId) => {
   const [workouts, setWorkouts] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  useEffect(() => {
+  const fetchWorkouts = useCallback(async () => {
     if (!gymId) return;
 
     setLoading(true);
-    getWorkoutsByGymId(gymId)
-      .then((response) => {
-        setWorkouts(response.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-      });
+    try {
+      const response = await getWorkoutsByGymId(gymId);
+      setWorkouts(response.data);
+      setError(null);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
   }, [gymId]);
 
-  return { workouts, loading, error };
+  useEffect(() => {
+    fetchWorkouts();
+  }, [fetchWorkouts, refreshTrigger]);
+
+  const refresh = useCallback(() => {
+    setRefreshTrigger(prev => prev + 1);
+  }, []);
+
+  return { workouts, loading, error, refresh };
 };

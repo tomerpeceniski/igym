@@ -1,11 +1,11 @@
-import { IconButton, Box, useTheme } from '@mui/material';
+import { IconButton, Box, useTheme, CircularProgress } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import ClearIcon from '@mui/icons-material/Clear';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from '@mui/icons-material/Close';
 
-const WorkoutCardActions = ({ isEditing, onEdit, onSave, onCancel, onDelete, onClose }) => {
+const WorkoutCardActions = ({ isEditing, onEdit, onSave, onCancel, onDelete, onClose, isDeleting }) => {
   const theme = useTheme();
   const color = theme.palette.background.paper;
 
@@ -16,8 +16,17 @@ const WorkoutCardActions = ({ isEditing, onEdit, onSave, onCancel, onDelete, onC
           <IconButton aria-label="edit workout" size="small" onClick={onEdit}>
             <EditIcon sx={{ color }} />
           </IconButton>
-          <IconButton aria-label="delete workout" size="small" onClick={onDelete}>
-            <DeleteIcon sx={{ color }} />
+          <IconButton 
+            aria-label="delete workout" 
+            size="small" 
+            onClick={onDelete}
+            disabled={isDeleting}
+          >
+            {isDeleting ? (
+              <CircularProgress size={20} sx={{ color }} />
+            ) : (
+              <DeleteIcon sx={{ color }} />
+            )}
           </IconButton>
           <IconButton aria-label="close workout" size="small" onClick={onClose}>
             <CloseIcon sx={{ color }} />

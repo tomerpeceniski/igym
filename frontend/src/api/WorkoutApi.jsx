@@ -5,3 +5,7 @@ const API_BASE_URL = '/api/v1';
 export const getWorkoutsByGymId = (gymId) => {
   return axios.get(`${API_BASE_URL}/gyms/${gymId}/workouts`);
 };
+
+export const deleteWorkout = (workoutId) => {
+  return axios.delete(`${API_BASE_URL}/workouts/${workoutId}`);
+};

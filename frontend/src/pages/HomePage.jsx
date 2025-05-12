@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Typography, Dialog, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Typography, Dialog, useMediaQuery, useTheme, Alert, Snackbar } from '@mui/material';
 import GreetingTitle from '../components/GreetingTitle';
 import GymHeader from '../components/GymHeader';
 import WorkoutsList from '../components/WorkoutsList';
@@ -7,6 +7,7 @@ import WorkoutCard from '../components/WorkoutCard';
 import WorkoutCardActions from '../components/WorkoutCardActions';
 import { useGymManagement } from '../hooks/useGymManagement';
 import { useWorkoutsByGymId } from '../hooks/useWorkoutsByGymId';
+import { deleteWorkout } from '../api/WorkoutApi';
 import mockedUsers from '../data/mockedUsers';
 
 const user = mockedUsers[0];
@@ -28,12 +29,14 @@ export default function HomePage() {
     handleGymSelect
   } = useGymManagement(user.id);
 
-  const { workouts, loading: workoutsLoading, error: workoutsError } = useWorkoutsByGymId(selectedGym?.id);
+  const { workouts, loading: workoutsLoading, error: workoutsError, refresh: refreshWorkouts } = useWorkoutsByGymId(selectedGym?.id);
 
   const [openWorkout, setOpenWorkout] = useState(null);
   const [isEditingWorkout, setIsEditingWorkout] = useState(false);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const [deleteError, setDeleteError] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleOpenWorkout = (workout) => {
     setOpenWorkout(workout);
@@ -46,7 +49,27 @@ export default function HomePage() {
   const handleEditWorkout = () => setIsEditingWorkout(true);
   const handleSaveWorkout = () => setIsEditingWorkout(false);
   const handleCancelWorkout = () => setIsEditingWorkout(false);
-  const handleDeleteWorkout = () => {/* implement if needed */};
+  const handleDeleteWorkout = async () => {
+    if (!openWorkout) return;
+    
+    const confirmed = window.confirm('Are you sure you want to delete this workout?');
+    if (!confirmed) return;
+
+    try {
+      setIsDeleting(true);
+      await deleteWorkout(openWorkout.id);
+      handleCloseWorkout();
+      refreshWorkouts();
+    } catch (error) {
+      setDeleteError(error.response?.data?.message || 'Failed to delete workout');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleCloseError = () => {
+    setDeleteError(null);
+  };
 
   return (
     <Box>
@@ -93,6 +116,7 @@ export default function HomePage() {
             loading={workoutsLoading}
             error={workoutsError}
             onWorkoutClick={handleOpenWorkout}
+            onWorkoutDeleted={refreshWorkouts}
           />
         )}
       </Box>
@@ -126,6 +150,7 @@ export default function HomePage() {
               onCancel={handleCancelWorkout}
               onDelete={handleDeleteWorkout}
               onClose={handleCloseWorkout}
+              isDeleting={isDeleting}
             />
           </Box>
           <Box sx={{ width: '100%', flex: 1, overflow: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', maxHeight: 'calc(100vh - 120px)' }}>
@@ -135,6 +160,12 @@ export default function HomePage() {
           </Box>
         </Box>
       </Dialog>
+
+      <Snackbar open={!!deleteError} autoHideDuration={6000} onClose={handleCloseError}>
+        <Alert onClose={handleCloseError} severity="error" sx={{ width: '100%' }}>
+          {deleteError}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
