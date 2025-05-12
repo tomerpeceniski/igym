@@ -9,3 +9,7 @@ export const getWorkoutsByGymId = (gymId) => {
 export const deleteWorkout = (workoutId) => {
   return axios.delete(`${API_BASE_URL}/workouts/${workoutId}`);
 };
+
+export const updateWorkout = (workoutId, workoutData) => {
+  return axios.patch(`${API_BASE_URL}/workouts/${workoutId}`, workoutData);
+};

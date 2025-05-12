@@ -7,7 +7,7 @@ import WorkoutCard from '../components/WorkoutCard';
 import WorkoutCardActions from '../components/WorkoutCardActions';
 import { useGymManagement } from '../hooks/useGymManagement';
 import { useWorkoutsByGymId } from '../hooks/useWorkoutsByGymId';
-import { deleteWorkout } from '../api/WorkoutApi';
+import { deleteWorkout, updateWorkout } from '../api/WorkoutApi';
 import mockedUsers from '../data/mockedUsers';
 
 const user = mockedUsers[0];
@@ -37,18 +37,54 @@ export default function HomePage() {
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const [deleteError, setDeleteError] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [editedWorkout, setEditedWorkout] = useState(null);
+  const [updateError, setUpdateError] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const handleOpenWorkout = (workout) => {
     setOpenWorkout(workout);
+    setEditedWorkout(workout);
     setIsEditingWorkout(false);
   };
+
   const handleCloseWorkout = () => {
     setOpenWorkout(null);
+    setEditedWorkout(null);
     setIsEditingWorkout(false);
   };
-  const handleEditWorkout = () => setIsEditingWorkout(true);
-  const handleSaveWorkout = () => setIsEditingWorkout(false);
-  const handleCancelWorkout = () => setIsEditingWorkout(false);
+
+  const handleEditWorkout = () => {
+    setIsEditingWorkout(true);
+    setEditedWorkout(openWorkout);
+  };
+
+  const handleWorkoutChange = (updatedWorkout) => {
+    setEditedWorkout(updatedWorkout);
+  };
+
+  const handleSaveWorkout = async () => {
+    if (!editedWorkout) return;
+
+    try {
+      setIsUpdating(true);
+      await updateWorkout(editedWorkout.id, {
+        name: editedWorkout.name,
+        exerciseList: editedWorkout.exerciseList
+      });
+      setIsEditingWorkout(false);
+      refreshWorkouts();
+    } catch (error) {
+      setUpdateError(error.response?.data?.message || 'Failed to update workout');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleCancelWorkout = () => {
+    setEditedWorkout(openWorkout);
+    setIsEditingWorkout(false);
+  };
+
   const handleDeleteWorkout = async () => {
     if (!openWorkout) return;
     
@@ -69,6 +105,10 @@ export default function HomePage() {
 
   const handleCloseError = () => {
     setDeleteError(null);
+  };
+
+  const handleCloseUpdateError = () => {
+    setUpdateError(null);
   };
 
   return (
@@ -151,11 +191,16 @@ export default function HomePage() {
               onDelete={handleDeleteWorkout}
               onClose={handleCloseWorkout}
               isDeleting={isDeleting}
+              isUpdating={isUpdating}
             />
           </Box>
           <Box sx={{ width: '100%', flex: 1, overflow: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', maxHeight: 'calc(100vh - 120px)' }}>
-            {openWorkout && (
-              <WorkoutCard workout={openWorkout} isEditing={isEditingWorkout} />
+            {openWorkout && editedWorkout && (
+              <WorkoutCard 
+                workout={editedWorkout} 
+                isEditing={isEditingWorkout}
+                onWorkoutChange={handleWorkoutChange}
+              />
             )}
           </Box>
         </Box>
@@ -164,6 +209,12 @@ export default function HomePage() {
       <Snackbar open={!!deleteError} autoHideDuration={6000} onClose={handleCloseError}>
         <Alert onClose={handleCloseError} severity="error" sx={{ width: '100%' }}>
           {deleteError}
+        </Alert>
+      </Snackbar>
+
+      <Snackbar open={!!updateError} autoHideDuration={6000} onClose={handleCloseUpdateError}>
+        <Alert onClose={handleCloseUpdateError} severity="error" sx={{ width: '100%' }}>
+          {updateError}
         </Alert>
       </Snackbar>
     </Box>

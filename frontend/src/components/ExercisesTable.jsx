@@ -19,8 +19,21 @@ const CustomButton = styled(Button)(({ theme }) => ({
     width: '100%',
 }))
 
-const ExercisesTable = ({ exercises, isEditing }) => {
+const ExercisesTable = ({ exercises, isEditing, onExercisesChange }) => {
     const theme = useTheme();
+
+    const handleExerciseChange = (index, field, value) => {
+        const updatedExercises = exercises.map((exercise, i) => {
+            if (i === index) {
+                return {
+                    ...exercise,
+                    [field]: value
+                };
+            }
+            return exercise;
+        });
+        onExercisesChange?.(updatedExercises);
+    };
 
     return (
         <>
@@ -37,12 +50,13 @@ const ExercisesTable = ({ exercises, isEditing }) => {
                     </TableHead>
                     <TableBody>
                         {exercises.map((exercise, index) => (
-                            <TableRow key={index}>
+                            <TableRow key={exercise.id}>
                                 <TableCell>
                                     {isEditing ? (
                                         <CustomTextField
                                             variant="standard"
-                                            defaultValue={exercise.name}
+                                            value={exercise.name}
+                                            onChange={(e) => handleExerciseChange(index, 'name', e.target.value)}
                                             fullWidth
                                             multiline
                                             maxRows={2}
@@ -55,7 +69,9 @@ const ExercisesTable = ({ exercises, isEditing }) => {
                                     {isEditing ? (
                                         <CustomTextField
                                             variant="standard"
-                                            defaultValue={exercise.weight}
+                                            type="number"
+                                            value={exercise.weight}
+                                            onChange={(e) => handleExerciseChange(index, 'weight', parseFloat(e.target.value) || 0)}
                                             fullWidth
                                         />
                                     ) : (
@@ -66,7 +82,9 @@ const ExercisesTable = ({ exercises, isEditing }) => {
                                     {isEditing ? (
                                         <CustomTextField
                                             variant="standard"
-                                            defaultValue={exercise.numReps}
+                                            type="number"
+                                            value={exercise.numReps}
+                                            onChange={(e) => handleExerciseChange(index, 'numReps', parseInt(e.target.value) || 0)}
                                             fullWidth
                                         />
                                     ) : (
@@ -77,7 +95,9 @@ const ExercisesTable = ({ exercises, isEditing }) => {
                                     {isEditing ? (
                                         <CustomTextField
                                             variant="standard"
-                                            defaultValue={exercise.numSets}
+                                            type="number"
+                                            value={exercise.numSets}
+                                            onChange={(e) => handleExerciseChange(index, 'numSets', parseInt(e.target.value) || 0)}
                                             fullWidth
                                         />
                                     ) : (
@@ -88,7 +108,8 @@ const ExercisesTable = ({ exercises, isEditing }) => {
                                     {isEditing ? (
                                         <CustomTextField
                                             variant="standard"
-                                            defaultValue={exercise.note || ''}
+                                            value={exercise.note || ''}
+                                            onChange={(e) => handleExerciseChange(index, 'note', e.target.value)}
                                             fullWidth
                                             multiline
                                             maxRows={4}

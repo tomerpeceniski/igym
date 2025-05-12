@@ -5,7 +5,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from '@mui/icons-material/Close';
 
-const WorkoutCardActions = ({ isEditing, onEdit, onSave, onCancel, onDelete, onClose, isDeleting }) => {
+const WorkoutCardActions = ({ isEditing, onEdit, onSave, onCancel, onDelete, onClose, isDeleting, isUpdating }) => {
   const theme = useTheme();
   const color = theme.palette.background.paper;
 
@@ -34,10 +34,24 @@ const WorkoutCardActions = ({ isEditing, onEdit, onSave, onCancel, onDelete, onC
         </>
       ) : (
         <>
-          <IconButton aria-label="save workout" size="small" onClick={onSave}>
-            <SaveIcon sx={{ color }} />
+          <IconButton 
+            aria-label="save workout" 
+            size="small" 
+            onClick={onSave}
+            disabled={isUpdating}
+          >
+            {isUpdating ? (
+              <CircularProgress size={20} sx={{ color }} />
+            ) : (
+              <SaveIcon sx={{ color }} />
+            )}
           </IconButton>
-          <IconButton aria-label="discard changes" size="small" onClick={onCancel}>
+          <IconButton 
+            aria-label="discard changes" 
+            size="small" 
+            onClick={onCancel}
+            disabled={isUpdating}
+          >
             <ClearIcon sx={{ color }} />
           </IconButton>
         </>
