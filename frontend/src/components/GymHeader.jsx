@@ -1,8 +1,9 @@
 import React from 'react';
-import { Box, Typography, TextField, IconButton, Button, styled } from '@mui/material';
+import { Box, Typography, TextField, IconButton, Button, styled, Tooltip } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
+import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import GymSelector from './GymSelector';
 
@@ -22,8 +23,10 @@ export default function GymHeader({
   onSaveEdit,
   onCreateClick,
   onGymSelect,
+  onDeleteGym,
   gyms,
   updateLoading,
+  isDeleting,
   onCreateWorkoutClick
 }) {
   return (
@@ -38,30 +41,7 @@ export default function GymHeader({
       px={8}
     >
       <Box display="flex" alignItems="center" gap={1}>
-        {isEditing ? (
-          <>
-            <TextField
-              value={editedName}
-              onChange={(e) => onEditClick(e.target.value)}
-              autoFocus
-              variant="standard"
-              sx={{
-                '& .MuiInputBase-input': {
-                  fontSize: '2.5rem',
-                  fontWeight: 'bold',
-                  color: 'text.secondary',
-                  textAlign: 'center',
-                },
-              }}
-            />
-            <IconButton aria-label="save" color="secondary" onClick={onSaveEdit} disabled={updateLoading}>
-              <CheckIcon />
-            </IconButton>
-            <IconButton aria-label="cancel" color="secondary" onClick={onCancelEdit} disabled={updateLoading}>
-              <CloseIcon />
-            </IconButton>
-          </>
-        ) : (
+        {selectedGym && (
           <>
             <Typography
               variant="h2"
@@ -70,9 +50,25 @@ export default function GymHeader({
             >
               {selectedGym?.name}
             </Typography>
-            <IconButton aria-label="edit" color="secondary" onClick={() => onEditClick(selectedGym?.name)}>
-              <EditIcon />
-            </IconButton>
+            <Tooltip title="Edit gym name">
+              <IconButton
+                aria-label="edit"
+                color="secondary"
+                onClick={onEditClick}
+                disabled={updateLoading || isDeleting}
+              >
+                <EditIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Delete gym">
+              <IconButton
+                onClick={() => onDeleteGym(selectedGym.id)}
+                disabled={updateLoading || isDeleting}
+                color="secondary"
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Tooltip>
           </>
         )}
       </Box>

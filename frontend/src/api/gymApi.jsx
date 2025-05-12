@@ -39,3 +39,8 @@ export const createGym = async (userId, gymData) => {
   }
   return json;
 };
+
+export const deleteGym = async (gymId) => {
+  const response = await axios.delete(`${API_BASE_URL}/gyms/${gymId}`);
+  return response.data;
+}; 

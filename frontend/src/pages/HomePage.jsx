@@ -21,11 +21,14 @@ export default function HomePage() {
     gymsLoading,
     gymsError,
     updateLoading,
+    isDeleting,
+    deleteError,
     handleEditClick,
     handleCancelEdit,
     handleCreateClick,
     handleSaveEdit,
-    handleGymSelect
+    handleGymSelect,
+    handleDeleteGym
   } = useGymManagement(user.id);
 
   const { workouts, loading: workoutsLoading, error: workoutsError, refresh: refreshWorkouts } = useWorkoutsByGymId(selectedGym?.id);
@@ -36,8 +39,6 @@ export default function HomePage() {
     isCreatingWorkout,
     editedWorkout,
     isUpdating,
-    isDeleting,
-    deleteError,
     handleCreateWorkoutClick,
     handleOpenWorkout,
     handleCloseWorkout,
@@ -70,8 +71,10 @@ export default function HomePage() {
         onSaveEdit={handleSaveEdit}
         onCreateClick={handleCreateClick}
         onGymSelect={handleGymSelect}
+        onDeleteGym={handleDeleteGym}
         gyms={gyms}
         updateLoading={updateLoading}
+        isDeleting={isDeleting}
         onCreateWorkoutClick={handleCreateWorkoutClick}
       />
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useGymsByUserId } from './useGymsByUserId';
 import { useUpdateGym } from './useUpdateGym';
 import { useCreateGym } from './useCreateGym';
+import { getGymsByUserId, updateGym, createGym, deleteGym } from '../api/GymApi.jsx';
 
 export function useGymManagement(userId) {
   const { gyms: gymsData, loading: gymsLoading, error: gymsError } = useGymsByUserId(userId);
@@ -10,6 +11,8 @@ export function useGymManagement(userId) {
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [editedName, setEditedName] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
 
   const { updateGymDetails, loading: updateLoading } = useUpdateGym();
   const { createNewGym, loading: createLoading } = useCreateGym();
@@ -84,6 +87,27 @@ export function useGymManagement(userId) {
     setSelectedGym(gym);
   };
 
+  const handleDeleteGym = async (gymId) => {
+    const confirmed = window.confirm('Are you sure you want to delete this gym?');
+    if (!confirmed) return;
+
+    try {
+      setIsDeleting(true);
+      await deleteGym(gymId);
+      
+      setGyms(prevGyms => prevGyms.filter(gym => gym.id !== gymId));
+      
+      if (selectedGym?.id === gymId) {
+        const remainingGyms = gyms.filter(gym => gym.id !== gymId);
+        setSelectedGym(remainingGyms.length > 0 ? remainingGyms[0] : null);
+      }
+    } catch (error) {
+      setDeleteError(error.response?.data?.message || 'Failed to delete gym');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return {
     gyms,
     selectedGym,
@@ -95,10 +119,13 @@ export function useGymManagement(userId) {
     gymsError,
     updateLoading,
     createLoading,
+    isDeleting,
+    deleteError,
     handleEditClick,
     handleCancelEdit,
     handleCreateClick,
     handleSaveEdit,
-    handleGymSelect
+    handleGymSelect,
+    handleDeleteGym
   };
 } 
