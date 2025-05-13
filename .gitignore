@@ -6,6 +6,7 @@ target/
 env.bat
 env.sh
 env.ps1
+.env.development
 
 ### STS ###
 .apt_generated
