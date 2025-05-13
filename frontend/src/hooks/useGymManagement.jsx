@@ -11,9 +11,12 @@ export function useGymManagement(userId) {
   const [editedName, setEditedName] = useState('');
 
   useEffect(() => {
-    if (!gymsLoading && gymsData && gymsData.length > 0) {
+    if (!gymsLoading && gymsData.length > 0) {
       setGyms(gymsData);
       setSelectedGym(gymsData[0]);
+    } else if (!gymsLoading && gymsData.length === 0) {
+      setGyms([]);
+      setSelectedGym(null);
     }
   }, [gymsLoading, gymsData]);
 
@@ -73,7 +76,7 @@ export function useGymManagement(userId) {
 
   const handleGymSelect = (e) => {
     const gymId = e.target.value;
-    const gym = gyms?.find(g => g.id === gymId);
+    const gym = gyms.find(g => g.id === gymId);
     setSelectedGym(gym);
   };
 

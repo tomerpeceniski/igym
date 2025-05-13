@@ -1,22 +1,34 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getGymsByUserId } from '../requests/GymRequests';
 
 export const useGymsByUserId = (userId) => {
-  const [gyms, setGyms] = useState(null);
+  const [gyms, setGyms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    getGymsByUserId(userId)
-      .then((response) => {
-        setGyms(response.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-      });
+  const fetchGyms = useCallback(async () => {
+    if (!userId) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await getGymsByUserId(userId);
+      setGyms(response.data);
+    } catch (err) {
+      const backendMessage = err.response?.data?.message || 'Failed to fetch gyms';
+      setError(backendMessage);
+    } finally {
+      setLoading(false);
+    }
   }, [userId]);
 
-  return { gyms, loading, error };
+  useEffect(() => {
+    fetchGyms();
+  }, [fetchGyms]);
+
+  return {
+    gyms,
+    loading,
+    error,
+    refresh: fetchGyms,
+  };
 };
