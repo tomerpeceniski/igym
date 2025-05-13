@@ -10,14 +10,6 @@ export function useGymManagement(userId) {
   const [isCreating, setIsCreating] = useState(false);
   const [editedName, setEditedName] = useState('');
 
-  const createNewGym = async (userId, gymData) => {
-    return createGym(userId, gymData);
-  };
-
-  const updateGymDetails = async (gymId, gymData) => {
-    return updateGym(gymId, gymData);
-  };
-
   useEffect(() => {
     if (!gymsLoading && gymsData && gymsData.length > 0) {
       setGyms(gymsData);
@@ -45,7 +37,7 @@ export function useGymManagement(userId) {
   const handleSaveEdit = async () => {
     if (isCreating) {
       try {
-        const response = await createNewGym(userId, { name: editedName });
+        const response = await createGym(userId, { name: editedName });
         const newGym = response.data;
         setGyms(prevGyms => [...prevGyms, newGym]);
         setSelectedGym(newGym);
@@ -58,7 +50,7 @@ export function useGymManagement(userId) {
       }
     } else {
       try {
-        const response = await updateGymDetails(selectedGym.id, { name: editedName });
+        const response = await updateGym(selectedGym.id, { name: editedName });
         const updatedGym = response.data;
         setSelectedGym(updatedGym);
         setGyms((prevGyms) => prevGyms.map(g => g.id === updatedGym.id ? { ...g, name: updatedGym.name } : g));
