@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Typography, Snackbar, Alert } from '@mui/material';
+import React, { useEffect } from 'react';
+import { Box, Typography } from '@mui/material';
 import GreetingTitle from '../components/GreetingTitle';
 import GymHeader from '../components/GymHeader';
 import WorkoutsList from '../components/WorkoutsList';
@@ -46,10 +46,10 @@ export default function HomePage() {
     handleExerciseDelete
   } = useWorkoutManagement(selectedGym?.id);
 
-  const [errorOpen, setErrorOpen] = useState(false);
-
   useEffect(() => {
-    if (gymsError) setErrorOpen(true);
+    if (gymsError) {
+      alert(gymsError);
+    }
   }, [gymsError]);
 
   return (
@@ -86,7 +86,7 @@ export default function HomePage() {
           </Typography>
         ) : gymsError ? (
           <Typography variant="h6" align="center" color="text.secondary" mt={4}>
-            Failed to load gyms.
+            Failed to fetch gyms.
           </Typography>
         ) : gyms.length === 0 ? (
           <Typography variant="h6" align="center" color="text.secondary" mt={4}>
@@ -107,17 +107,6 @@ export default function HomePage() {
           />
         )}
       </Box>
-
-      <Snackbar
-        open={errorOpen}
-        autoHideDuration={6000}
-        onClose={() => setErrorOpen(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert onClose={() => setErrorOpen(false)} severity="error" sx={{ width: '100%' }}>
-          {gymsError}
-        </Alert>
-      </Snackbar>
 
       <WorkoutDialog
         open={!!openWorkout || isCreatingWorkout}
