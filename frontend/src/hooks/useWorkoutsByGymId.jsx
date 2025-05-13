@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { getWorkoutsByGymId } from '../api/WorkoutApi';
+import { getWorkoutsByGymId } from '../requests/WorkoutRequests';
 
 export const useWorkoutsByGymId = (gymId) => {
   const [workouts, setWorkouts] = useState(null);

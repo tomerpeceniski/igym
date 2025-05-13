@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Typography, Grid, CircularProgress, Alert, Snackbar } from '@mui/material';
 import WorkoutSummary from './WorkoutSummary';
-import { deleteWorkout } from '../api/WorkoutApi';
+import { deleteWorkout } from '../requests/WorkoutRequests';
 
 export default function WorkoutsList({ workouts, loading, error, onWorkoutView, onWorkoutEdit, onWorkoutDeleted }) {
   const [deleteError, setDeleteError] = useState(null);

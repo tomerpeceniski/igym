@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { deleteWorkout, updateWorkout, createWorkout } from '../api/WorkoutApi';
-import { deleteExercise } from '../api/ExerciseApi.jsx';
+import { deleteWorkout, updateWorkout, createWorkout } from '../requests/WorkoutRequests';
+import { deleteExercise } from '../requests/ExerciseRequests';
 import { useWorkoutsByGymId } from './useWorkoutsByGymId';
 
 export const useWorkoutManagement = (gymId) => {
