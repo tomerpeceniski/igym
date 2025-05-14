@@ -24,6 +24,7 @@ import igym.entities.Workout;
 import igym.entities.enums.Status;
 import igym.exceptions.UserNotFoundException;
 import igym.exceptions.DuplicateUserException;
+import igym.exceptions.InvalidCredentialsException;
 import igym.repositories.UserRepository;
 
 @SpringBootTest
@@ -112,7 +113,7 @@ class UserServiceTest {
         when(userRepository.findByNameAndStatus(name, Status.active)).thenReturn(Optional.of(user1));
         when(passwordEncoder.matches(rawPassword, encodedPassword)).thenReturn(false);
 
-        assertThrows(UserNotFoundException.class, () -> userService.authenticate(name, rawPassword));
+        assertThrows(InvalidCredentialsException.class, () -> userService.authenticate(name, rawPassword));
     }
 
     @Test

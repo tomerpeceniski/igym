@@ -12,6 +12,7 @@ import igym.entities.User;
 import igym.entities.enums.Status;
 import igym.exceptions.UserNotFoundException;
 import igym.exceptions.DuplicateUserException;
+import igym.exceptions.InvalidCredentialsException;
 import igym.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 
@@ -167,7 +168,7 @@ public class UserService {
 
         if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
             logger.warn("Authentication failed for user with name: {}", name);
-            throw new UserNotFoundException("No user found with the provided credentials");
+            throw new InvalidCredentialsException("Invalid credentials provided");
         }
 
         logger.info("User with name {} authenticated successfully", name);
