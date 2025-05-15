@@ -32,11 +32,12 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        key: ${{ runner.os }}-m2-${{ hashFiles('server/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
 
     - name: Run tests and build JaCoCo report
       run: mvn clean verify
+      working-directory: server
 
     - name: Run SonarCloud analysis
       env:
@@ -49,6 +50,7 @@ jobs:
             -Dsonar.token=$SONAR_TOKEN \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
             -Dsonar.newCode.referenceBranch=main
+      working-directory: server
 
     - name: Check if code coverage is >= 90%
       run: |
@@ -68,4 +70,5 @@ jobs:
           else
             echo "✅ Coverage is sufficient."
           fi
-          
+      working-directory: server
+

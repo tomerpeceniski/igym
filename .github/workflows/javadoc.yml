@@ -21,13 +21,15 @@ jobs:
 
     - name: Build Javadoc
       run: mvn clean javadoc:javadoc
+      working-directory: server
   
     - name: List contents of generated site
       run: ls -R ./target/site/apidocs
+      working-directory: server
   
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_branch: gh-pages
-        publish_dir: ./target/site/apidocs
+        publish_dir: ./server/target/site/apidocs
