@@ -27,13 +27,10 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
     },
     '& .MuiInput-underline:after': {
         borderBottomColor: theme.palette.background.default,
-    }
-}))
-
-const CustomButton = styled(Button)(({ theme }) => ({
-    backgroundColor: theme.palette.background.default,
-    color: theme.palette.background.paper,
-    width: '100%',
+    },
+    '& .MuiInputBase-input': {
+        textAlign: 'center',
+    },
 }))
 
 const ExercisesTable = ({ exercises, isEditing, onExercisesChange, onExerciseDelete }) => {
@@ -81,18 +78,18 @@ const ExercisesTable = ({ exercises, isEditing, onExercisesChange, onExerciseDel
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell>Exercise</TableCell>
-                            <TableCell align="right">Weight (kg)</TableCell>
-                            <TableCell align="right">Repetitions</TableCell>
-                            <TableCell align="right">Sets</TableCell>
-                            <TableCell>Note</TableCell>
+                            <TableCell align="center">Exercise</TableCell>
+                            <TableCell align="center">Weight (kg)</TableCell>
+                            <TableCell align="center">Repetitions</TableCell>
+                            <TableCell align="center">Sets</TableCell>
+                            <TableCell align="center">Note</TableCell>
                             {isEditing && <TableCell align="center">Actions</TableCell>}
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {exercises.map((exercise, index) => (
                             <TableRow key={exercise.id || index}>
-                                <TableCell>
+                                <TableCell align="center">
                                     {isEditing ? (
                                         <CustomTextField
                                             variant="standard"
@@ -106,7 +103,7 @@ const ExercisesTable = ({ exercises, isEditing, onExercisesChange, onExerciseDel
                                         exercise.name
                                     )}
                                 </TableCell>
-                                <TableCell align="right">
+                                <TableCell align="center">
                                     {isEditing ? (
                                         <CustomTextField
                                             variant="standard"
@@ -119,7 +116,7 @@ const ExercisesTable = ({ exercises, isEditing, onExercisesChange, onExerciseDel
                                         exercise.weight
                                     )}
                                 </TableCell>
-                                <TableCell align="right">
+                                <TableCell align="center">
                                     {isEditing ? (
                                         <CustomTextField
                                             variant="standard"
@@ -132,7 +129,7 @@ const ExercisesTable = ({ exercises, isEditing, onExercisesChange, onExerciseDel
                                         exercise.numReps
                                     )}
                                 </TableCell>
-                                <TableCell align="right">
+                                <TableCell align="center">
                                     {isEditing ? (
                                         <CustomTextField
                                             variant="standard"
@@ -145,7 +142,7 @@ const ExercisesTable = ({ exercises, isEditing, onExercisesChange, onExerciseDel
                                         exercise.numSets
                                     )}
                                 </TableCell>
-                                <TableCell>
+                                <TableCell align="center">
                                     {isEditing ? (
                                         <CustomTextField
                                             variant="standard"
@@ -179,10 +176,10 @@ const ExercisesTable = ({ exercises, isEditing, onExercisesChange, onExerciseDel
             </TableContainer>
 
             {isEditing && (
-                <Box display="flex" justifyContent="center" mt={2}>
-                    <CustomButton variant="contained" startIcon={<AddIcon />} onClick={handleAddExercise}>
+                <Box display="flex" justifyContent="center" mt={2} gap={2}>
+                    <Button sx={{ backgroundColor: theme.palette.background.paper, color: theme.palette.background.default }} startIcon={<AddIcon />} onClick={handleAddExercise}>
                         New Exercise
-                    </CustomButton>
+                    </Button>
                 </Box>
             )}
         </>
