@@ -1,21 +1,56 @@
-import React, { useState } from 'react';
-import { Box, Typography, Grid, styled, Button} from '@mui/material';
-import GreetingTitle from '../components/GreetingTitle.jsx';
-import GymSelector from '../components/GymSelector.jsx';
-import WorkoutSummary from '../components/WorkoutSummary.jsx';
-import gyms from '../data/mockedGyms';
-import AddIcon from '@mui/icons-material/Add';
+import React, { useEffect } from 'react';
+import { Box, Typography } from '@mui/material';
+import GreetingTitle from '../components/GreetingTitle';
+import GymHeader from '../components/GymHeader';
+import WorkoutsList from '../components/WorkoutsList';
+import WorkoutDialog from '../components/WorkoutDialog';
+import { useGymManagement } from '../hooks/useGymManagement';
+import { useWorkoutManagement } from '../hooks/useWorkoutManagement';
+import mockedUser from '../data/mockedUser';
 
-const CustomButton = styled(Button)(({ theme }) => ({
-  width: '100%',
-  height: '100%',
-  color: theme.palette.secondary.main,
-  borderColor: theme.palette.secondary.main
-}))
+const user = mockedUser;
 
 export default function HomePage() {
-  const [selectedGym, setSelectedGym] = useState(gyms[0].name);
-  const currentGym = gyms.find(g => g.name === selectedGym);
+  const {
+    gyms,
+    selectedGym,
+    isEditing,
+    editedName,
+    gymsLoading,
+    gymsError,
+    handleEditClick,
+    handleCancelEdit,
+    handleCreateClick,
+    handleSaveEdit,
+    handleGymSelect,
+    handleDeleteGym
+  } = useGymManagement(user.id);
+
+  const {
+    workouts,
+    workoutsLoading,
+    workoutsError,
+    refreshWorkouts,
+    openWorkout,
+    isEditingWorkout,
+    isCreatingWorkout,
+    editedWorkout,
+    handleCreateWorkoutClick,
+    handleOpenWorkout,
+    handleCloseWorkout,
+    handleEditWorkout,
+    handleWorkoutChange,
+    handleSaveWorkout,
+    handleCancelWorkout,
+    handleDeleteWorkout,
+    handleExerciseDelete
+  } = useWorkoutManagement(selectedGym?.id);
+
+  useEffect(() => {
+    if (gymsError) {
+      alert(gymsError);
+    }
+  }, [gymsError]);
 
   return (
     <Box>
@@ -27,55 +62,65 @@ export default function HomePage() {
         textAlign="center"
         mb={3}
       >
-        <GreetingTitle name={"User"} />
+        <GreetingTitle name={user.name} />
       </Box>
 
-      <Box
-        display="flex"
-        flexDirection={{ xs: 'column', sm: 'row' }}
-        justifyContent={{ xs: 'center', sm: 'space-between' }}
-        alignItems="center"
-        textAlign={{ xs: 'center', sm: 'left' }}
-        rowGap={2}
-        py={2}
-        px={8}
-      >
-        <Typography
-          variant="h2"
-          align="center"
-          gutterBottom
-          sx={{ color: 'text.secondary' }}
-        >
-          {selectedGym}
-        </Typography>
+      <GymHeader
+        selectedGym={selectedGym}
+        isEditing={isEditing}
+        editedName={editedName}
+        onEditClick={handleEditClick}
+        onCancelEdit={handleCancelEdit}
+        onSaveEdit={handleSaveEdit}
+        onCreateClick={handleCreateClick}
+        onGymSelect={handleGymSelect}
+        onDeleteGym={handleDeleteGym}
+        gyms={gyms}
+        onCreateWorkoutClick={handleCreateWorkoutClick}
+      />
 
-        <Box display="flex" gap={4} width="100%" maxWidth={450} alignItems="stretch" justifyContent={{ xs: 'center', sm: 'space-between' }} flexDirection={{ xs: 'column', sm: 'row' }}>
-          <Box sx={{ flex: 1 }}>
-            <CustomButton variant="outlined" startIcon={<AddIcon />}>
-              New Workout
-            </CustomButton>
-
-          </Box>
-          <Box sx={{ flex: 1 }}>
-            <GymSelector
-              gyms={gyms}
-              selectedGym={selectedGym}
-              onChange={(e) => setSelectedGym(e.target.value)}
-            />
-          </Box>
-        </Box>
+      <Box sx={{ width: '100%', px: 2 }}>
+        {gymsLoading ? (
+          <Typography variant="h6" align="center" color="text.secondary" mt={4}>
+            Loading gyms...
+          </Typography>
+        ) : gymsError ? (
+          <Typography variant="h6" align="center" color="text.secondary" mt={4}>
+            Failed to fetch gyms.
+          </Typography>
+        ) : gyms.length === 0 ? (
+          <Typography variant="h6" align="center" color="text.secondary" mt={4}>
+            You have no gyms to show. Please create your first gym.
+          </Typography>
+        ) : (
+          <WorkoutsList
+            workouts={workouts}
+            loading={workoutsLoading}
+            error={workoutsError}
+            onWorkoutView={(workout) => {
+              handleOpenWorkout(workout, false);
+            }}
+            onWorkoutEdit={(workout) => {
+              handleOpenWorkout(workout, true);
+            }}
+            onWorkoutDeleted={refreshWorkouts}
+          />
+        )}
       </Box>
 
-      <Box sx={{ width: '100', px: 2 }}>
-        <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
-          {currentGym.workouts.map((workout, index) => (
-            <Grid key={index} size={{ xs: 4, sm: 4, md: 4 }}>
-              <WorkoutSummary workout={workout} />
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
-
+      <WorkoutDialog
+        open={!!openWorkout || isCreatingWorkout}
+        onClose={handleCloseWorkout}
+        editedWorkout={editedWorkout}
+        isEditingWorkout={isEditingWorkout}
+        onEdit={handleEditWorkout}
+        onSave={handleSaveWorkout}
+        onCancel={handleCancelWorkout}
+        onDelete={handleDeleteWorkout}
+        onWorkoutChange={handleWorkoutChange}
+        onExerciseDelete={handleExerciseDelete}
+        openWorkout={openWorkout}
+      />
     </Box>
   );
 }
