@@ -1,8 +1,8 @@
 name: Deploy Backend to EC2
 
 on:
-    push:
-        branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   deploy:
@@ -26,12 +26,13 @@ jobs:
 
     - name: Build JAR
       run: mvn clean package -DskipTests
+      working-directory: server
 
     - name: Copy Files to EC2
       run: |
         scp -i private_key.pem -o StrictHostKeyChecking=no \
-        target/igym-0.0.1-SNAPSHOT.jar \
-        Dockerfile \
+        server/target/igym-0.0.1-SNAPSHOT.jar \
+        server/Dockerfile \
         ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/
 
     - name: Deploy via SSH and Docker
