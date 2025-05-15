@@ -1,52 +1,57 @@
 import * as React from 'react';
 import { FormControl, InputLabel, MenuItem, Select, styled } from '@mui/material';
 
-const CustomFormControl = styled(FormControl)(({ theme }) => {
+const CustomFormControl = styled(FormControl)(({ theme, ownerState }) => {
   const white = theme.palette.text.secondary;
+  const gray = theme.palette.grey[500];
+  const disabledBg = theme.palette.action.disabledBackground;
+  const isDisabled = ownerState.disabled;
 
   return {
     height: '100%',
-    color: white,
+    color: isDisabled ? gray : white,
     '& .MuiInputLabel-root': {
-      color: white,
+      color: isDisabled ? gray : white,
       '&.Mui-focused': {
-        color: white,
+        color: isDisabled ? gray : white,
       },
       '&.Mui-disabled': {
-        color: white,
+        color: gray,
       },
     },
     '& .MuiOutlinedInput-root': {
-      color: white,
+      color: isDisabled ? gray : white,
       '& fieldset': {
-        borderColor: white,
+        borderColor: isDisabled ? gray : white,
+        backgroundColor: isDisabled ? disabledBg : 'transparent',
       },
       '&:hover fieldset': {
-        borderColor: white,
+        borderColor: isDisabled ? gray : white,
       },
       '&.Mui-focused fieldset': {
-        borderColor: white,
+        borderColor: isDisabled ? gray : white,
       },
       '&.Mui-disabled fieldset': {
-        borderColor: white,
+        borderColor: gray,
+        backgroundColor: disabledBg,
       },
       '& svg': {
-        color: white,
+        color: isDisabled ? gray : white,
       },
     },
   };
 });
 
-export default function GymSelector({ gyms, selectedGym, onChange }) {
+export default function GymSelector({ gyms, selectedGym, onChange, disabled = false }) {
   return (
-    <CustomFormControl fullWidth>
+    <CustomFormControl fullWidth disabled={disabled || gyms.length === 0} ownerState={{ disabled: disabled || gyms.length === 0 }}>
       <InputLabel id="gym-select-label">Select a Gym</InputLabel>
       <Select
         labelId="gym-select-label"
         value={selectedGym ?? ""}
         label="Select a Gym"
         onChange={onChange}
-        disabled={gyms.length === 0}
+        disabled={disabled || gyms.length === 0}
       >
         {gyms.map((gym, index) => (
           <MenuItem key={gym.id} value={gym.id}>

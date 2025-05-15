@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Box, Typography } from '@mui/material';
 import GreetingTitle from '../components/GreetingTitle';
 import GymHeader from '../components/GymHeader';
@@ -46,12 +46,6 @@ export default function HomePage() {
     handleExerciseDelete
   } = useWorkoutManagement(selectedGym?.id);
 
-  useEffect(() => {
-    if (gymsError) {
-      alert(gymsError);
-    }
-  }, [gymsError]);
-
   return (
     <Box>
       <Box
@@ -77,6 +71,7 @@ export default function HomePage() {
         onDeleteGym={handleDeleteGym}
         gyms={gyms}
         onCreateWorkoutClick={handleCreateWorkoutClick}
+        disabled={!!gymsError}
       />
 
       <Box sx={{ width: '100%', px: 2 }}>

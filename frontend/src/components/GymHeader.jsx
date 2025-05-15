@@ -11,7 +11,12 @@ const CustomButton = styled(Button)(({ theme }) => ({
   width: '100%',
   height: '100%',
   color: theme.palette.secondary.main,
-  borderColor: theme.palette.secondary.main
+  borderColor: theme.palette.secondary.main,
+  '&.Mui-disabled': {
+    color: theme.palette.grey[500],
+    borderColor: theme.palette.grey[500],
+    backgroundColor: theme.palette.action.disabledBackground,
+  },
 }));
 
 export default function GymHeader({
@@ -25,7 +30,8 @@ export default function GymHeader({
   onGymSelect,
   onDeleteGym,
   gyms,
-  onCreateWorkoutClick
+  onCreateWorkoutClick,
+  disabled = false
 }) {
   return (
     <Box
@@ -39,7 +45,7 @@ export default function GymHeader({
       px={8}
     >
       <Box display="flex" alignItems="center" gap={1}>
-        {selectedGym && (
+        {(selectedGym || isEditing) && (
           <>
             {isEditing ? (
               <Box display="flex" alignItems="center" gap={1}>
@@ -104,13 +110,13 @@ export default function GymHeader({
 
       <Box display="flex" gap={4} width="100%" maxWidth={600} alignItems="stretch" justifyContent={{ xs: 'center', sm: 'space-between' }} flexDirection={{ xs: 'column', sm: 'row' }}>
         <Box sx={{ flex: 1 }}>
-          <CustomButton variant="outlined" startIcon={<AddIcon />} onClick={onCreateClick}>
-            New Gym
+          <CustomButton variant="outlined" startIcon={<AddIcon />} onClick={onCreateWorkoutClick} disabled={disabled || gyms.length === 0}>
+            New Workout
           </CustomButton>
         </Box>
         <Box sx={{ flex: 1 }}>
-          <CustomButton variant="outlined" startIcon={<AddIcon />} onClick={onCreateWorkoutClick}>
-            New Workout
+          <CustomButton variant="outlined" startIcon={<AddIcon />} onClick={onCreateClick} disabled={disabled}>
+            New Gym
           </CustomButton>
         </Box>
         <Box sx={{ flex: 1 }}>
@@ -118,6 +124,7 @@ export default function GymHeader({
             gyms={gyms || []}
             selectedGym={selectedGym ? selectedGym.id : undefined}
             onChange={onGymSelect}
+            disabled={disabled}
           />
         </Box>
       </Box>
