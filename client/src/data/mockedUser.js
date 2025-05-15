@@ -1,8 +1,8 @@
 const mockedUser = {
-    "id": "020de1d2-c5bd-4b77-9f12-acd7606c4c72",
+    "id": "3d40b78f-70f1-4c27-9bd1-9611d943a1d8",
     "name": "tomerp",
     "status": "active",
     "updated_at": "2025-05-06T16:39:30.636473Z"
   }
 
-export default mockedUser;
+export default mockedUser;  
