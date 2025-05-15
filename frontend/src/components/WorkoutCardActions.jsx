@@ -9,14 +9,18 @@ const WorkoutCardActions = ({ isEditing, onEdit, onSave, onCancel, onDelete, onC
   const theme = useTheme();
   const color = theme.palette.background.paper;
 
-  return ( 
+  return (
     <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 1 }}>
       {!isEditing ? (
         <>
           <IconButton aria-label="edit workout" size="small" onClick={onEdit}>
             <EditIcon sx={{ color }} />
           </IconButton>
-          <IconButton aria-label="delete workout" size="small" onClick={onDelete}>
+          <IconButton
+            aria-label="delete workout"
+            size="small"
+            onClick={onDelete}
+          >
             <DeleteIcon sx={{ color }} />
           </IconButton>
           <IconButton aria-label="close workout" size="small" onClick={onClose}>
@@ -25,10 +29,18 @@ const WorkoutCardActions = ({ isEditing, onEdit, onSave, onCancel, onDelete, onC
         </>
       ) : (
         <>
-          <IconButton aria-label="save workout" size="small" onClick={onSave}>
+          <IconButton
+            aria-label="save workout"
+            size="small"
+            onClick={onSave}
+          >
             <SaveIcon sx={{ color }} />
           </IconButton>
-          <IconButton aria-label="discard changes" size="small" onClick={onCancel}>
+          <IconButton
+            aria-label="discard changes"
+            size="small"
+            onClick={onCancel}
+          >
             <ClearIcon sx={{ color }} />
           </IconButton>
         </>
