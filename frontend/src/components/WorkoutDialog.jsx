@@ -19,7 +19,7 @@ export default function WorkoutDialog({
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
-  if (!open) return null;
+  if (!open || (!editedWorkout && !openWorkout)) return null;
 
   return (
     <Dialog
@@ -42,17 +42,17 @@ export default function WorkoutDialog({
         }
       }}
     >
-      <Box sx={{ 
-        width: '100%', 
-        maxWidth: { xs: '100%', md: 800 }, 
-        display: 'flex', 
-        flexDirection: 'column', 
-        alignItems: 'center', 
-        height: '100%' 
+      <Box sx={{
+        width: '100%',
+        maxWidth: { xs: '100%', md: 800 },
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        height: '100%'
       }}>
-        <Box sx={{ 
-          width: '100%', 
-          px: 2, 
+        <Box sx={{
+          width: '100%',
+          px: 2,
         }}>
           <WorkoutCardActions
             isEditing={isEditingWorkout}
@@ -63,23 +63,21 @@ export default function WorkoutDialog({
             onClose={onClose}
           />
         </Box>
-        <Box sx={{ 
-          width: '100%', 
-          flex: 1, 
-          overflow: 'auto', 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'flex-start', 
-          maxHeight: 'calc(100vh - 120px)' 
+        <Box sx={{
+          width: '100%',
+          flex: 1,
+          overflow: 'auto',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'flex-start',
+          maxHeight: 'calc(100vh - 120px)'
         }}>
-          {(editedWorkout || openWorkout) && (
-            <WorkoutCard 
-              workout={isEditingWorkout ? editedWorkout : openWorkout}
-              isEditing={isEditingWorkout}
-              onWorkoutChange={onWorkoutChange}
-              onExerciseDelete={onExerciseDelete}
-            />
-          )}
+          <WorkoutCard
+            workout={isEditingWorkout ? editedWorkout : openWorkout}
+            isEditing={isEditingWorkout}
+            onWorkoutChange={onWorkoutChange}
+            onExerciseDelete={onExerciseDelete}
+          />
         </Box>
       </Box>
     </Dialog>
