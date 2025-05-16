@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Typography } from '@mui/material';
 import GreetingTitle from '../components/GreetingTitle';
 import GymHeader from '../components/GymHeader';
