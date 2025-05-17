@@ -2,6 +2,7 @@ import { Box, TextField, Typography, Button, styled } from '@mui/material';
 import { useState } from 'react';
 import logo from '../assets/igym-logo-text.png';
 import AddIcon from '@mui/icons-material/Add';
+import useLogin from '../hooks/useLogin.jsx';
 
 const CustomTextField = styled(TextField)(({ theme }) => ({
     '& .MuiOutlinedInput-root': {
@@ -35,6 +36,7 @@ const CustomButton = styled(Button)(({ theme }) => ({
 
 export default function LoginPage() {
     const [isCreatingAccount, setIsCreatingAccount] = useState(false);
+    const { name, setName, password, setPassword, handleLogin } = useLogin();
 
     return (
         <Box
@@ -55,14 +57,14 @@ export default function LoginPage() {
                 {isCreatingAccount ? 'Create Your Account' : 'Welcome to iGym'}
             </Typography>
             <Box width="100%" maxWidth={400} display="flex" flexDirection="column" gap={2}>
-                <CustomTextField label="Name" fullWidth />
-                <CustomTextField label="Password" type="password" fullWidth />
+                <CustomTextField label="Name" fullWidth value={name} onChange={e => setName(e.target.value)} />
+                <CustomTextField label="Password" type="password" fullWidth value={password} onChange={e => setPassword(e.target.value)} />
                 {isCreatingAccount && (
                     <CustomTextField label="Confirm Password" type="password" fullWidth />
                 )}
                 {!isCreatingAccount ? (
                     <>
-                        <CustomButton variant="contained" fullWidth >
+                        <CustomButton variant="contained" fullWidth onClick={() => handleLogin(name, password)}>
                             LOG IN
                         </CustomButton>
                         <CustomButton variant="contained" fullWidth startIcon={<AddIcon />} onClick={() => setIsCreatingAccount(true)} >
