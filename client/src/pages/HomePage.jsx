@@ -5,11 +5,21 @@ import WorkoutsList from '../components/WorkoutsList';
 import WorkoutDialog from '../components/WorkoutDialog';
 import { useGymManagement } from '../hooks/useGymManagement';
 import { useWorkoutManagement } from '../hooks/useWorkoutManagement';
-import mockedUser from '../data/mockedUser';
-
-const user = mockedUser;
+import { useEffect, useState } from 'react';
+import { getUserIdFromToken } from '../utils/decoder';
 
 export default function HomePage() {
+  const [name, setName] = useState('User');
+  const [userId, setUserId] = useState(null);
+  useEffect(() => {
+    const storedName = localStorage.getItem('name');
+    if (storedName) setName(storedName);
+
+    const token = localStorage.getItem('token');
+    const id = getUserIdFromToken(token);
+    setUserId(id);
+  }, []);
+
   const {
     gyms,
     selectedGym,
@@ -23,7 +33,7 @@ export default function HomePage() {
     handleSaveEdit,
     handleGymSelect,
     handleDeleteGym
-  } = useGymManagement(user.id);
+  } = useGymManagement(userId);
 
   const {
     workouts,
@@ -55,7 +65,7 @@ export default function HomePage() {
         textAlign="center"
         mb={3}
       >
-        <GreetingTitle name={user.name} />
+        <GreetingTitle name={name} />
       </Box>
 
       <GymHeader
