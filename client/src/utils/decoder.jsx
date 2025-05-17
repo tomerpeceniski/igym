@@ -15,3 +15,18 @@ export function getUserIdFromToken(token) {
         return null;
     }
 }
+
+export function isTokenExpired(token) {
+    if (!token) return true;
+    const payload = token.split('.')[1];
+    if (!payload) return true;
+    try {
+        const decoded = JSON.parse(decodeBase64Url(payload));
+        if (!decoded.exp) return true;
+        // exp is in seconds since epoch
+        const now = Math.floor(Date.now() / 1000);
+        return decoded.exp < now;
+    } catch {
+        return true;
+    }
+}
