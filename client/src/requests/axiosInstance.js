@@ -10,6 +10,7 @@ axiosInstance.interceptors.request.use(
         if (token) {
             if (isTokenExpired(token)) {
                 localStorage.removeItem("token");
+                localStorage.removeItem("name");
                 window.location.href = "/login";
                 return Promise.reject(new axios.Cancel("Token expired"));
             }
