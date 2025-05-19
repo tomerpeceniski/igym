@@ -163,4 +163,10 @@ public class GlobalExceptionHandler {
         Map<String, Object> body = buildResponseBody(HttpStatus.NOT_FOUND, ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
+
+    public ResponseEntity<Object> handleInvalidCredentialException(InvalidCredentialsException ex) {
+        logger.error(ex.getMessage());
+        Map<String, Object> body = buildResponseBody(HttpStatus.UNAUTHORIZED, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
 }

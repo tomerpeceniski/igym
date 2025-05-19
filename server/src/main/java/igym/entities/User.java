@@ -45,6 +45,11 @@ public class User {
     private String name;
 
     @Column(nullable = false)
+    @Size(min = 6, max = 20, message = "Password must be between 6 and 20 characters")
+    @NotBlank(message = "Password cannot be blank")
+    private String password;
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status = Status.active;
 
@@ -72,6 +77,14 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     public Status getStatus() {

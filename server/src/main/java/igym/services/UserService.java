@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import igym.entities.Gym;
@@ -11,6 +12,7 @@ import igym.entities.User;
 import igym.entities.enums.Status;
 import igym.exceptions.UserNotFoundException;
 import igym.exceptions.DuplicateUserException;
+import igym.exceptions.InvalidCredentialsException;
 import igym.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 
@@ -30,10 +32,12 @@ public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserRepository repository;
     private final GymService gymService;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository repository, GymService gymService) {
+    public UserService(UserRepository repository, GymService gymService, PasswordEncoder passwordEncoder) {
         this.repository = repository;
         this.gymService = gymService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -89,12 +93,17 @@ public class UserService {
     public User createUser(User user) {
         logger.info("Attempting to create a new user");
         logger.debug("User creation request with values: {}", user);
+
         if (repository.existsByNameAndStatus(user.getName(), Status.active)) {
             throw new DuplicateUserException("An user with the name " + user.getName() + " already exists");
         }
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         User savedUser = repository.save(user);
+
         logger.info("New user created with id {}", savedUser.getId());
         logger.debug("New user persisted: {}", savedUser);
+
         return savedUser;
     }
 
@@ -111,7 +120,7 @@ public class UserService {
     public User updateUser(UUID id, String name) {
         logger.info("Attempting to update User with id: {}", id);
         User user = findById(id);
-        
+
         if (repository.existsByNameAndStatus(name, Status.active)) {
             throw new DuplicateUserException("A user with the name '" + name + "' already exists.");
         }
@@ -140,6 +149,30 @@ public class UserService {
         }
         logger.info("User with id {} fetched successfully", id);
         logger.debug("Fetched user: {}", user);
+        return user;
+    }
+
+    /**
+     * Authenticates a user by their name and password.
+     *
+     * @param name         the name of the user
+     * @param rawPassword  the raw password provided by the user
+     * @return the authenticated user entity
+     * @throws UserNotFoundException if the user does not exist or the password is incorrect
+     */
+    public User authenticate(String name, String rawPassword) {
+        logger.info("Authenticating user with name: {}", name);
+        User user = repository.findByNameAndStatus(name, Status.active)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+
+        if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
+            logger.warn("Authentication failed for user with name: {}", name);
+            throw new InvalidCredentialsException("Invalid credentials provided");
+        }
+
+        logger.info("User with name {} authenticated successfully", name);
+        logger.debug("Authenticated user: {}", user);
         return user;
     }
 
