@@ -45,7 +45,6 @@ public class User {
     private String name;
 
     @Column(nullable = false)
-    @Size(min = 6, max = 20, message = "Password must be between 6 and 20 characters")
     @NotBlank(message = "Password cannot be blank")
     private String password;
 

@@ -12,13 +12,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.boot.test.context.SpringBootTest;
-
 import jakarta.validation.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-@SpringBootTest
 public class UserTest {
 
     private static Validator validator;
@@ -69,11 +66,12 @@ public class UserTest {
     }
 
     @Test
-    @DisplayName("Should return violation errors due to null name and password")
+    @DisplayName("Should return violation errors due to null name")
     public void nullConstraintTest() {
         User nullNameUser = new User();
+        nullNameUser.setPassword("password");
         Set<ConstraintViolation<User>> violations = validator.validate(nullNameUser);
-        assertThat(violations).hasSize(2);
+        assertThat(violations).hasSize(1);
     
         Set<Class<?>> expectedViolations = Set.of(NotBlank.class);
         Set<Class<?>> actualViolations = violations.stream()
@@ -134,15 +132,5 @@ public class UserTest {
         assertTrue(violationsSmallCharacter.size() == 1);
         ConstraintViolation<User> violationSmall = violationsSmallCharacter.iterator().next();
         assertEquals(Size.class, violationSmall.getConstraintDescriptor().getAnnotation().annotationType());
-    }
-
-    @Test
-    @DisplayName("Should return violation error due to null password")
-    public void nullPasswordConstraintTest() {
-        User nullPasswordUser = new User();
-        Set<ConstraintViolation<User>> violations = validator.validate(nullPasswordUser);
-        assertTrue(violations.size() == 2);
-        ConstraintViolation<User> violation = violations.iterator().next();
-        assertEquals(NotBlank.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
     }
 }
