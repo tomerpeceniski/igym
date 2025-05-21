@@ -3,6 +3,7 @@ import { useState } from 'react';
 import logo from '../assets/igym-logo-text.png';
 import AddIcon from '@mui/icons-material/Add';
 import useLogin from '../hooks/useLogin.jsx';
+import useSignUp from '../hooks/useSignUp.jsx';
 
 const CustomTextField = styled(TextField)(({ theme }) => ({
     '& .MuiOutlinedInput-root': {
@@ -27,6 +28,12 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
     input: {
         color: theme.palette.secondary.main,
     },
+    '& .MuiFormHelperText-root': {
+        color: theme.palette.error.main,
+        minHeight: '1.5em',
+        marginBottom: '0.25em',
+        transition: 'min-height 0.2s',
+    },
 }))
 
 const CustomButton = styled(Button)(({ theme }) => ({
@@ -36,7 +43,31 @@ const CustomButton = styled(Button)(({ theme }) => ({
 
 export default function LoginPage() {
     const [isCreatingAccount, setIsCreatingAccount] = useState(false);
+    const [errors, setErrors] = useState({ name: '', password: '', confirmPassword: '', passwordMismatch: '' });
     const { name, setName, password, setPassword, handleLogin } = useLogin();
+    const { confirmPassword, setConfirmPassword, handleSignUp } = useSignUp();
+
+    const handleLoginClick = async () => {
+        let newErrors = { name: '', password: '' };
+        if (!name) newErrors.name = 'Name is required';
+        if (!password) newErrors.password = 'Password is required';
+        setErrors(newErrors);
+        if (!newErrors.name && !newErrors.password) {
+            await handleLogin(name, password);
+        }
+    }
+
+    const handleSignUpClick = async () => {
+        let newErrors = { name: '', password: '', confirmPassword: '', passwordMismatch: '' };
+        if (!name) newErrors.name = 'Name is required';
+        if (!password) newErrors.password = 'Password is required';
+        if (!confirmPassword) newErrors.confirmPassword = 'Confirm Password is required';
+        if (password !== confirmPassword) newErrors.passwordMismatch = 'Passwords do not match';
+        setErrors(newErrors);
+        if (!newErrors.name && !newErrors.password && !newErrors.confirmPassword && !newErrors.passwordMismatch) {
+            handleSignUp(name, password);
+        }
+    }
 
     return (
         <Box
@@ -44,43 +75,76 @@ export default function LoginPage() {
             flexDirection="column"
             alignItems="center"
             justifyContent="center"
-            mt={10}
+            minHeight="70vh"
         >
             <Box
                 component="img"
                 src={logo}
                 alt="iGym logo"
-                width={{ xs: '200px', sm: '250px', md: '300px' }}
-                mb={4}
+                width={{ xs: '150px', sm: '200px', md: '250px' }}
+                mb={2}
             />
-            <Typography variant="h5" color="text.secondary" mb={2}>
+            <Typography variant="h5" color="text.secondary" mb={1}>
                 {isCreatingAccount ? 'Create Your Account' : 'Welcome to iGym'}
             </Typography>
-            <Box width="100%" maxWidth={400} display="flex" flexDirection="column" gap={2}>
-                <CustomTextField label="Name" fullWidth value={name} onChange={e => setName(e.target.value)} />
-                <CustomTextField label="Password" type="password" fullWidth value={password} onChange={e => setPassword(e.target.value)} />
-                {isCreatingAccount && (
-                    <CustomTextField label="Confirm Password" type="password" fullWidth />
-                )}
-                {!isCreatingAccount ? (
-                    <>
-                        <CustomButton variant="contained" fullWidth onClick={() => handleLogin(name, password)}>
-                            LOG IN
-                        </CustomButton>
-                        <CustomButton variant="contained" fullWidth startIcon={<AddIcon />} onClick={() => setIsCreatingAccount(true)} >
-                            CREATE ACCOUNT
-                        </CustomButton>
-                    </>
-                ) : (
-                    <>
-                        <CustomButton variant="contained" fullWidth startIcon={<AddIcon />} >
-                            CREATE ACCOUNT
-                        </CustomButton>
-                        <CustomButton variant="contained" fullWidth onClick={() => setIsCreatingAccount(false)} >
-                            BACK TO LOGIN
-                        </CustomButton>
-                    </>
-                )}
+            <Box width="100%" maxWidth={400} display="flex" flexDirection="column">
+                {/* Text fields group with its own gap and margin bottom */}
+                <Box display="flex" flexDirection="column" mb={0}>
+                    <CustomTextField
+                        label="Name"
+                        required
+                        fullWidth
+                        value={name}
+                        onChange={e => setName(e.target.value)}
+                        error={!!errors.name} helperText={errors.name || " "} />
+
+                    <CustomTextField
+                        label="Password"
+                        required
+                        type="password"
+                        fullWidth
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        error={!!errors.password}
+                        helperText={errors.password || " "} />
+
+                    {isCreatingAccount && (
+                        <CustomTextField
+                            label="Confirm Password"
+                            required
+                            type="password"
+                            onChange={e => setConfirmPassword(e.target.value)}
+                            error={!!errors.password || !!errors.confirmPassword}
+                            helperText={
+                                errors.confirmPassword
+                                    ? errors.confirmPassword
+                                    : errors.passwordMismatch || " "
+                            }
+                            fullWidth />
+                    )}
+                </Box>
+                {/* Buttons group with its own gap */}
+                <Box display="flex" flexDirection="column" gap={2}>
+                    {!isCreatingAccount ? (
+                        <>
+                            <CustomButton variant="contained" fullWidth onClick={handleLoginClick}>
+                                LOG IN
+                            </CustomButton>
+                            <CustomButton variant="contained" fullWidth startIcon={<AddIcon />} onClick={() => { setIsCreatingAccount(true) }} >
+                                SIGN UP
+                            </CustomButton>
+                        </>
+                    ) : (
+                        <>
+                            <CustomButton variant="contained" fullWidth startIcon={<AddIcon />} onClick={handleSignUpClick} >
+                                SIGN UP
+                            </CustomButton>
+                            <CustomButton variant="contained" fullWidth onClick={() => setIsCreatingAccount(false)} >
+                                BACK TO LOGIN
+                            </CustomButton>
+                        </>
+                    )}
+                </Box>
             </Box>
 
         </Box>
