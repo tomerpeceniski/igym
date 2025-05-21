@@ -12,11 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -35,12 +37,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 
+import igym.dtos.LoginRequestDTO;
+import igym.dtos.LoginResponseDTO;
 import igym.entities.User;
 import igym.exceptions.UserNotFoundException;
+import igym.security.JwtAuthenticationFilter;
 import igym.exceptions.DuplicateUserException;
+import igym.exceptions.InvalidCredentialsException;
 import igym.services.UserService;
 import jakarta.validation.Validator;
+import igym.dtos.UpdateUserNameDTO;
 
+@AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(UserController.class)
 @ExtendWith(MockitoExtension.class)
 public class UserControllerTest {
@@ -51,6 +59,9 @@ public class UserControllerTest {
         @MockitoBean
         private UserService userService;
 
+        @MockitoBean
+        private JwtAuthenticationFilter jwtAuthenticationFilter;
+
         @Autowired
         Validator validator;
 
@@ -58,6 +69,12 @@ public class UserControllerTest {
         private final UUID userId = UUID.randomUUID();
         private final User user1 = new User("Maria Clown");
         private final User user2 = new User("John Textor");
+
+
+        @BeforeEach
+        public void config() {
+                user1.setPassword("validPassword");
+        }
 
         @Test
         @DisplayName("Should return all saved users")
@@ -135,9 +152,12 @@ public class UserControllerTest {
         @Test
         @DisplayName("Should return status 422 Unprocessable Entity when creating user with null name")
         void createNullNameUserTest() throws Exception {
+                User user = new User();
+                user.setPassword("validpassword");
+
                 mockMvc.perform(post("/api/v1/users")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(new User())))
+                                .content(objectMapper.writeValueAsString(user)))
                                 .andExpect(status().isUnprocessableEntity())
                                 .andExpect(jsonPath("$.message").value("Validation error"))
                                 .andExpect(jsonPath("$.errors").value("Name cannot be blank"));
@@ -148,9 +168,11 @@ public class UserControllerTest {
         @Test
         @DisplayName("Should return status 422 Unprocessable Entity when creating user with blank name")
         void createBlankNameUserTest() throws Exception {
+                user1.setName("     ");
+
                 mockMvc.perform(post("/api/v1/users")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(new User("     "))))
+                                .content(objectMapper.writeValueAsString(user1)))
                                 .andExpect(status().isUnprocessableEntity())
                                 .andExpect(jsonPath("$.message").value("Validation error"))
                                 .andExpect(jsonPath("$.errors").value("Name cannot be blank"));
@@ -161,9 +183,11 @@ public class UserControllerTest {
         @Test
         @DisplayName("Should return status 422 Unprocessable Entity when creating user with empty name")
         void createEmptyNameUserTest() throws Exception {
+                user1.setName("");
+
                 mockMvc.perform(post("/api/v1/users")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(new User(""))))
+                                .content(objectMapper.writeValueAsString(user1)))
                                 .andExpect(status().isUnprocessableEntity())
                                 .andExpect(jsonPath("$.errors", hasSize(2))) // Ensure two errors exist
                                 .andExpect(jsonPath("$.errors", containsInAnyOrder(
@@ -176,9 +200,11 @@ public class UserControllerTest {
         @Test
         @DisplayName("Should return status 422 Unprocessable Entity when creating user with name with more than 50 characters")
         void createBigNameUserTest() throws Exception {
+                user1.setName("a".repeat(51));
+
                 mockMvc.perform(post("/api/v1/users")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(new User("a".repeat(51)))))
+                                .content(objectMapper.writeValueAsString(user1)))
                                 .andExpect(status().isUnprocessableEntity())
                                 .andExpect(jsonPath("$.message").value("Validation error"))
                                 .andExpect(jsonPath("$.errors").value("Name must be between 3 and 50 characters"));
@@ -189,9 +215,11 @@ public class UserControllerTest {
         @Test
         @DisplayName("Should return status 422 Unprocessable Entity when creating user with name with less than 3 characters")
         void createSmallNameUserTest() throws Exception {
+                user1.setName("a");
+
                 mockMvc.perform(post("/api/v1/users")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(new User("a"))))
+                                .content(objectMapper.writeValueAsString(user1)))
                                 .andExpect(status().isUnprocessableEntity())
                                 .andExpect(jsonPath("$.message").value("Validation error"))
                                 .andExpect(jsonPath("$.errors").value("Name must be between 3 and 50 characters"));
@@ -264,18 +292,71 @@ public class UserControllerTest {
         @Test
         @DisplayName("should return 422 when trying to update user with invalid name")
         void testUpdateUserInvalidName() throws Exception {
-                User invalidUser = new User("");
+                UpdateUserNameDTO dto = new UpdateUserNameDTO("");
 
                 mockMvc.perform(patch("/api/v1/users/{id}", userId)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(invalidUser)))
+                                .content(objectMapper.writeValueAsString(dto)))
                                 .andExpect(status().isUnprocessableEntity())
                                 .andExpect(jsonPath("$.message").value("Validation error"))
-                                .andExpect(jsonPath("$.errors", hasSize(2)))
                                 .andExpect(jsonPath("$.errors", containsInAnyOrder(
                                                 "Name cannot be blank",
                                                 "Name must be between 3 and 50 characters")));
 
                 verify(userService, never()).updateUser(any(), any());
+        }
+
+        @Test
+        @DisplayName("should return 200 when trying to login with valid credentials")
+        void testLoginValidCredentials() throws Exception {
+                LoginRequestDTO request = new LoginRequestDTO("user", "password");
+                LoginResponseDTO response = new LoginResponseDTO("tokenExample", request.name());
+
+                when(userService.authenticate(request.name(), request.password())).thenReturn(response);
+
+                mockMvc.perform(post("/api/v1/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.name").value(request.name()))
+                                .andExpect(jsonPath("$.token").value(response.token()));
+                                
+                verify(userService, times(1)).authenticate(request.name(), request.password());
+        }
+
+        @Test
+        @DisplayName("should return 400 when trying to login with non found user")
+        void testLoginInvalidName() throws Exception {
+                LoginRequestDTO request = new LoginRequestDTO("user", "password");
+                
+                doThrow(new UserNotFoundException("User not found"))
+                                .when(userService).authenticate(request.name(),request.password());
+
+                mockMvc.perform(post("/api/v1/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isNotFound())
+                                .andExpect(jsonPath("$.message").value("User not found"))
+                                .andExpect(jsonPath("$.error").value("Not Found"));
+                                
+                verify(userService, times(1)).authenticate(request.name(), request.password());
+        }
+
+        @Test
+        @DisplayName("should return 401 when trying to login invalid credentials")
+        void testLoginInvalidCredentials() throws Exception {
+                LoginRequestDTO request = new LoginRequestDTO("user", "password");
+
+                doThrow(new InvalidCredentialsException("Invalid credentials provided"))
+                                .when(userService).authenticate(request.name(),request.password());
+
+                mockMvc.perform(post("/api/v1/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isUnauthorized())
+                                .andExpect(jsonPath("$.message").value("Invalid credentials provided"))
+                                .andExpect(jsonPath("$.error").value("Unauthorized"));
+                                
+                verify(userService, times(1)).authenticate(request.name(), request.password());
         }
 }

@@ -3,6 +3,8 @@ package igym.controllers;
 import org.springframework.web.bind.annotation.RestController;
 
 import igym.dtos.UserDTO;
+import igym.dtos.LoginRequestDTO;
+import igym.dtos.LoginResponseDTO;
 import igym.entities.User;
 import igym.exceptions.DuplicateUserException;
 import igym.exceptions.UserNotFoundException;
@@ -22,6 +24,8 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
+
+import igym.dtos.UpdateUserNameDTO;
 
 /**
  * REST controller for managing users.
@@ -79,15 +83,29 @@ public class UserController {
      * Updates the name of an existing user.
      *
      * @param id   the UUID of the user to update
-     * @param user the user entity containing the new name
+     * @param dto the DTO containing the new name
      * @return the updated user (as DTO) with HTTP 200 OK status
      * @throws UserNotFoundException  if no user is found with the provided ID
      * @throws DuplicateUserException if a user with the same new name already exists
+     * @throws InvalidNameException if the provided name is invalid
      */
     @PatchMapping(value = "/users/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable("id") UUID id, @RequestBody @Valid User user) {
-        String name = user.getName();
-        User updatedUser = service.updateUser(id, name);
+    public ResponseEntity<UserDTO> updateUser(@PathVariable("id") UUID id, @RequestBody @Valid UpdateUserNameDTO dto) {
+        User updatedUser = service.updateUser(id, dto.name());
         return ResponseEntity.ok(new UserDTO(updatedUser));
+    }
+
+    /**
+     * Authenticates a user and generates a JWT token upon successful login.
+     *
+     * @param request the login request containing username and password
+     * @return a LoginResponseDTO containing the JWT token and username
+     * @throws InvalidCredentialsException if the credentials are invalid
+     * @throws UserNotFoundException if the user is not found or is inactive
+     */
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
+        LoginResponseDTO response = service.authenticate(request.name(), request.password());
+        return ResponseEntity.ok(response);
     }
 }

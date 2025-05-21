@@ -7,6 +7,7 @@ import igym.entities.Gym;
 import igym.entities.Workout;
 import igym.exceptions.ExerciseNotFoundException;
 import igym.exceptions.WorkoutNotFoundException;
+import igym.security.JwtAuthenticationFilter;
 import igym.services.WorkoutService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,6 +18,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -36,6 +38,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(WorkoutController.class)
 @ExtendWith(MockitoExtension.class)
 public class WorkoutControllerTest {
@@ -46,6 +49,10 @@ public class WorkoutControllerTest {
         @SuppressWarnings("removal")
         @MockBean
         private WorkoutService workoutService;
+
+        @SuppressWarnings("removal")
+        @MockBean
+        private JwtAuthenticationFilter jwtAuthenticationFilter;
 
         private final ObjectMapper objectMapper = new ObjectMapper();
 
