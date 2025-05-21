@@ -12,11 +12,13 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import igym.dtos.LoginResponseDTO;
 import igym.entities.Exercise;
 import igym.entities.Gym;
 import igym.entities.User;
@@ -25,9 +27,11 @@ import igym.entities.enums.Status;
 import igym.exceptions.UserNotFoundException;
 import igym.exceptions.DuplicateUserException;
 import igym.exceptions.InvalidCredentialsException;
+import igym.exceptions.InvalidPasswordException;
 import igym.repositories.UserRepository;
+import igym.security.JwtUtil;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
     @Mock
@@ -36,6 +40,8 @@ class UserServiceTest {
     private GymService gymService;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private JwtUtil jwtUtil;
     @InjectMocks
     private UserService userService;
 
@@ -47,7 +53,9 @@ class UserServiceTest {
     void config() {
         userId = UUID.randomUUID();
         user1 = new User("Maria Clown");
+        user1.setPassword("ValidPassword");
         user2 = new User("John Textor");
+        user2.setPassword("ValidPassword");
     }
 
     @Test
@@ -83,10 +91,10 @@ class UserServiceTest {
         when(userRepository.findByNameAndStatus(name, Status.active)).thenReturn(Optional.of(user1));
         when(passwordEncoder.matches(rawPassword, encodedPassword)).thenReturn(true);
 
-        User result = userService.authenticate(name, rawPassword);
+        LoginResponseDTO result = userService.authenticate(name, rawPassword);
 
         assertNotNull(result);
-        assertEquals(user1, result);
+        assertEquals(user1.getName(), result.name());
     }
 
     @Test
@@ -203,6 +211,22 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Should return InvalidPasswordException when trying to create a user with password smaller than 6 characters")
+    void createUserSmallPassword() {
+        user1.setPassword("a");
+        assertThrows(InvalidPasswordException.class, () -> userService.createUser(user1));
+        verify(userRepository, never()).save(user1);
+    }
+
+    @Test
+    @DisplayName("Should return InvalidPasswordException when trying to create a user with password bigger than 20 characters")
+    void createUserBigPassword() {
+        user1.setPassword("a".repeat(21));
+        assertThrows(InvalidPasswordException.class, () -> userService.createUser(user1));
+        verify(userRepository, never()).save(user1);
+    }
+
+    @Test
     @DisplayName("should successfully update a user when provided with a valid new name")
     void testUpdateUser() {
         String name = user2.getName();
@@ -281,5 +305,49 @@ class UserServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user1));
         assertThrows(UserNotFoundException.class, () -> userService.findById(userId));
         verify(userRepository, times(1)).findById(userId);
+    }
+
+    @Test
+    @DisplayName("Should return UserNotFoundException when non existent user name is passed in authentication")
+    void testAuthenticationInvalidName() {
+        String userName = user1.getName();
+        String userPassword = "password";
+        when(userRepository.findByNameAndStatus(userName, Status.active)).thenThrow(new UserNotFoundException("User not found"));
+        assertThrows(UserNotFoundException.class, () -> userService.authenticate(userName, userPassword));
+        verify(userRepository, times(1)).findByNameAndStatus(userName, Status.active);
+    }
+
+    @Test
+    @DisplayName("Should return InvalidCredentialsException when wrong password is passed in authentication")
+    void testAuthenticationInvalidPassword() {
+        String userName = user1.getName();
+        user1.setPassword("encodedPassword");
+        String rawPassowrd = "rawPassowrd";
+        when(userRepository.findByNameAndStatus(userName, Status.active)).thenReturn(Optional.of(user1));
+        when(passwordEncoder.matches(rawPassowrd, user1.getPassword())).thenReturn(false);
+        assertThrows(InvalidCredentialsException.class, () -> userService.authenticate(userName, rawPassowrd));
+        verify(userRepository, times(1)).findByNameAndStatus(userName, Status.active);
+        verify(passwordEncoder, times(1)).matches(rawPassowrd, user1.getPassword());
+    }
+
+    @Test
+    @DisplayName("Should return LoginResponseDTO when correct credentials are provided in authentication")
+    void testAuthenticationValid() {
+        String userName = user1.getName();
+        user1.setPassword("encodedPassword");
+        String rawPassowrd = "rawPassowrd";
+        String token = "tokenExample";
+        LoginResponseDTO testResponse = new LoginResponseDTO(token, user1.getName());
+
+        when(userRepository.findByNameAndStatus(userName, Status.active)).thenReturn(Optional.of(user1));
+        when(passwordEncoder.matches(rawPassowrd, user1.getPassword())).thenReturn(true);
+        when(jwtUtil.generateToken(user1.getId(), user1.getName())).thenReturn(token);
+
+        LoginResponseDTO actualResponse = userService.authenticate(userName, rawPassowrd);
+        assertEquals(testResponse, actualResponse);
+
+        verify(userRepository, times(1)).findByNameAndStatus(userName, Status.active);
+        verify(passwordEncoder, times(1)).matches(rawPassowrd, user1.getPassword());
+        verify(jwtUtil, times(1)).generateToken(user1.getId(), user1.getName());
     }
 }

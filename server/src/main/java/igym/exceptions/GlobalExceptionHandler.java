@@ -164,9 +164,30 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
+    @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<Object> handleInvalidCredentialException(InvalidCredentialsException ex) {
         logger.error(ex.getMessage());
         Map<String, Object> body = buildResponseBody(HttpStatus.UNAUTHORIZED, ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
+
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<Object> handleInvalidPasswordException(InvalidPasswordException ex) {
+        logger.error(ex.getMessage());
+        Map<String, Object> body = buildResponseBody(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(body);
+    }
+
+    @ExceptionHandler(InvalidNameException.class)
+    public ResponseEntity<Object> handleInvalidNameException(InvalidNameException ex) {
+        logger.error(ex.getMessage());
+        Map<String, Object> body = buildResponseBody(HttpStatus.UNPROCESSABLE_ENTITY,
+                HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase());
+        List<String> errors = List.of(ex.getMessage().split(", "));
+
+        body.put("message", "Validation error");
+        body.put("errors", errors);
+
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(body);
     }
 }

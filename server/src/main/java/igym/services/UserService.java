@@ -10,11 +10,19 @@ import org.springframework.stereotype.Service;
 import igym.entities.Gym;
 import igym.entities.User;
 import igym.entities.enums.Status;
+import igym.dtos.LoginResponseDTO;
 import igym.exceptions.UserNotFoundException;
 import igym.exceptions.DuplicateUserException;
 import igym.exceptions.InvalidCredentialsException;
+import igym.exceptions.InvalidPasswordException;
+import igym.exceptions.InvalidNameException;
 import igym.repositories.UserRepository;
+import igym.security.JwtUtil;
 import jakarta.transaction.Transactional;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 
 /**
  * Service class responsible for managing user operations,
@@ -33,11 +41,14 @@ public class UserService {
     private final UserRepository repository;
     private final GymService gymService;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    public UserService(UserRepository repository, GymService gymService, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository repository, GymService gymService, PasswordEncoder passwordEncoder,
+            JwtUtil jwtUtil) {
         this.repository = repository;
         this.gymService = gymService;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     /**
@@ -92,7 +103,11 @@ public class UserService {
     @Transactional
     public User createUser(User user) {
         logger.info("Attempting to create a new user");
-        logger.debug("User creation request with values: {}", user);
+        logger.debug("User creation request with name: {}", user.getName());
+
+        if ((user.getPassword().length() < 6) || (user.getPassword().length() > 20)) {
+            throw new InvalidPasswordException("Password must be between 6 and 20 characters");
+        }
 
         if (repository.existsByNameAndStatus(user.getName(), Status.active)) {
             throw new DuplicateUserException("An user with the name " + user.getName() + " already exists");
@@ -116,17 +131,30 @@ public class UserService {
      * @throws DuplicateUserException if a user with the same new name already
      *                                exists
      * @throws UserNotFoundException  if the user does not exist
+     * @throws InvalidNameException   if the provided name is invalid
      */
     public User updateUser(UUID id, String name) {
         logger.info("Attempting to update User with id: {}", id);
+
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        var violations = validator.validateValue(User.class, "name", name);
+        if (!violations.isEmpty()) {
+            List<String> messages = violations.stream()
+                    .map(ConstraintViolation::getMessage)
+                    .toList();
+            throw new InvalidNameException(String.join(", ", messages));
+        }
+
         User user = findById(id);
 
         if (repository.existsByNameAndStatus(name, Status.active)) {
             throw new DuplicateUserException("A user with the name '" + name + "' already exists.");
         }
         user.setName(name);
-        User savedUser = repository.save(user);
-        logger.info("User with id {} updated sucessfully", id);
+        User savedUser = repository.save(
+                user);
+        logger.info("User with id {} updated successfully", id);
         logger.debug("Updated User persisted: {}", savedUser);
         return savedUser;
     }
@@ -153,18 +181,19 @@ public class UserService {
     }
 
     /**
-     * Authenticates a user by their name and password.
+     * Authenticates a user by validating their credentials and generates a JWT
+     * token.
      *
-     * @param name         the name of the user
-     * @param rawPassword  the raw password provided by the user
-     * @return the authenticated user entity
-     * @throws UserNotFoundException if the user does not exist or the password is incorrect
+     * @param name        the username to authenticate
+     * @param rawPassword the raw password to validate
+     * @return a LoginResponseDTO containing the JWT token and username
+     * @throws UserNotFoundException       if the user is not found or is inactive
+     * @throws InvalidCredentialsException if the provided password is incorrect
      */
-    public User authenticate(String name, String rawPassword) {
+    public LoginResponseDTO authenticate(String name, String rawPassword) {
         logger.info("Authenticating user with name: {}", name);
         User user = repository.findByNameAndStatus(name, Status.active)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
-
 
         if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
             logger.warn("Authentication failed for user with name: {}", name);
@@ -173,7 +202,8 @@ public class UserService {
 
         logger.info("User with name {} authenticated successfully", name);
         logger.debug("Authenticated user: {}", user);
-        return user;
+        String token = jwtUtil.generateToken(user.getId(), user.getName());
+        return new LoginResponseDTO(token, user.getName());
     }
 
 }
