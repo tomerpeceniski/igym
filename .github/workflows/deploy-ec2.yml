@@ -72,7 +72,7 @@ jobs:
 
     - name: Build React App
       run: |
-        npm ci
+        npm install
         npm run build
       working-directory: client
 
