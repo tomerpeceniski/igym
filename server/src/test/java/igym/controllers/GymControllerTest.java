@@ -6,6 +6,7 @@ import igym.entities.enums.Status;
 import igym.exceptions.DuplicateGymException;
 import igym.exceptions.GymNotFoundException;
 import igym.exceptions.UserNotFoundException;
+import igym.security.JwtAuthenticationFilter;
 import igym.services.GymService;
 import jakarta.validation.Validator;
 import static org.hamcrest.Matchers.hasSize;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -39,6 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
+@AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(GymController.class)
 @ExtendWith(MockitoExtension.class)
 public class GymControllerTest {
@@ -49,6 +52,10 @@ public class GymControllerTest {
         @SuppressWarnings("removal")
         @MockBean
         private GymService gymService;
+
+        @SuppressWarnings("removal")
+        @MockBean
+        private JwtAuthenticationFilter jwtAuthenticationFilter;
 
         @Autowired
         Validator validator;

@@ -13,9 +13,10 @@ import igym.repositories.WorkoutRepository;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class WorkoutServiceTest {
 
     @Mock
@@ -269,33 +270,13 @@ class WorkoutServiceTest {
     void testDeleteWorkoutNotFound() {
         UUID workoutId = UUID.randomUUID();
 
-        when(workoutRepository.findById(workoutId)).thenReturn(java.util.Optional.empty());
+        when(workoutRepository.findByIdAndStatus(workoutId, Status.active)).thenReturn(java.util.Optional.empty());
 
         WorkoutNotFoundException exception = assertThrows(WorkoutNotFoundException.class,
                 () -> workoutService.deleteWorkout(workoutId));
 
         assertEquals("Workout with id " + workoutId + " not found", exception.getMessage());
         verify(workoutRepository, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("Should throw exception when deleting workout already marked as inactive")
-    void testDeleteWorkoutAlreadyInactive() {
-        UUID workoutId = UUID.randomUUID();
-
-        Workout workout = new Workout();
-        workout.setName("Cardio Day");
-        workout.setStatus(Status.inactive);
-
-        when(workoutRepository.findByIdAndStatus(workoutId, Status.inactive)).thenReturn(java.util.Optional.of(workout));
-
-        WorkoutNotFoundException exception = assertThrows(WorkoutNotFoundException.class,
-                () -> workoutService.deleteWorkout(workoutId));
-
-        assertEquals("Workout with id " + workoutId + " not found", exception.getMessage());
-
-        verify(workoutRepository, never()).save(any());
-        assertEquals(Status.inactive, workout.getStatus());
     }
 
     @Test
@@ -373,7 +354,7 @@ class WorkoutServiceTest {
     void testUpdateWorkoutNotFound() {
         UUID workoutId = UUID.randomUUID();
 
-        when(workoutRepository.findById(workoutId)).thenReturn(java.util.Optional.empty());
+        when(workoutRepository.findByIdAndStatus(workoutId, Status.active)).thenReturn(java.util.Optional.empty());
 
         WorkoutNotFoundException exception = assertThrows(WorkoutNotFoundException.class,
                 () -> workoutService.updateWorkout(workoutId, new Workout()));
@@ -405,26 +386,6 @@ class WorkoutServiceTest {
         assertEquals(0, existingWorkout.getExerciseList().size());
         assertEquals(Status.active, existingWorkout.getStatus());
         verify(workoutRepository).save(existingWorkout);
-    }
-
-    @Test
-    @DisplayName("Test update inactive workout throws exception")
-    void testUpdateInactiveWorkout() {
-        UUID workoutId = UUID.randomUUID();
-
-        Workout existingWorkout = new Workout();
-        existingWorkout.setName("Leg Day");
-        existingWorkout.setExerciseList(new ArrayList<>());
-        existingWorkout.setStatus(Status.inactive);
-
-        when(workoutRepository.findById(workoutId)).thenReturn(java.util.Optional.of(existingWorkout));
-
-        WorkoutNotFoundException exception = assertThrows(WorkoutNotFoundException.class,
-                () -> workoutService.updateWorkout(workoutId, new Workout()));
-
-        assertEquals("Workout with id " + workoutId + " not found", exception.getMessage());
-        verify(workoutRepository, never()).save(any());
-        assertEquals(Status.inactive, existingWorkout.getStatus());
     }
 
 

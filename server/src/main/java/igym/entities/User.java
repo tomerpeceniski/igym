@@ -45,6 +45,10 @@ public class User {
     private String name;
 
     @Column(nullable = false)
+    @NotBlank(message = "Password cannot be blank")
+    private String password;
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status = Status.active;
 
@@ -72,6 +76,14 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     public Status getStatus() {
