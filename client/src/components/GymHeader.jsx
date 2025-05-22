@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Typography, TextField, IconButton, Button, styled, Tooltip } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import CheckIcon from '@mui/icons-material/Check';
@@ -8,7 +7,7 @@ import AddIcon from '@mui/icons-material/Add';
 import GymSelector from './GymSelector';
 
 const CustomButton = styled(Button)(({ theme }) => ({
-  width: '100%',
+  width: 180,
   height: '100%',
   color: theme.palette.secondary.main,
   borderColor: theme.palette.secondary.main,
@@ -36,31 +35,45 @@ export default function GymHeader({
   return (
     <Box
       display="flex"
+      justifyContent="space-between"
       flexDirection={{ xs: 'column', sm: 'row' }}
-      justifyContent={{ xs: 'center', sm: 'space-between' }}
-      alignItems="center"
-      textAlign={{ xs: 'center', sm: 'left' }}
-      rowGap={2}
       py={2}
-      px={8}
+      px={2}
+      sx={{
+        alignItems: { xs: 'center', sm: 'center' }
+      }}
     >
-      <Box display="flex" alignItems="center" gap={1}>
+      <Box
+        display="flex"
+        alignItems="center"
+        sx={{
+          minWidth: 0,
+          mb: { xs: 2, sm: 0 }
+        }}>
         {(selectedGym || isEditing) && (
           <>
             {isEditing ? (
-              <Box display="flex" alignItems="center" gap={1}>
+              <Box
+                display="flex"
+                alignItems="center"
+                gap={1}
+                sx={{ minWidth: 0, maxWidth: 340 }}
+              >
                 <TextField
-              value={editedName}
-              onChange={(e) => onEditClick(e.target.value)}
-              autoFocus
-              variant="standard"
-              sx={{
-                '& .MuiInputBase-input': {
-                  fontSize: '2.5rem',
-                  color: 'text.secondary',
-                },
-              }}
-            />
+                  value={editedName}
+                  onChange={(e) => onEditClick(e.target.value)}
+                  autoFocus 
+                  variant="standard"
+                  sx={{
+                    '& .MuiInputBase-input': {
+                      fontSize: { xs: '1.2rem', sm: '1.5rem' },
+                      color: 'text.secondary',
+                      textOverflow: 'ellipsis',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap',
+                    },
+                  }}
+                />
                 <IconButton
                   aria-label="save"
                   color="secondary"
@@ -77,11 +90,18 @@ export default function GymHeader({
                 </IconButton>
               </Box>
             ) : (
-              <>
+              <Box
+                sx={{ minWidth: 0, maxWidth: 340 }}
+                display="flex"
+                alignItems="center"
+              >
                 <Typography
                   variant="h2"
-                  align="center"
-                  sx={{ color: 'text.secondary' }}
+                  noWrap
+                  sx={{
+                    color: 'text.secondary',
+                    fontSize: { xs: '1.2rem', sm: '1.5rem' },
+                  }}
                 >
                   {selectedGym?.name}
                 </Typography>
@@ -91,7 +111,13 @@ export default function GymHeader({
                     color="secondary"
                     onClick={() => onEditClick(selectedGym?.name)}
                   >
-                    <EditIcon />
+                    <EditIcon
+                      sx={{
+                        width: { xs: '16px', sm: '20px' },
+                        height: { xs: '16px', sm: '20px' },
+                        ml: 1
+                      }}
+                    />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Delete gym">
@@ -99,27 +125,50 @@ export default function GymHeader({
                     onClick={() => onDeleteGym(selectedGym.id)}
                     color="secondary"
                   >
-                    <DeleteIcon />
+                    <DeleteIcon
+                      sx={{
+                        width: { xs: '16px', sm: '20px' },
+                        height: { xs: '16px', sm: '20px' }
+                      }}
+                    />
                   </IconButton>
                 </Tooltip>
-              </>
+              </Box>
             )}
           </>
         )}
       </Box>
 
-      <Box display="flex" gap={4} width="100%" maxWidth={600} alignItems="stretch" justifyContent={{ xs: 'center', sm: 'space-between' }} flexDirection={{ xs: 'column', sm: 'row' }}>
-        <Box sx={{ flex: 1 }}>
-          <CustomButton variant="outlined" startIcon={<AddIcon />} onClick={onCreateWorkoutClick} disabled={disabled || gyms.length === 0}>
+      <Box
+        display="flex"
+        width="100%"
+        maxWidth={600}
+        justifyContent={{ xs: 'center', sm: 'space-between' }}
+        flexDirection={{ xs: 'column', sm: 'row' }}
+        alignItems={{ xs: 'center', sm: 'stretch' }}
+        gap={2}
+      >
+        <Box >
+          <CustomButton
+            variant="outlined"
+            startIcon={<AddIcon />}
+            onClick={onCreateWorkoutClick}
+            disabled={disabled || gyms.length === 0}
+          >
             New Workout
           </CustomButton>
         </Box>
-        <Box sx={{ flex: 1 }}>
-          <CustomButton variant="outlined" startIcon={<AddIcon />} onClick={onCreateClick} disabled={disabled}>
+        <Box >
+          <CustomButton
+            variant="outlined"
+            startIcon={<AddIcon />}
+            onClick={onCreateClick}
+            disabled={disabled}
+          >
             New Gym
           </CustomButton>
         </Box>
-        <Box sx={{ flex: 1 }}>
+        <Box>
           <GymSelector
             gyms={gyms || []}
             selectedGym={selectedGym ? selectedGym.id : undefined}
@@ -130,4 +179,4 @@ export default function GymHeader({
       </Box>
     </Box>
   );
-} 
+}
