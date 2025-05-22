@@ -6,4 +6,5 @@ igym.entities
 igym.entities.enums
 igym.exceptions
 igym.repositories
+igym.security
 igym.services
