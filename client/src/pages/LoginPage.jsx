@@ -44,7 +44,7 @@ const CustomButton = styled(Button)(({ theme }) => ({
 export default function LoginPage() {
     const [isCreatingAccount, setIsCreatingAccount] = useState(false);
     const [errors, setErrors] = useState({ name: '', password: '', confirmPassword: '', passwordMismatch: '' });
-    const { name, setName, password, setPassword, handleLogin } = useLogin();
+    const { name, setName, password, setPassword, error, setError, handleLogin } = useLogin();
     const { confirmPassword, setConfirmPassword, handleSignUp } = useSignUp();
 
     const handleLoginClick = async () => {
@@ -121,6 +121,11 @@ export default function LoginPage() {
                                     : errors.passwordMismatch || " "
                             }
                             fullWidth />
+                    )}
+                    {error && (
+                        <Typography color="error" sx={{ mb: 1, mt: 1, textAlign: 'center' }}>
+                            {error}
+                        </Typography>
                     )}
                 </Box>
                 {/* Buttons group with its own gap */}
