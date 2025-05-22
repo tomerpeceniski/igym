@@ -6,9 +6,11 @@ export default function GreetingTitle({ name }) {
   const greeting = ((name) => {
     return (
       <Typography
-        variant="h1"
-        component="h2"
-        sx={{ color: 'text.secondary' }}
+        variant="h3"
+        sx={{
+          color: 'text.secondary',
+          fontSize: { xs: '1.8rem', sm: '2.5rem' }
+        }}
       >
         Hello {name}!
       </Typography>
@@ -16,8 +18,18 @@ export default function GreetingTitle({ name }) {
   })
 
   return (
-    <Box display="flex" alignItems="center" gap={2} >
-      <Box component="img" src={logo} alt="iGym Logo" maxHeight={64} />
+    <Box
+      display="flex"
+      alignItems="center"
+      gap={2} >
+      <Box
+        component="img"
+        src={logo}
+        alt="iGym Logo"
+        sx={{
+          maxHeight: { xs: 40, sm: 64 }
+        }}
+      />
       {greeting(name)}
     </Box>
   );
