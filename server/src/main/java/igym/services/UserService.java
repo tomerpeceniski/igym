@@ -103,7 +103,6 @@ public class UserService {
     @Transactional
     public User createUser(User user) {
         logger.info("Attempting to create a new user");
-        logger.debug("User creation request with name: {}", user.getName());
 
         if ((user.getPassword().length() < 6) || (user.getPassword().length() > 20)) {
             throw new InvalidPasswordException("Password must be between 6 and 20 characters");
