@@ -106,11 +106,19 @@ const ExercisesTable = ({ exercises, isEditing, onExercisesChange, onExerciseDel
                                 <TableCell align="center">
                                     {isEditing ? (
                                         <CustomTextField
+                                        error
                                             variant="standard"
                                             type="number"
                                             value={exercise.weight}
-                                            onChange={(e) => handleExerciseChange(index, 'weight', parseFloat(e.target.value) || 0)}
+                                            onChange={(e) => {
+                                                handleExerciseChange(index, 'weight', Math.max(0, parseFloat(e.target.value)));
+                                            }}
                                             fullWidth
+                                            slotProps={{
+                                                input: {
+                                                    inputMode: 'decimal'
+                                                }
+                                            }}
                                         />
                                     ) : (
                                         exercise.weight
@@ -122,7 +130,9 @@ const ExercisesTable = ({ exercises, isEditing, onExercisesChange, onExerciseDel
                                             variant="standard"
                                             type="number"
                                             value={exercise.numReps}
-                                            onChange={(e) => handleExerciseChange(index, 'numReps', parseInt(e.target.value) || 0)}
+                                            onChange={(e) => {
+                                                handleExerciseChange(index, 'numReps', Math.max(0, parseInt(e.target.value)));
+                                            }}
                                             fullWidth
                                         />
                                     ) : (
@@ -135,7 +145,9 @@ const ExercisesTable = ({ exercises, isEditing, onExercisesChange, onExerciseDel
                                             variant="standard"
                                             type="number"
                                             value={exercise.numSets}
-                                            onChange={(e) => handleExerciseChange(index, 'numSets', parseInt(e.target.value) || 0)}
+                                            onChange={(e) => {
+                                                handleExerciseChange(index, 'numSets', Math.max(0, parseInt(e.target.value)));
+                                            }}
                                             fullWidth
                                         />
                                     ) : (

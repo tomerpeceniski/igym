@@ -9,6 +9,7 @@ const CustomFormControl = styled(FormControl)(({ theme, ownerState }) => {
 
   return {
     height: '100%',
+    width: 180,
     color: isDisabled ? gray : white,
     '& .MuiInputLabel-root': {
       color: isDisabled ? gray : white,

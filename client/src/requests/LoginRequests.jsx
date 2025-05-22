@@ -17,7 +17,7 @@ export const loginRequest = async (name, password) => {
         userId: fakeID,
         name,
         iat: now,
-        exp: now + 30, // expires in 30 seconds
+        exp: now + 30000, 
     };
 
     const encodedHeader = base64url(header);
