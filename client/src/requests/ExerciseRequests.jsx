@@ -1,7 +1,7 @@
 import { API_BASE_URL } from '../constants/RequestsConstants';
-import axios from 'axios';
+import axiosInstance from './axiosInstance';
 
 export const deleteExercise = async (exerciseId) => {
-  const response = await axios.delete(`${API_BASE_URL}/exercises/${exerciseId}`);
+  const response = await axiosInstance.delete(`${API_BASE_URL}/exercises/${exerciseId}`);
   return response.data;
 };
