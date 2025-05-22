@@ -81,11 +81,13 @@ jobs:
         echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
         chmod 600 private_key.pem
 
-    - name: Copy full client/ folder to EC2
+    - name: Copy Dockerfile & Dist to EC2
       run: |
         scp -i private_key.pem -o StrictHostKeyChecking=no -r \
-        client \
-        ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/
+          client/Dockerfile \
+          client/dist \
+          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/client
+
 
     - name: Deploy via SSH and Docker
       run: |
