@@ -88,7 +88,7 @@ export default function LoginPage() {
                 {isCreatingAccount ? 'Create Your Account' : 'Welcome to iGym'}
             </Typography>
             <Box width="100%" maxWidth={400} display="flex" flexDirection="column">
-                {/* Text fields group with its own gap and margin bottom */}
+                {/* Text fields group with its own gap and margin bottom*/}
                 <Box display="flex" flexDirection="column" mb={0}>
                     <CustomTextField
                         label="Name"
