@@ -1,10 +1,9 @@
 import { loginRequest } from "./LoginRequests";
-import axios from 'axios';
-import { API_BASE_URL } from '../constants/RequestsConstants';
+import axiosInstance from './axiosInstance';
 
 export const signUpRequest = async (name, password) => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/users`, {
+        await axiosInstance.post(`/users`, {
             name,
             password,
         });
