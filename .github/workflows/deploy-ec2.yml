@@ -91,16 +91,13 @@ jobs:
 
     - name: Deploy via SSH and Docker
       run: |
-        ssh -i private_key.pem -o StrictHostKeyChecking=no \
-          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-          cd ~/client
-
-          # Stop/remove old container if present
-          docker stop igym-frontend || true
-          docker rm igym-frontend || true
-
-          # Build & run updated image
-          docker build -t igym-frontend .
-          docker run -d -p 80:80 --name igym-frontend igym-frontend
+        ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+        cd ~/client
+        # Stop/remove old container if present
+        docker stop igym-frontend || true
+        docker rm igym-frontend  || true
+        # Build & run updated image
+        docker build -t igym-frontend .
+        docker run -d -p 80:80 --name igym-frontend igym-frontend
         EOF          
   
