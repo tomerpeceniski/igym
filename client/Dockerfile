@@ -1,16 +1,10 @@
-# frontend/Dockerfile
+# client/Dockerfile
 
-# 1) Build stage: install deps & produce static assets
-FROM node:18-alpine AS builder
-WORKDIR /app
-# copy only package.json, install deps
-COPY package.json package-lock.json* ./
-RUN npm install
-COPY . .
-RUN npm run build
-
-# 2) Runtime stage: serve with nginx
+# Only runtime: serve your already-built static files
 FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy output of `npm run build` (dist/) into nginx
+COPY dist/ /usr/share/nginx/html
+
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
