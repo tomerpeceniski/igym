@@ -99,5 +99,4 @@ jobs:
         # Build & run updated image
         docker build -t igym-frontend .
         docker run -d -p 80:80 --name igym-frontend igym-frontend
-        EOF          
-  
+        EOF
