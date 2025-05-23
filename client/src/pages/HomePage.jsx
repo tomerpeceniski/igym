@@ -17,7 +17,6 @@ export default function HomePage() {
 
     const token = localStorage.getItem('token');
     const id = getUserIdFromToken(token);
-    console.log('User ID from token:', id);
     setUserId(id);
   }, []);
 
