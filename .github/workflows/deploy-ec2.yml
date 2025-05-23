@@ -92,7 +92,7 @@ jobs:
     - name: Deploy via SSH and Docker
       run: |
         ssh -i private_key.pem -o StrictHostKeyChecking=no \
-          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
+          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
           cd ~/client
 
           # Stop/remove old container if present
