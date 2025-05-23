@@ -11,8 +11,8 @@ const useSignUp = () => {
 
     const handleSignUp = async (name, password) => {
         const res = await signUpRequest(name, password);
-        localStorage.setItem("token", res.token);
-        localStorage.setItem("name", res.user.name);
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("name", res.data.name);
         navigate("/");
     };
 
