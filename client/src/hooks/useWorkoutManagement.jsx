@@ -12,6 +12,15 @@ export const useWorkoutManagement = (gymId) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(null);
 
+  const handleError = (error, operation) => {
+    if (error?.response?.status === 401) {
+      alert('Your session has expired. Please log in again.');
+      return;
+    }
+    const errorMsg = error.response?.data?.errors?.[0] || error.response?.data?.message || `Failed to ${operation}`;
+    alert(errorMsg);
+  };
+
   const handleCreateWorkoutClick = () => {
     setIsCreatingWorkout(true);
     setOpenWorkout(null);
@@ -67,8 +76,7 @@ export const useWorkoutManagement = (gymId) => {
       setEditedWorkout(savedWorkout.data);
       refreshWorkouts();
     } catch (error) {
-      const errorMsg = error.response?.data?.errors?.[0] || error.response?.data?.message || 'Failed to save workout';
-      alert(errorMsg);
+      handleError(error, 'save workout');
     }
   };
 
@@ -89,6 +97,7 @@ export const useWorkoutManagement = (gymId) => {
       handleCloseWorkout();
       refreshWorkouts();
     } catch (error) {
+      handleError(error, 'delete workout');
       setDeleteError(error.response?.data?.message || 'Failed to delete workout');
     } finally {
       setIsDeleting(false);
@@ -119,8 +128,7 @@ export const useWorkoutManagement = (gymId) => {
         });
       }
     } catch (error) {
-      const errorMsg = error.response?.data?.errors[0] || 'Failed to delete exercise';
-      alert(errorMsg);
+      handleError(error, 'delete exercise');
     }
   };
 
