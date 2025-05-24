@@ -6,14 +6,20 @@ const useSignUp = () => {
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [errors, setErrors] = useState({ name: "", password: "", confirmPassword: "" });
+    const [error, setError] = useState("");
     const navigate = useNavigate();
 
     const handleSignUp = async (name, password) => {
-        const res = await signUpRequest(name, password);
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("name", res.data.name);
-        navigate("/");
+        setError("");
+        try {
+            const res = await signUpRequest(name, password);
+            localStorage.setItem("token", res.data.token);
+            localStorage.setItem("name", res.data.name);
+            navigate("/");
+        } catch (err) {
+            const backendMessage = err.response?.data?.message || 'Sign up failed';
+            setError(backendMessage);
+        }
     };
 
     return {
@@ -23,8 +29,8 @@ const useSignUp = () => {
         setPassword,
         confirmPassword,
         setConfirmPassword,
-        errors,
-        setErrors,
+        error,
+        setError,
         handleSignUp,
     };
 }

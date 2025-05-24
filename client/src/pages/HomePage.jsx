@@ -7,10 +7,14 @@ import { useGymManagement } from '../hooks/useGymManagement';
 import { useWorkoutManagement } from '../hooks/useWorkoutManagement';
 import { useEffect, useState } from 'react';
 import { getUserIdFromToken } from '../utils/decoder';
+import { useNavigate } from 'react-router-dom';
+import LogoutButton from '../components/LogoutButton';
 
 export default function HomePage() {
   const [name, setName] = useState('User');
   const [userId, setUserId] = useState(null);
+  const navigate = useNavigate();
+  
   useEffect(() => {
     const storedName = localStorage.getItem('name');
     if (storedName) setName(storedName);
@@ -19,6 +23,12 @@ export default function HomePage() {
     const id = getUserIdFromToken(token);
     setUserId(id);
   }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('name');
+    navigate('/login');
+  };
 
   const {
     gyms,
@@ -57,6 +67,13 @@ export default function HomePage() {
 
   return (
     <Box>
+      <Box
+        display="flex"
+        justifyContent="flex-end"
+        sx={{ mb: { xs: 2, sm: 0 } }}
+      >
+        <LogoutButton onLogout={handleLogout} />
+      </Box>
       <Box
         display="flex"
         flexDirection="column"
