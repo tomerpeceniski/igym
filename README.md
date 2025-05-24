@@ -11,6 +11,8 @@ iGym is a mobile-first website designed to help users track and manage their gym
 
 ## Technologies
 The iGym project is built using:
+
+### Backend
 - **Java**: 21.0.5
 - **PostgreSQL**: 17.2
 - **Spring Boot**: 3.4.1
@@ -18,6 +20,14 @@ The iGym project is built using:
 - **Maven**: 3.9.9
 - **Mockito**
 - **SonarQube**
+- **JWT (JSON Web Tokens)**
+
+### Frontend
+- **React**
+- **Vite**
+- **Node.js**
+- **Material-UI (MUI)**
+- **Axios**
 
 > Note: Spring Boot and JPA are managed automatically by Maven; no separate installation is required.
 
@@ -32,6 +42,37 @@ Follow these steps to set up the iGym project on your local machine and start co
 2. Configure the environment variable `JAVA_HOME` to point to your JDK installation.
 3. Install **PostgreSQL 17.2**.
 4. Install **Maven 3.9.9**
+5. Install **Node.js** (Latest LTS version recommended)
+
+### Environment Variables Setup
+#### Server
+
+Set up the following environment variables in a .env file inside server directory:
+
+For Windows PowerShell create env.ps1 file with the content:
+```powershell
+$env:DB_URL="your_db_url"
+$env:DB_USERNAME="your_username"
+$env:DB_PASSWORD="your_password"
+$env:SERVER_PORT="your_server_port"
+$env:JWT_SECRET="your_jwt_secret_key"
+$env:JWT_EXPIRATION="your_jwt_expiration"
+```
+
+For Linux/MacOS create env.sh file with the content:
+```bash
+export DB_URL="your_db_url"
+export DB_USERNAME="your_username"
+export DB_PASSWORD="your_password"
+export SERVER_PORT="your_server_port"
+export JWT_SECRET="your_jwt_secret_key"
+export JWT_EXPIRATION="your_jwt_expiration"
+```
+
+> Note: Replace the fields with your actual values. Never commit these values to version control.
+
+#### Client
+Update VITE_API_BASE variable that is defined in client/.env.development with the same port as the server
 
 ### Database Setup
 To set up the PostgreSQL database, follow these steps:
@@ -46,20 +87,38 @@ To set up the PostgreSQL database, follow these steps:
    LC_CTYPE = 'en_US.UTF-8'
    CONNECTION LIMIT = -1;
    ```
-3. Update the database credentials in the application.properties file as required. Remember to not commit this changes.
-    ```
-    spring.datasource.url=jdbc:postgresql://localhost:5432/igym_db
-    spring.datasource.username=your_database_username
-    spring.datasource.password=your_database_password
-    spring.jpa.hibernate.ddl-auto=update
-    ```
+3. Update the database credentials in the .env file as required. Remember to not commit this changes.
 
 ### Running the Application
-To start the application, use the following command:
+
+#### Server
+To start the server application:
 ```bash
+# Navigate to the server directory
+cd server
+
+# Load environemntal variables
+. ./env.ps1 #powershel
+source ./env.sh #Linux/MacOS
+
 # Start the application
 mvn spring-boot:run
 ```
+
+#### Client
+To start the client application:
+```bash
+# Navigate to the client directory
+cd client
+
+# Install dependencies
+npm install
+
+# Start the development server
+npm run dev
+```
+
+The client will be available at `http://localhost:5173` by default, and the server will run on the port specified in your environment variables.
 
 ### Testing the Application
 To run unit tests:
