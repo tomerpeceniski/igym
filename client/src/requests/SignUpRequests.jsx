@@ -1,16 +1,14 @@
 import { loginRequest } from "./LoginRequests";
+import axiosInstance from './axiosInstance';
 
 export const signUpRequest = async (name, password) => {
-    // Simulate server delay
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    // Simulate a successful sign-up by calling the loginRequest
-    const res = await loginRequest(name, password);
-
-    return {
-        token: res.token,
-        user: {
+    try {
+        await axiosInstance.post(`/users`, {
             name,
-        },
-    };
+            password,
+        });
+        return loginRequest(name, password);
+    } catch (error) {
+        throw error;
+    }
 }

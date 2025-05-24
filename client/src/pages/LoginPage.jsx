@@ -44,7 +44,7 @@ const CustomButton = styled(Button)(({ theme }) => ({
 export default function LoginPage() {
     const [isCreatingAccount, setIsCreatingAccount] = useState(false);
     const [errors, setErrors] = useState({ name: '', password: '', confirmPassword: '', passwordMismatch: '' });
-    const { name, setName, password, setPassword, handleLogin } = useLogin();
+    const { name, setName, password, setPassword, error, setError, handleLogin } = useLogin();
     const { confirmPassword, setConfirmPassword, handleSignUp } = useSignUp();
 
     const handleLoginClick = async () => {
@@ -88,7 +88,7 @@ export default function LoginPage() {
                 {isCreatingAccount ? 'Create Your Account' : 'Welcome to iGym'}
             </Typography>
             <Box width="100%" maxWidth={400} display="flex" flexDirection="column">
-                {/* Text fields group with its own gap and margin bottom */}
+                {/* Text fields group with its own gap and margin bottom*/}
                 <Box display="flex" flexDirection="column" mb={0}>
                     <CustomTextField
                         label="Name"
@@ -121,6 +121,11 @@ export default function LoginPage() {
                                     : errors.passwordMismatch || " "
                             }
                             fullWidth />
+                    )}
+                    {error && (
+                        <Typography color="error" sx={{ mb: 1, mt: 1, textAlign: 'center' }}>
+                            {error}
+                        </Typography>
                     )}
                 </Box>
                 {/* Buttons group with its own gap */}

@@ -1,8 +1,9 @@
 name: Deploy Backend to EC2
 
 on:
-    push:
-        branches: [ "main" ]
+  push:
+    branches:
+      - main
 
 jobs:
   deploy:
@@ -55,4 +56,48 @@ jobs:
             -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
             -e JWT_EXPIRATION="${{ secrets.JWT_EXPIRATION }}" \
             igym-backend
+  
+  deploy-frontend:
+    name: Deploy Frontend to EC2
+    runs-on: ubuntu-latest
+    needs: deploy
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Build React App
+      run: |
+        npm install
+        npm run build
+      working-directory: client
+
+    - name: Set up SSH key
+      run: |
+        echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
+        chmod 600 private_key.pem
+
+    - name: Copy Dockerfile & Dist to EC2
+      run: |
+        scp -i private_key.pem -o StrictHostKeyChecking=no -r \
+          client/Dockerfile \
+          client/dist \
+          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/client
+
+
+    - name: Deploy via SSH and Docker
+      run: |
+        ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+        cd ~/client
+        # Stop/remove old container if present
+        docker stop igym-frontend || true
+        docker rm igym-frontend  || true
+        # Build & run updated image
+        docker build -t igym-frontend .
+        docker run -d -p 80:80 --name igym-frontend igym-frontend
         EOF
