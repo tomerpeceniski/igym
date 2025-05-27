@@ -48,8 +48,7 @@ export function useGymManagement(userId) {
         setIsCreating(false);
         alert('Gym was successfully created');
       } catch (error) {
-        const errorMsg = error.response?.data?.errors?.[0] || error.response?.data?.message || 'Failed to create gym';
-        handleError(errorMsg, 'create');
+        handleError(error, 'create');
       }
     } else {
       try {
@@ -60,14 +59,18 @@ export function useGymManagement(userId) {
         setIsEditing(false);
         alert('Gym name was successfully updated');
       } catch (error) {
-        const errorMsg = error.response?.data?.errors?.[0] || error.response?.data?.message || 'Failed to update gym';
-        handleError(errorMsg, 'update');
+        handleError(error, 'update');
       }
     }
   };
 
-  const handleError = (errorMsg, operation) => {
-     let msg = `There was an error trying to ${operation} the gym: ${errorMsg}`;
+  const handleError = (error, operation) => {
+    if (error?.response?.status === 401) {
+      alert('Your session has expired. Please log in again.');
+      return;
+    }
+    const errorMsg = error.response?.data?.errors?.[0] || error.response?.data?.message || `Failed to ${operation} gym`;
+    let msg = `There was an error trying to ${operation} the gym: ${errorMsg}`;
     alert(msg);
     setIsEditing(false);
     setIsCreating(false);
@@ -92,7 +95,7 @@ export function useGymManagement(userId) {
         setSelectedGym(remainingGyms.length > 0 ? remainingGyms[0] : null);
       }
     } catch (error) {
-      alert(error.response?.data?.errors?.[0] || error.response?.data?.message || 'Failed to delete gym');
+      handleError(error, 'delete');
     }
   };
 

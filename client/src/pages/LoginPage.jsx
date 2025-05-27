@@ -1,9 +1,11 @@
 import { Box, TextField, Typography, Button, styled } from '@mui/material';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import logo from '../assets/igym-logo-text.png';
 import AddIcon from '@mui/icons-material/Add';
 import useLogin from '../hooks/useLogin.jsx';
 import useSignUp from '../hooks/useSignUp.jsx';
+import { Snackbar, Alert } from '@mui/material';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 const CustomTextField = styled(TextField)(({ theme }) => ({
     '& .MuiOutlinedInput-root': {
@@ -44,8 +46,9 @@ const CustomButton = styled(Button)(({ theme }) => ({
 export default function LoginPage() {
     const [isCreatingAccount, setIsCreatingAccount] = useState(false);
     const [errors, setErrors] = useState({ name: '', password: '', confirmPassword: '', passwordMismatch: '' });
-    const { name, setName, password, setPassword, error, setError, handleLogin } = useLogin();
-    const { confirmPassword, setConfirmPassword, handleSignUp } = useSignUp();
+    const { name, setName, password, setPassword, error: loginError, setError: setLoginError, handleLogin } = useLogin();
+    const { confirmPassword, setConfirmPassword, error: signUpError, setError: setSignUpError, handleSignUp } = useSignUp();
+    const [openSnackbar, setOpenSnackbar] = useState(false);
 
     const handleLoginClick = async () => {
         let newErrors = { name: '', password: '' };
@@ -68,6 +71,17 @@ export default function LoginPage() {
             handleSignUp(name, password);
         }
     }
+
+    useEffect(() => {
+        if (loginError || signUpError) setOpenSnackbar(true);
+    }, [loginError, signUpError]);
+
+    const handleCloseSnackbar = (event, reason) => {
+        if (reason === 'clickaway') return;
+        setOpenSnackbar(false);
+        setLoginError('');
+        setSignUpError('');
+    };
 
     return (
         <Box
@@ -122,11 +136,19 @@ export default function LoginPage() {
                             }
                             fullWidth />
                     )}
-                    {error && (
-                        <Typography color="error" sx={{ mb: 1, mt: 1, textAlign: 'center' }}>
-                            {error}
-                        </Typography>
-                    )}
+                    <Snackbar
+                        open={openSnackbar}
+                        autoHideDuration={3000}
+                        onClose={handleCloseSnackbar}
+                        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+                    >
+                        <Alert
+                            severity="error"
+                            variant="filled"
+                            sx={{ width: '100%' }}>
+                            {loginError || signUpError}
+                        </Alert>
+                    </Snackbar>
                 </Box>
                 {/* Buttons group with its own gap */}
                 <Box display="flex" flexDirection="column" gap={2}>
