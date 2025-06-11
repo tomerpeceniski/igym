@@ -1,9 +1,8 @@
 name: Deploy Backend to EC2
 
 on:
-  push:
-    branches:
-      - main
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   deploy:
@@ -99,5 +98,5 @@ jobs:
         docker rm igym-frontend  || true
         # Build & run updated image
         docker build -t igym-frontend .
-        docker run -d -p 80:80 --name igym-frontend igym-frontend
+        docker run -d -p 8080:80 --name igym-frontend igym-frontend
         EOF
