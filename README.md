@@ -8,7 +8,7 @@ iGym is a mobile-first website designed to help users track and manage their gym
 - Customize workouts for each gym: Users can register different workout routines for each gym they attend, allowing for adaptations based on the specific equipment available.
 
 ## Deployed version:
-You can access the deployed application [here](http://100.29.52.128/). You're welcome to check it out, sign up, and explore the features we’ve built!
+You can access the deployed application [here](https://igym.site/login). You're welcome to check it out, sign up, and explore the features we’ve built!
 
 ---
 
