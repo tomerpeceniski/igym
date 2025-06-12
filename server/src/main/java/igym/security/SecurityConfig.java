@@ -67,6 +67,8 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOrigin("http://100.29.52.128");
         configuration.addAllowedOrigin("http://localhost:5173");
+        configuration.addAllowedOrigin("https://igym.site");
+        configuration.addAllowedOrigin("http://igym.site");
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);

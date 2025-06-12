@@ -86,6 +86,7 @@ jobs:
       run: |
         scp -i private_key.pem -o StrictHostKeyChecking=no -r \
           client/Dockerfile \
+          client/nginx.conf \
           client/dist \
           ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/client
 
@@ -99,5 +100,5 @@ jobs:
         docker rm igym-frontend  || true
         # Build & run updated image
         docker build -t igym-frontend .
-        docker run -d -p 80:80 --name igym-frontend igym-frontend
+        docker run -d -p 8080:80 --name igym-frontend igym-frontend
         EOF
